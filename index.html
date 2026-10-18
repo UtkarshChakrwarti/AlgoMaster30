@@ -64,11 +64,15 @@
         <kbd>⌘K</kbd>
       </div>
 
-      <!-- Offline Cache Status Pill -->
-      <div id="appleOfflinePill" class="nav-cache-pill" onclick="openStorageSheet()" title="HTML Native LocalStorage & Offline Cache Active — Click to manage data">
-        <span class="nav-cache-dot"></span>
-        <span id="appleOfflineText">Offline Ready</span>
-      </div>
+      <!-- Offline Cache Status Pill (Clean Typographic Badge, Zero Dots) -->
+      <button id="appleOfflinePill" class="nav-cache-pill" onclick="openStorageSheet()" title="HTML Native LocalStorage & Offline Cache Active — Click to manage data">
+        <span id="appleOfflineText">Cached</span>
+      </button>
+
+      <!-- Apple Theme Mode Switcher -->
+      <button id="themeToggleBtn" class="nav-theme-toggle" onclick="toggleTheme()" title="Toggle Light / Dark Mode">
+        <span id="themeToggleLabel">Light Mode</span>
+      </button>
 
       <button class="nav-link-btn" onclick="openStorageSheet()" title="Manage LocalStorage & Backups">
         Storage
@@ -101,14 +105,12 @@
         </div>
         <div class="gauge-legend-row">
           <div class="legend-item">
-            <span class="legend-dot cold"></span>
             <span class="legend-label">Proven Cold:</span>
-            <b id="legendColdCount" class="legend-value">0</b>
+            <b id="legendColdCount" class="legend-value" style="color:var(--status-cold);">0</b>
           </div>
           <div class="legend-item">
-            <span class="legend-dot pass1"></span>
             <span class="legend-label">First Pass:</span>
-            <b id="legendPass1Count" class="legend-value">0</b>
+            <b id="legendPass1Count" class="legend-value" style="color:var(--apple-action-dark);">0</b>
           </div>
         </div>
       </div>

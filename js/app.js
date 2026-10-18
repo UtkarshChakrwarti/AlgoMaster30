@@ -731,21 +731,20 @@ function renderDailyProblemPills(dayNumber) {
     const p = BLIND_75_DATABASE.find(x => x.id === task.id) || task;
     const masteryState = AppState.mastery[p.id];
 
+    let masteryBadge = "";
+    if (masteryState === "cold") {
+      masteryBadge = `<span class="apple-diff-pill Easy" style="font-size:10px;">Cold</span>`;
+    } else if (masteryState === "pass1") {
+      masteryBadge = `<span class="apple-diff-pill" style="font-size:10px; background:var(--apple-action-subtle); color:var(--apple-action-dark);">Pass 1</span>`;
+    }
+
     const pill = document.createElement("button");
     pill.className = `practice-pill-btn ${idx === AppState.activeProblemIndex ? "active" : ""} ${masteryState === "cold" ? "cold-mastered" : ""}`;
     pill.onclick = () => selectDailyProblem(idx);
-
-    let statusIndicator = `<span style="width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,0.2);"></span>`;
-    if (masteryState === "cold") {
-      statusIndicator = `<span style="width:6px; height:6px; border-radius:50%; background:var(--status-cold);"></span>`;
-    } else if (masteryState === "pass1") {
-      statusIndicator = `<span style="width:6px; height:6px; border-radius:50%; background:var(--apple-action-dark);"></span>`;
-    }
-
     pill.innerHTML = `
-      ${statusIndicator}
       <span>#${p.id}: ${p.title}</span>
       <span class="apple-diff-pill ${p.difficulty}">${p.difficulty}</span>
+      ${masteryBadge}
     `;
     container.appendChild(pill);
   });
@@ -757,7 +756,6 @@ function renderDailyProblemPills(dayNumber) {
     bossPill.className = `practice-pill-btn ${AppState.activeProblemIndex === tasks.length ? "active" : ""}`;
     bossPill.onclick = () => selectDailyBossFight(dayData.extremeProblem);
     bossPill.innerHTML = `
-      <span style="width:6px; height:6px; border-radius:50%; background:#ffffff;"></span>
       <span>Benchmark: ${ext.title}</span>
       <span class="apple-diff-pill Boss">Benchmark</span>
     `;
@@ -941,11 +939,11 @@ function renderRoadmap() {
 
       const tasks = d.blind75Tasks || [];
       const completedTasks = tasks.filter(t => AppState.mastery[t.id]);
-      let statusClass = "";
+      let statusBadge = "";
       if (completedTasks.length === tasks.length && tasks.length > 0) {
-        statusClass = "complete";
+        statusBadge = '<span class="day-status-pill complete">Done</span>';
       } else if (completedTasks.length > 0) {
-        statusClass = "partial";
+        statusBadge = '<span class="day-status-pill partial">In Progress</span>';
       }
 
       row.innerHTML = `
@@ -953,7 +951,7 @@ function renderRoadmap() {
           <span class="day-index-label">${String(d.day).padStart(2, "0")}</span>
           <span>${d.category}</span>
         </div>
-        <span class="day-status-indicator ${statusClass}"></span>
+        ${statusBadge}
       `;
       group.appendChild(row);
     });
@@ -1517,11 +1515,38 @@ function setupShortcuts() {
 }
 
 // ============================================================================
+// APPLE THEME CONTROLLER (LIGHT & DARK DUAL MODE)
+// ============================================================================
+
+function initTheme() {
+  const saved = localStorage.getItem("algomaster_theme");
+  const prefersLight = typeof window !== "undefined" && window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches;
+  const theme = saved || (prefersLight ? "light" : "dark");
+  setTheme(theme);
+}
+
+function toggleTheme() {
+  const current = document.documentElement.getAttribute("data-theme") || "dark";
+  const next = current === "dark" ? "light" : "dark";
+  setTheme(next);
+}
+
+function setTheme(theme) {
+  document.documentElement.setAttribute("data-theme", theme);
+  localStorage.setItem("algomaster_theme", theme);
+  const lbl = document.getElementById("themeToggleLabel");
+  if (lbl) {
+    lbl.textContent = theme === "dark" ? "Light Mode" : "Dark Mode";
+  }
+}
+
+// ============================================================================
 // BOOT LIFECYCLE
 // ============================================================================
 
 function bootApp() {
   try {
+    initTheme();
     loadSavedState();
     registerServiceWorker();
     setupShortcuts();
