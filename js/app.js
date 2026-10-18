@@ -7,8 +7,9 @@ const STORAGE_KEY = "algomaster30_apple_system_v4";
 
 // Application State
 const AppState = {
+  userName: "",
   currentDay: 1,
-  currentView: "today", // 'today' | 'rematch' | 'drill' | 'matrix'
+  currentView: "today", // 'today' | 'rematch' | 'drill' | 'matrix' | 'profile'
   currentSubTab: "learn", // 'learn' | 'solve'
   activeProblemIndex: 0,
   activeProblemId: 1,
@@ -37,6 +38,7 @@ function loadSavedState() {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
+      if (parsed.userName) AppState.userName = parsed.userName;
       if (parsed.currentDay) AppState.currentDay = parsed.currentDay;
       if (parsed.currentView) AppState.currentView = parsed.currentView;
       if (parsed.currentSubTab) AppState.currentSubTab = parsed.currentSubTab;
@@ -59,6 +61,7 @@ function loadSavedState() {
 function persistState() {
   try {
     const payload = {
+      userName: AppState.userName,
       currentDay: AppState.currentDay,
       currentView: AppState.currentView,
       currentSubTab: AppState.currentSubTab,
@@ -185,6 +188,12 @@ const TimerEngine = {
         if (el) el.textContent = this.formatTime(this.phase2Seconds);
       }
     }, 1000);
+  },
+
+  addFiveMinutes() {
+    this.phase1Remaining += 5 * 60;
+    const el = document.getElementById("wizardPaperTimerVal");
+    if (el) el.textContent = this.formatTime(this.phase1Remaining);
   },
 
   resetTimer() {
@@ -982,13 +991,54 @@ function switchDay(dayNumber) {
     trapsEl.innerHTML = dayData.antiPatterns.map(ap => `<div class="trap-bullet-item">${ap}</div>`).join("");
   }
 
+const DAY_DEEP_LINKS = {
+  1: { neetcode: "https://neetcode.io/problems/two-integer-sum", usaco: "https://usaco.guide/bronze/intro-sets" },
+  2: { neetcode: "https://neetcode.io/problems/group-anagrams", usaco: "https://usaco.guide/silver/prefix-sums" },
+  3: { neetcode: "https://neetcode.io/problems/longest-consecutive-sequence", usaco: "https://usaco.guide/silver/more-prefix-sums" },
+  4: { neetcode: "https://neetcode.io/problems/three-integer-sum", usaco: "https://usaco.guide/silver/two-pointers" },
+  5: { neetcode: "https://neetcode.io/problems/max-water-container", usaco: "https://usaco.guide/silver/two-pointers" },
+  6: { neetcode: "https://neetcode.io/problems/longest-substring-without-duplicates", usaco: "https://usaco.guide/silver/prefix-sums" },
+  7: { neetcode: "https://neetcode.io/problems/minimum-window-with-characters", usaco: "https://usaco.guide/silver/two-pointers" },
+  8: { neetcode: "https://neetcode.io/problems/validate-parentheses", usaco: "https://usaco.guide/gold/stacks" },
+  9: { neetcode: "https://neetcode.io/problems/largest-rectangle-in-histogram", usaco: "https://usaco.guide/gold/stacks" },
+  10: { neetcode: "https://neetcode.io/problems/eating-bananas", usaco: "https://usaco.guide/silver/binary-search" },
+  11: { neetcode: "https://neetcode.io/problems/find-minimum-in-rotated-sorted-array", usaco: "https://usaco.guide/silver/binary-search" },
+  12: { neetcode: "https://neetcode.io/problems/reverse-a-linked-list", usaco: "https://usaco.guide/bronze/simulation" },
+  13: { neetcode: "https://neetcode.io/problems/merge-k-sorted-linked-lists", usaco: "https://usaco.guide/silver/greedy-sorting" },
+  14: { neetcode: "https://neetcode.io/problems/invert-a-binary-tree", usaco: "https://usaco.guide/silver/intro-trees" },
+  15: { neetcode: "https://neetcode.io/problems/lowest-common-ancestor-in-binary-search-tree", usaco: "https://usaco.guide/silver/tree-euler" },
+  16: { neetcode: "https://neetcode.io/problems/binary-tree-maximum-path-sum", usaco: "https://usaco.guide/silver/tree-euler" },
+  17: { neetcode: "https://neetcode.io/problems/implement-prefix-tree", usaco: "https://usaco.guide/gold/string-searching" },
+  18: { neetcode: "https://neetcode.io/problems/find-median-in-a-data-stream", usaco: "https://usaco.guide/gold/shortest-paths" },
+  19: { neetcode: "https://neetcode.io/problems/combination-target-sum", usaco: "https://usaco.guide/bronze/complete-rec" },
+  20: { neetcode: "https://neetcode.io/problems/count-number-of-islands", usaco: "https://usaco.guide/silver/flood-fill" },
+  21: { neetcode: "https://neetcode.io/problems/course-schedule", usaco: "https://usaco.guide/gold/toposort" },
+  22: { neetcode: "https://neetcode.io/problems/foreign-dictionary", usaco: "https://usaco.guide/gold/dsu" },
+  23: { neetcode: "https://neetcode.io/problems/house-robber", usaco: "https://usaco.guide/gold/intro-dp" },
+  24: { neetcode: "https://neetcode.io/problems/coin-change", usaco: "https://usaco.guide/gold/knapsack" },
+  25: { neetcode: "https://neetcode.io/problems/longest-increasing-subsequence", usaco: "https://usaco.guide/gold/paths-grids" },
+  26: { neetcode: "https://neetcode.io/problems/longest-common-subsequence", usaco: "https://usaco.guide/gold/paths-grids" },
+  27: { neetcode: "https://neetcode.io/problems/meeting-schedule", usaco: "https://usaco.guide/silver/greedy-sorting" },
+  28: { neetcode: "https://neetcode.io/problems/sum-of-two-integers", usaco: "https://usaco.guide/gold/bitwise-ops" },
+  29: { neetcode: "https://neetcode.io/problems/rotate-matrix", usaco: "https://usaco.guide/bronze/rect-geom" },
+  30: { neetcode: "https://neetcode.io/problems/lru-cache", usaco: "https://usaco.guide/gold/dsu" }
+};
+
+  const deepLinks = DAY_DEEP_LINKS[dayNumber] || {
+    neetcode: "https://neetcode.io/practice?tab=neetcode150",
+    usaco: "https://usaco.guide/silver"
+  };
+
   const linkNeet = document.getElementById("linkNeetcode");
-  if (linkNeet && dayData.verifiedLinks && dayData.verifiedLinks.neetcode) {
-    linkNeet.href = dayData.verifiedLinks.neetcode;
+  if (linkNeet) {
+    linkNeet.href = (dayData.verifiedLinks && dayData.verifiedLinks.neetcode) || deepLinks.neetcode;
+    linkNeet.title = `Open NeetCode Guide for Day ${dayNumber}`;
   }
   const linkUsaco = document.getElementById("linkUsaco");
-  if (linkUsaco && dayData.verifiedLinks && dayData.verifiedLinks.usaco) {
-    linkUsaco.href = dayData.verifiedLinks.usaco;
+  if (linkUsaco) {
+    const usacoRes = (dayData.authoritativeResources || []).find(r => r.url && r.url.includes("usaco.guide") && r.url.length > 25);
+    linkUsaco.href = (usacoRes && usacoRes.url) || (dayData.verifiedLinks && dayData.verifiedLinks.usaco) || deepLinks.usaco;
+    linkUsaco.title = `Open USACO Reference for Day ${dayNumber}`;
   }
 
   renderDailyProblemPills(dayNumber);
@@ -1310,7 +1360,7 @@ function renderMatrixView() {
   filtered.forEach(p => {
     const masteryState = AppState.mastery[p.id];
 
-    let badgeHtml = '<span class="apple-diff-pill" style="background:rgba(255,255,255,0.08); color:var(--apple-body-muted);">Unsolved</span>';
+    let badgeHtml = '<span class="apple-diff-pill" style="background:var(--apple-tile-2); color:var(--apple-text-muted);">Unsolved</span>';
     if (masteryState === "cold") {
       badgeHtml = '<span class="apple-diff-pill Easy">Cold Mastered</span>';
     } else if (masteryState === "pass1") {
@@ -1321,7 +1371,7 @@ function renderMatrixView() {
     tr.innerHTML = `
       <td style="font-family:var(--font-mono); font-weight:600;">#${p.id}</td>
       <td>
-        <a href="${p.leetcodeUrl}" target="_blank" rel="noopener noreferrer" style="color:#ffffff; text-decoration:none;">
+        <a href="${p.leetcodeUrl}" target="_blank" rel="noopener noreferrer" style="color:var(--apple-text-primary); text-decoration:none;">
           ${p.title} ↗
         </a>
       </td>
@@ -1350,7 +1400,7 @@ function switchView(viewName) {
   persistState();
 
   document.querySelectorAll(".nav-switch-btn").forEach(b => b.classList.remove("active"));
-  const btnMap = { today: "viewBtnToday", rematch: "viewBtnRematch", drill: "viewBtnDrill", matrix: "viewBtnMatrix" };
+  const btnMap = { today: "viewBtnToday", rematch: "viewBtnRematch", drill: "viewBtnDrill", matrix: "viewBtnMatrix", profile: "viewBtnProfile" };
   const activeBtn = document.getElementById(btnMap[viewName]);
   if (activeBtn) activeBtn.classList.add("active");
 
@@ -1358,30 +1408,390 @@ function switchView(viewName) {
   const vRematch = document.getElementById("viewRematch");
   const vDrill = document.getElementById("viewDrill");
   const vMatrix = document.getElementById("viewMatrix");
+  const vProfile = document.getElementById("viewProfile");
 
   if (viewName === "today") {
     if (vGrind) vGrind.style.display = "grid";
     if (vRematch) vRematch.classList.remove("active-view");
     if (vDrill) vDrill.classList.remove("active-view");
     if (vMatrix) vMatrix.classList.remove("active-view");
+    if (vProfile) vProfile.classList.remove("active-view");
   } else if (viewName === "rematch") {
     if (vGrind) vGrind.style.display = "none";
     if (vRematch) vRematch.classList.add("active-view");
     if (vDrill) vDrill.classList.remove("active-view");
     if (vMatrix) vMatrix.classList.remove("active-view");
+    if (vProfile) vProfile.classList.remove("active-view");
     renderRematchQueueView();
   } else if (viewName === "drill") {
     if (vGrind) vGrind.style.display = "none";
     if (vRematch) vRematch.classList.remove("active-view");
     if (vDrill) vDrill.classList.add("active-view");
     if (vMatrix) vMatrix.classList.remove("active-view");
+    if (vProfile) vProfile.classList.remove("active-view");
     initPatternDrill();
   } else if (viewName === "matrix") {
     if (vGrind) vGrind.style.display = "none";
     if (vRematch) vRematch.classList.remove("active-view");
     if (vDrill) vDrill.classList.remove("active-view");
     if (vMatrix) vMatrix.classList.add("active-view");
+    if (vProfile) vProfile.classList.remove("active-view");
     renderMatrixView();
+  } else if (viewName === "profile") {
+    if (vGrind) vGrind.style.display = "none";
+    if (vRematch) vRematch.classList.remove("active-view");
+    if (vDrill) vDrill.classList.remove("active-view");
+    if (vMatrix) vMatrix.classList.remove("active-view");
+    if (vProfile) vProfile.classList.add("active-view");
+    renderProfileView();
+  }
+}
+
+// ============================================================================
+// PROFILE & ANALYTICS VIEW RENDERER (LEETCODE GRADE)
+// ============================================================================
+
+function renderProfileView() {
+  const container = document.getElementById("profileViewContainer");
+  if (!container) return;
+
+  const userName = AppState.userName || "Engineer";
+  const userInitial = userName.trim().charAt(0).toUpperCase() || "E";
+
+  const coldCount = Object.values(AppState.mastery).filter(m => m === "cold").length;
+  const pass1Count = Object.values(AppState.mastery).filter(m => m === "pass1").length;
+  const totalSolved = coldCount + pass1Count;
+  const unsolvedCount = Math.max(0, 75 - totalSolved);
+
+  const coldDeg = (coldCount / 75) * 360;
+  const pass1Deg = ((coldCount + pass1Count) / 75) * 360;
+
+  let easyTotal = 0, easyCold = 0, easyPass1 = 0;
+  let medTotal = 0, medCold = 0, medPass1 = 0;
+  let hardTotal = 0, hardCold = 0, hardPass1 = 0;
+
+  BLIND_75_DATABASE.forEach(p => {
+    const m = AppState.mastery[p.id];
+    if (p.difficulty === "Easy") {
+      easyTotal++;
+      if (m === "cold") easyCold++;
+      else if (m === "pass1") easyPass1++;
+    } else if (p.difficulty === "Medium") {
+      medTotal++;
+      if (m === "cold") medCold++;
+      else if (m === "pass1") medPass1++;
+    } else if (p.difficulty === "Hard") {
+      hardTotal++;
+      if (m === "cold") hardCold++;
+      else if (m === "pass1") hardPass1++;
+    }
+  });
+
+  const drillAcc = AppState.drillStats.total > 0
+    ? Math.round((AppState.drillStats.correct / AppState.drillStats.total) * 100)
+    : 100;
+
+  const achievements = [
+    {
+      id: "first_blood",
+      name: "First Invariant",
+      desc: "Proven Cold on at least 1 Blind 75 problem without hints.",
+      unlocked: coldCount >= 1,
+      progress: `${Math.min(coldCount, 1)}/1`
+    },
+    {
+      id: "sliding_master",
+      name: "Sliding Master",
+      desc: "Conquered Days 6 & 7 sliding window monotonic invariants.",
+      unlocked: (AppState.mastery[23] === "cold" && AppState.mastery[24] === "cold") || coldCount >= 8,
+      progress: coldCount >= 8 ? "100%" : `${Math.round((coldCount / 8) * 100)}%`
+    },
+    {
+      id: "tree_whisperer",
+      name: "Tree Whisperer",
+      desc: "Mastered recursion & level-order invariants (Days 14–16).",
+      unlocked: coldCount >= 20,
+      progress: `${Math.min(coldCount, 20)}/20`
+    },
+    {
+      id: "graph_architect",
+      name: "Graph Architect",
+      desc: "Mastered topological sort, cycles, and BFS/DFS (Days 20–22).",
+      unlocked: coldCount >= 35,
+      progress: `${Math.min(coldCount, 35)}/35`
+    },
+    {
+      id: "dp_alchemist",
+      name: "DP Alchemist",
+      desc: "Derived optimal substructure across 1D & 2D DP (Days 23–26).",
+      unlocked: coldCount >= 50,
+      progress: `${Math.min(coldCount, 50)}/50`
+    },
+    {
+      id: "grandmaster_75",
+      name: "Blind 75 Grandmaster",
+      desc: "Achieved 100% Proven Cold mastery across all 75 questions.",
+      unlocked: coldCount === 75,
+      progress: `${coldCount}/75`
+    }
+  ];
+
+  const heatmapNodesHtml = CURRICULUM_DATABASE.map(d => {
+    const dayProblems = d.blind75Tasks || [];
+    const allCold = dayProblems.length > 0 && dayProblems.every(p => AppState.mastery[p.id] === "cold");
+    const allPass1 = dayProblems.length > 0 && dayProblems.every(p => AppState.mastery[p.id]);
+    const isCurrent = d.day === AppState.currentDay;
+
+    let nodeClass = "heatmap-day-node";
+    if (allCold) nodeClass += " cold-done";
+    else if (allPass1) nodeClass += " pass1-done";
+    if (isCurrent) nodeClass += " is-current";
+
+    const topicCode = d.category.split(" ")[0].slice(0, 4).toUpperCase();
+
+    return `
+      <div class="${nodeClass}" onclick="switchView('today'); switchDay(${d.day});" title="Day ${d.day}: ${d.title}">
+        <span class="node-num">${String(d.day).padStart(2, "0")}</span>
+        <span class="node-sub">${topicCode}</span>
+      </div>
+    `;
+  }).join("");
+
+  const achievementsHtml = achievements.map(ach => `
+    <div class="achievement-card ${ach.unlocked ? "unlocked" : "locked"}">
+      <div class="achievement-glyph">${ach.unlocked ? "✓" : "✦"}</div>
+      <div class="achievement-meta">
+        <div class="achievement-name">${ach.name}</div>
+        <div class="achievement-desc">${ach.desc}</div>
+        <span style="font-family:var(--font-mono); font-size:10px; color:${ach.unlocked ? "var(--status-cold)" : "var(--apple-text-muted)"}; margin-top:4px;">
+          ${ach.unlocked ? "Unlocked" : `Progress: ${ach.progress}`}
+        </span>
+      </div>
+    </div>
+  `).join("");
+
+  let journalRowsHtml = "";
+  if (AppState.mistakeJournal && AppState.mistakeJournal.length > 0) {
+    journalRowsHtml = `
+      <div style="overflow-x:auto;">
+        <table class="apple-table" style="width:100%;">
+          <thead>
+            <tr>
+              <th style="width:110px;">Date</th>
+              <th style="width:200px;">Problem</th>
+              <th style="width:120px;">Outcome</th>
+              <th>Mistake & Key Invariant Learned</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${AppState.mistakeJournal.slice(-10).reverse().map(j => `
+              <tr>
+                <td style="font-family:var(--font-mono); font-size:12px; color:var(--apple-text-muted);">${j.date || "Recent"}</td>
+                <td style="font-weight:600;">#${j.problemId} ${j.title || ""}</td>
+                <td>
+                  <span class="apple-diff-pill ${j.outcome === "Optimal Cold" ? "Easy" : (j.outcome === "Needed Hints" ? "Medium" : "Hard")}">
+                    ${j.outcome || "Debrief"}
+                  </span>
+                </td>
+                <td style="font-size:12.5px; color:var(--apple-text-secondary); line-height:1.4;">${j.note || "No note recorded."}</td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      </div>
+    `;
+  } else {
+    journalRowsHtml = `
+      <div style="padding:28px 20px; text-align:center; color:var(--apple-text-muted); font-size:13px; background:var(--apple-tile-1); border-radius:var(--rounded-md); border:1px dashed var(--apple-hairline);">
+        No post-solve autopsies logged yet. Whenever you complete Step 3 of a problem, your reflections and lessons will populate this analytical ledger.
+      </div>
+    `;
+  }
+
+  container.innerHTML = `
+    <!-- Top Identity Hero Card -->
+    <div class="profile-hero-card">
+      <div class="profile-identity-group">
+        <div class="profile-avatar-squircle" id="profileAvatarSquircle">${userInitial}</div>
+        <div>
+          <div class="profile-name-row">
+            <span class="profile-user-name" id="profileUserNameText">${userName}</span>
+            <button class="profile-edit-name-btn" onclick="editUserName()">Edit Name</button>
+          </div>
+          <div class="profile-rank-sub">Candidate Level • Blind 75 Master Class</div>
+        </div>
+      </div>
+      <div class="profile-quick-stats">
+        <div class="quick-stat-box">
+          <span class="quick-stat-val">${AppState.streak || 1}d</span>
+          <span class="quick-stat-lbl">Streak</span>
+        </div>
+        <div class="quick-stat-box">
+          <span class="quick-stat-val" style="color:var(--status-cold);">${coldCount}</span>
+          <span class="quick-stat-lbl">Cold Proofs</span>
+        </div>
+        <div class="quick-stat-box">
+          <span class="quick-stat-val">${drillAcc}%</span>
+          <span class="quick-stat-lbl">Drill Accuracy</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- LeetCode-Grade Mastery Donut & Difficulty Tracks -->
+    <div class="analytics-sections-grid">
+      <div class="analytics-card-tile">
+        <div class="analytics-card-title">
+          <span>Problem Solving Progress</span>
+          <span style="font-family:var(--font-mono); font-size:12px; color:var(--apple-text-secondary);">${totalSolved} / 75 Solved</span>
+        </div>
+        <div class="leetcode-donut-wrap">
+          <div class="leetcode-donut-circle" style="--cold-deg:${coldDeg}deg; --pass1-deg:${pass1Deg}deg;">
+            <div class="leetcode-donut-hole">
+              <span class="donut-total-val">${totalSolved}</span>
+              <span class="donut-total-lbl">/ 75 Solved</span>
+            </div>
+          </div>
+          <div class="donut-stats-list">
+            <div class="donut-stat-row">
+              <span style="display:flex; align-items:center; gap:8px;">
+                <span style="width:8px; height:8px; border-radius:50%; background:var(--status-cold);"></span>
+                Proven Cold (Zero Hints)
+              </span>
+              <b style="font-family:var(--font-mono); color:var(--status-cold);">${coldCount}</b>
+            </div>
+            <div class="donut-stat-row">
+              <span style="display:flex; align-items:center; gap:8px;">
+                <span style="width:8px; height:8px; border-radius:50%; background:var(--apple-action-blue);"></span>
+                First Pass / Guided
+              </span>
+              <b style="font-family:var(--font-mono); color:var(--apple-action-blue);">${pass1Count}</b>
+            </div>
+            <div class="donut-stat-row">
+              <span style="display:flex; align-items:center; gap:8px;">
+                <span style="width:8px; height:8px; border-radius:50%; background:var(--apple-text-muted);"></span>
+                Unsolved / Remaining
+              </span>
+              <b style="font-family:var(--font-mono); color:var(--apple-text-muted);">${unsolvedCount}</b>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="analytics-card-tile">
+        <div class="analytics-card-title">
+          <span>Difficulty Distribution</span>
+          <span style="font-family:var(--font-mono); font-size:12px; color:var(--apple-text-muted);">Blind 75 Ratio</span>
+        </div>
+        <div class="difficulty-bars-group">
+          <div class="diff-bar-item">
+            <div class="diff-bar-label-row">
+              <span style="font-weight:600; color:var(--status-cold);">Easy</span>
+              <span style="font-family:var(--font-mono);">${easyCold + easyPass1} / ${easyTotal}</span>
+            </div>
+            <div class="diff-progress-track">
+              <div class="diff-fill-cold" style="width:${(easyCold / (easyTotal || 1)) * 100}%;"></div>
+              <div class="diff-fill-pass1" style="width:${(easyPass1 / (easyTotal || 1)) * 100}%;"></div>
+            </div>
+          </div>
+
+          <div class="diff-bar-item">
+            <div class="diff-bar-label-row">
+              <span style="font-weight:600; color:var(--status-warning);">Medium</span>
+              <span style="font-family:var(--font-mono);">${medCold + medPass1} / ${medTotal}</span>
+            </div>
+            <div class="diff-progress-track">
+              <div class="diff-fill-cold" style="width:${(medCold / (medTotal || 1)) * 100}%;"></div>
+              <div class="diff-fill-pass1" style="width:${(medPass1 / (medTotal || 1)) * 100}%;"></div>
+            </div>
+          </div>
+
+          <div class="diff-bar-item">
+            <div class="diff-bar-label-row">
+              <span style="font-weight:600; color:var(--status-danger);">Hard</span>
+              <span style="font-family:var(--font-mono);">${hardCold + hardPass1} / ${hardTotal}</span>
+            </div>
+            <div class="diff-progress-track">
+              <div class="diff-fill-cold" style="width:${(hardCold / (hardTotal || 1)) * 100}%;"></div>
+              <div class="diff-fill-pass1" style="width:${(hardPass1 / (hardTotal || 1)) * 100}%;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 30-Day Training Roadmap Heatmap -->
+    <div class="analytics-card-tile" style="margin-top:20px;">
+      <div class="analytics-card-title">
+        <span>30-Day Curriculum Heatmap</span>
+        <span style="font-size:12px; color:var(--apple-text-secondary); font-weight:normal;">Click any day to launch workspace</span>
+      </div>
+      <div class="heatmap-days-grid">
+        ${heatmapNodesHtml}
+      </div>
+    </div>
+
+    <!-- Achievements Badges Grid -->
+    <div class="analytics-card-tile" style="margin-top:20px;">
+      <div class="analytics-card-title">
+        <span>Mastery Badges & Milestones</span>
+        <span style="font-family:var(--font-mono); font-size:12px; color:var(--apple-text-secondary);">
+          ${achievements.filter(a => a.unlocked).length} / ${achievements.length} Unlocked
+        </span>
+      </div>
+      <div class="achievements-tiles-grid">
+        ${achievementsHtml}
+      </div>
+    </div>
+
+    <!-- Mistake Journal & Problem History Table -->
+    <div class="analytics-card-tile" style="margin-top:20px;">
+      <div class="analytics-card-title">
+        <span>Post-Solve Autopsies & Mistake Journal</span>
+        <span style="font-family:var(--font-mono); font-size:12px; color:var(--apple-text-secondary);">
+          ${AppState.mistakeJournal ? AppState.mistakeJournal.length : 0} Entries
+        </span>
+      </div>
+      ${journalRowsHtml}
+    </div>
+  `;
+}
+
+function showOnboardingModal() {
+  const modal = document.getElementById("onboardingNameModal");
+  if (!modal) return;
+  modal.style.display = "flex";
+  const inp = document.getElementById("onboardingNameInput");
+  if (inp) {
+    inp.value = AppState.userName || "";
+    inp.focus();
+  }
+}
+
+function closeOnboardingModal(e) {
+  if (e && e.target && e.target.id !== "onboardingNameModal") return;
+  const modal = document.getElementById("onboardingNameModal");
+  if (modal) modal.style.display = "none";
+}
+
+function saveOnboardingName() {
+  const inp = document.getElementById("onboardingNameInput");
+  const name = inp ? inp.value.trim() : "";
+  AppState.userName = name || "Engineer";
+  persistState();
+  const modal = document.getElementById("onboardingNameModal");
+  if (modal) modal.style.display = "none";
+  if (AppState.currentView === "profile") {
+    renderProfileView();
+  }
+}
+
+function editUserName() {
+  const current = AppState.userName || "Engineer";
+  const newName = prompt("Enter your name / handle:", current);
+  if (newName !== null && newName.trim().length > 0) {
+    AppState.userName = newName.trim();
+    persistState();
+    renderProfileView();
   }
 }
 
@@ -1541,7 +1951,7 @@ function renderPaletteResults(keyword) {
     item.className = "palette-result-row";
     item.innerHTML = `
       <div>
-        <b style="color:#ffffff;">#${p.id} ${p.title}</b>
+        <b style="color:var(--apple-text-primary);">#${p.id} ${p.title}</b>
         <span style="font-size:11px; color:var(--apple-body-muted); margin-left:8px;">${p.category}</span>
       </div>
       <span class="apple-diff-pill ${p.difficulty}">${p.difficulty}</span>
@@ -1675,18 +2085,86 @@ function initTheme() {
   setTheme(theme);
 }
 
+function triggerCelestialThemeTransition(nextTheme) {
+  const overlay = document.getElementById("themeTransitionOverlay");
+  const body = document.getElementById("themeCelestialBody");
+  if (!overlay || !body) return;
+
+  overlay.className = "theme-transition-stage animating " + (nextTheme === "light" ? "to-light" : "to-dark");
+
+  if (nextTheme === "light") {
+    // Rising Sun: Monochromatic warm yellow SVG with radiant rays
+    body.innerHTML = `
+      <svg class="celestial-sun-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="50" cy="50" r="26" fill="#ffcc00" filter="url(#sunGlowFilter)"/>
+        <g stroke="#ffcc00" stroke-width="4.5" stroke-linecap="round">
+          <line x1="50" y1="8" x2="50" y2="18"/>
+          <line x1="50" y1="82" x2="50" y2="92"/>
+          <line x1="8" y1="50" x2="18" y2="50"/>
+          <line x1="82" y1="50" x2="92" y2="50"/>
+          <line x1="20.3" y1="20.3" x2="27.4" y2="27.4"/>
+          <line x1="72.6" y1="72.6" x2="79.7" y2="79.7"/>
+          <line x1="20.3" y1="79.7" x2="27.4" y2="72.6"/>
+          <line x1="72.6" y1="27.4" x2="79.7" y2="20.3"/>
+        </g>
+        <defs>
+          <filter id="sunGlowFilter" x="0" y="0" width="100" height="100" filterUnits="userSpaceOnUse">
+            <feGaussianBlur stdDeviation="3" result="blur"/>
+            <feMerge>
+              <feMergeNode in="blur"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+        </defs>
+      </svg>
+    `;
+  } else {
+    // Rising Moon: Monochromatic soft silver-white crescent moon
+    body.innerHTML = `
+      <svg class="celestial-moon-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M68 22 C52 28 42 43 44 60 C46 75 58 87 72 90 C50 98 24 88 16 66 C8 44 18 20 40 12 C50 8 60 14 68 22 Z" fill="#f5f7fa" filter="url(#moonGlowFilter)"/>
+        <defs>
+          <filter id="moonGlowFilter" x="0" y="0" width="100" height="100" filterUnits="userSpaceOnUse">
+            <feGaussianBlur stdDeviation="3.5" result="blur"/>
+            <feMerge>
+              <feMergeNode in="blur"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+        </defs>
+      </svg>
+    `;
+  }
+
+  setTimeout(() => {
+    overlay.className = "theme-transition-stage";
+    body.innerHTML = "";
+  }, 1250);
+}
+
 function toggleTheme() {
   const current = document.documentElement.getAttribute("data-theme") || "dark";
   const next = current === "dark" ? "light" : "dark";
+  triggerCelestialThemeTransition(next);
   setTheme(next);
 }
 
 function setTheme(theme) {
   document.documentElement.setAttribute("data-theme", theme);
   localStorage.setItem("algomaster_theme", theme);
+  const pill = document.getElementById("appleThemePill");
+  if (pill) {
+    if (theme === "light") {
+      pill.classList.remove("is-dark");
+      pill.classList.add("is-light");
+    } else {
+      pill.classList.remove("is-light");
+      pill.classList.add("is-dark");
+    }
+  }
   const lbl = document.getElementById("themeToggleLabel");
   if (lbl) {
-    lbl.textContent = theme === "dark" ? "Light Mode" : "Dark Mode";
+    lbl.textContent = theme === "dark" ? "Dark" : "Light";
   }
 }
 
@@ -1701,6 +2179,27 @@ function bootApp() {
     registerServiceWorker();
     setupShortcuts();
     initMobileGatewayPipe();
+
+    // Setup first-time onboarding modal listener
+    const onboardingInp = document.getElementById("onboardingNameInput");
+    if (onboardingInp) {
+      onboardingInp.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") saveOnboardingName();
+      });
+      onboardingInp.addEventListener("input", (e) => {
+        const preview = document.getElementById("onboardingAvatarPreview");
+        if (preview) {
+          const val = e.target.value.trim();
+          preview.textContent = (val ? val.charAt(0) : "U").toUpperCase();
+        }
+      });
+    }
+
+    if (!AppState.userName || AppState.userName.trim() === "") {
+      setTimeout(() => {
+        showOnboardingModal();
+      }, 400);
+    }
 
     // Restore sidebar state
     if (AppState.sidebarCollapsed) {

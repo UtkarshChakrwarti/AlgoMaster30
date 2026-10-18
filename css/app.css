@@ -47,6 +47,9 @@
   --apple-text-secondary: rgba(235, 235, 245, 0.72);
   --apple-text-muted: rgba(235, 235, 245, 0.45);
   --apple-text-dim: rgba(235, 235, 245, 0.28);
+  --apple-body-muted: rgba(235, 235, 245, 0.45);
+  --apple-body-secondary: rgba(235, 235, 245, 0.72);
+  --apple-card-bg: rgba(22, 22, 26, 0.88);
 
   /* Functional Accents */
   --status-cold: #30d158;
@@ -99,6 +102,9 @@
   --apple-text-secondary: #515154;
   --apple-text-muted: #86868b;
   --apple-text-dim: #a1a1a6;
+  --apple-body-muted: #86868b;
+  --apple-body-secondary: #515154;
+  --apple-card-bg: rgba(255, 255, 255, 0.94);
 
   /* Functional Accents */
   --status-cold: #248a3d;
@@ -2111,4 +2117,563 @@ body.mobile-locked {
   font-size: 11.5px;
   color: var(--apple-text-muted);
   line-height: 1.4;
+}
+
+/* ==========================================================================
+   APPLE THEME SEGMENTED PILL (SUN / MOON DUAL GLYPH SWITCHER)
+   ========================================================================== */
+.apple-theme-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px 3px 6px;
+  background: var(--apple-tile-1);
+  border: 1px solid var(--apple-hairline);
+  border-radius: var(--rounded-pill);
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.22s var(--apple-ease);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.apple-theme-pill:hover {
+  background: var(--apple-tile-2);
+  border-color: var(--apple-hairline-strong);
+  transform: translateY(-0.5px);
+}
+
+.apple-theme-pill .theme-icon-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: var(--rounded-pill);
+  color: var(--apple-text-muted);
+  transition: all 0.24s var(--apple-ease);
+}
+
+.apple-theme-pill.is-light .theme-sun-icon {
+  background: #ffcc00;
+  color: #1a1a1a;
+  box-shadow: 0 0 10px rgba(255, 204, 0, 0.5);
+}
+
+.apple-theme-pill.is-dark .theme-moon-icon {
+  background: var(--apple-tile-3);
+  color: var(--apple-text-primary);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.15);
+}
+
+.apple-theme-pill .theme-label-text {
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--apple-text-primary);
+}
+
+/* ==========================================================================
+   CINEMATIC CELESTIAL THEME TRANSITION (RISING SUN / RISING MOON)
+   ========================================================================== */
+.theme-transition-stage {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 9999999;
+  overflow: hidden;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.theme-transition-stage.animating {
+  opacity: 1;
+  visibility: visible;
+}
+
+.theme-celestial-glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.theme-transition-stage.animating.to-light .theme-celestial-glow {
+  animation: sunGlowSweep 1.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.theme-transition-stage.animating.to-dark .theme-celestial-glow {
+  animation: moonGlowSweep 1.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes sunGlowSweep {
+  0% {
+    background: radial-gradient(circle at 50% 100%, rgba(255, 204, 0, 0.35) 0%, transparent 65%);
+    opacity: 0;
+  }
+  35% {
+    background: radial-gradient(circle at 50% 50%, rgba(255, 204, 0, 0.28) 0%, transparent 70%);
+    opacity: 1;
+  }
+  100% {
+    background: radial-gradient(circle at 50% 0%, rgba(255, 204, 0, 0) 0%, transparent 80%);
+    opacity: 0;
+  }
+}
+
+@keyframes moonGlowSweep {
+  0% {
+    background: radial-gradient(circle at 50% 100%, rgba(160, 195, 255, 0.3) 0%, transparent 65%);
+    opacity: 0;
+  }
+  35% {
+    background: radial-gradient(circle at 50% 50%, rgba(160, 195, 255, 0.22) 0%, transparent 70%);
+    opacity: 1;
+  }
+  100% {
+    background: radial-gradient(circle at 50% 0%, rgba(160, 195, 255, 0) 0%, transparent 80%);
+    opacity: 0;
+  }
+}
+
+.theme-celestial-body {
+  position: absolute;
+  left: 50%;
+  bottom: -120px;
+  width: 90px;
+  height: 90px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.theme-transition-stage.animating.to-light .theme-celestial-body {
+  animation: celestialRise 1.25s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
+}
+
+.theme-transition-stage.animating.to-dark .theme-celestial-body {
+  animation: celestialRise 1.25s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
+}
+
+@keyframes celestialRise {
+  0% {
+    transform: translate(-50%, 120px) scale(0.65);
+    opacity: 0;
+  }
+  25% {
+    opacity: 1;
+  }
+  60% {
+    transform: translate(-50%, -50vh) scale(1.15);
+    opacity: 0.95;
+  }
+  90% {
+    opacity: 0.4;
+  }
+  100% {
+    transform: translate(-50%, -120vh) scale(0.85);
+    opacity: 0;
+  }
+}
+
+.celestial-sun-svg {
+  width: 80px;
+  height: 80px;
+  filter: drop-shadow(0 0 24px rgba(255, 204, 0, 0.85));
+}
+
+.celestial-moon-svg {
+  width: 76px;
+  height: 76px;
+  filter: drop-shadow(0 0 24px rgba(240, 245, 255, 0.9));
+}
+
+/* ==========================================================================
+   PROFILE & LEETCODE-GRADE ANALYTICS VIEW
+   ========================================================================== */
+.profile-view-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  width: 100%;
+}
+
+.profile-hero-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 28px 32px;
+  background: var(--glass-card);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border: 1px solid var(--apple-hairline);
+  border-radius: var(--rounded-xl);
+  box-shadow: var(--apple-shadow-card);
+}
+
+.profile-identity-group {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.profile-avatar-squircle {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--rounded-lg);
+  background: var(--apple-tile-2);
+  border: 1.5px solid var(--apple-action-blue);
+  color: var(--apple-action-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 700;
+  box-shadow: 0 8px 24px rgba(0, 113, 227, 0.2);
+  flex-shrink: 0;
+}
+
+.profile-name-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.profile-user-name {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--apple-text-primary);
+  letter-spacing: -0.025em;
+}
+
+.profile-edit-name-btn {
+  font-size: 11.5px;
+  padding: 4px 10px;
+  border-radius: var(--rounded-pill);
+  background: var(--apple-tile-2);
+  border: 1px solid var(--apple-hairline);
+  color: var(--apple-text-secondary);
+  cursor: pointer;
+  transition: all 0.2s var(--apple-ease);
+}
+.profile-edit-name-btn:hover {
+  background: var(--apple-tile-3);
+  color: var(--apple-text-primary);
+}
+
+.profile-rank-sub {
+  font-size: 13px;
+  color: var(--apple-text-secondary);
+  margin-top: 4px;
+}
+
+.profile-quick-stats {
+  display: flex;
+  gap: 24px;
+}
+
+.quick-stat-box {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+.quick-stat-val {
+  font-family: var(--font-mono);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--apple-text-primary);
+}
+.quick-stat-lbl {
+  font-size: 11px;
+  color: var(--apple-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-top: 2px;
+}
+
+/* LeetCode-Grade Tri-Color Problem Mastery Grid */
+.analytics-sections-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.analytics-card-tile {
+  padding: 24px;
+  background: var(--glass-card);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--apple-hairline);
+  border-radius: var(--rounded-lg);
+  box-shadow: var(--apple-shadow-card);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.analytics-card-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--apple-text-primary);
+  letter-spacing: -0.01em;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.leetcode-donut-wrap {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 8px 0;
+}
+
+.leetcode-donut-circle {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  background: conic-gradient(
+    var(--status-cold) 0deg var(--cold-deg, 0deg),
+    var(--apple-action-blue) var(--cold-deg, 0deg) var(--pass1-deg, 0deg),
+    var(--apple-tile-3) var(--pass1-deg, 0deg) 360deg
+  );
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  flex-shrink: 0;
+}
+
+.leetcode-donut-hole {
+  width: 82px;
+  height: 82px;
+  border-radius: 50%;
+  background: var(--apple-canvas);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.donut-total-val {
+  font-family: var(--font-mono);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--apple-text-primary);
+  line-height: 1;
+}
+
+.donut-total-lbl {
+  font-size: 9.5px;
+  color: var(--apple-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 2px;
+}
+
+.donut-stats-list {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.donut-stat-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  border-radius: var(--rounded-xs);
+  background: var(--apple-tile-1);
+  border: 1px solid var(--apple-hairline);
+  font-size: 12px;
+}
+
+.difficulty-bars-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.diff-bar-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.diff-bar-label-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11.5px;
+}
+
+.diff-progress-track {
+  height: 6px;
+  border-radius: var(--rounded-pill);
+  background: var(--apple-tile-2);
+  overflow: hidden;
+  display: flex;
+}
+
+.diff-fill-cold {
+  height: 100%;
+  background: var(--status-cold);
+  transition: width 0.3s var(--apple-ease);
+}
+
+.diff-fill-pass1 {
+  height: 100%;
+  background: var(--apple-action-blue);
+  transition: width 0.3s var(--apple-ease);
+}
+
+/* 30-Day Training Roadmap Heatmap */
+.heatmap-days-grid {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 8px;
+  padding: 4px 0;
+}
+
+.heatmap-day-node {
+  height: 48px;
+  border-radius: var(--rounded-sm);
+  background: var(--apple-tile-1);
+  border: 1px solid var(--apple-hairline);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s var(--apple-ease);
+  position: relative;
+}
+
+.heatmap-day-node:hover {
+  transform: translateY(-2px);
+  border-color: var(--apple-action-blue);
+  box-shadow: 0 4px 12px rgba(0, 113, 227, 0.2);
+}
+
+.heatmap-day-node.cold-done {
+  background: var(--status-cold-subtle);
+  border-color: var(--status-cold);
+}
+.heatmap-day-node.cold-done .node-num {
+  color: var(--status-cold);
+}
+
+.heatmap-day-node.pass1-done {
+  background: var(--apple-action-subtle);
+  border-color: var(--apple-action-blue);
+}
+.heatmap-day-node.pass1-done .node-num {
+  color: var(--apple-action-blue);
+}
+
+.heatmap-day-node.is-current {
+  outline: 2px solid var(--apple-action-blue);
+  outline-offset: 1px;
+}
+
+.node-num {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--apple-text-primary);
+  line-height: 1;
+}
+
+.node-sub {
+  font-size: 8.5px;
+  color: var(--apple-text-muted);
+  margin-top: 3px;
+  text-transform: uppercase;
+}
+
+/* Achievements Badges Grid */
+.achievements-tiles-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.achievement-card {
+  padding: 14px;
+  background: var(--apple-tile-1);
+  border: 1px solid var(--apple-hairline);
+  border-radius: var(--rounded-md);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: all 0.2s var(--apple-ease);
+}
+
+.achievement-card.unlocked {
+  background: var(--apple-tile-2);
+  border-color: var(--apple-action-subtle);
+}
+
+.achievement-card.locked {
+  opacity: 0.55;
+}
+
+.achievement-glyph {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--rounded-sm);
+  background: var(--apple-tile-3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  color: var(--apple-action-blue);
+  flex-shrink: 0;
+}
+
+.achievement-card.unlocked .achievement-glyph {
+  background: var(--apple-action-subtle);
+  color: var(--apple-action-blue);
+  box-shadow: 0 0 10px rgba(0, 113, 227, 0.25);
+}
+
+.achievement-meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.achievement-name {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--apple-text-primary);
+}
+
+.achievement-desc {
+  font-size: 10.5px;
+  color: var(--apple-text-muted);
+  line-height: 1.35;
+  margin-top: 2px;
+}
+
+.onboarding-avatar-circle {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--apple-action-subtle);
+  border: 2px solid var(--apple-action-blue);
+  color: var(--apple-action-blue);
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
 }

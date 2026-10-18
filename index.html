@@ -59,6 +59,9 @@
       <button id="viewBtnMatrix" class="nav-switch-btn" onclick="switchView('matrix')">
         75 Index
       </button>
+      <button id="viewBtnProfile" class="nav-switch-btn" onclick="switchView('profile')">
+        Profile
+      </button>
     </nav>
 
     <!-- Right Utilities -->
@@ -81,10 +84,28 @@
         <span>Fork on GitHub</span>
       </a>
 
-      <!-- Apple Theme Mode Switcher -->
-      <button id="themeToggleBtn" class="nav-theme-toggle" onclick="toggleTheme()" title="Toggle Light / Dark Mode">
-        <span id="themeToggleLabel">Light Mode</span>
-      </button>
+      <!-- Apple Theme Mode Switcher (Sun / Moon Segmented Pill) -->
+      <div id="appleThemePill" class="apple-theme-pill is-dark" onclick="toggleTheme()" role="button" title="Switch Theme (Light / Dark)">
+        <span class="theme-icon-wrap theme-sun-icon" aria-hidden="true">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+        </span>
+        <span class="theme-icon-wrap theme-moon-icon" aria-hidden="true">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </span>
+        <span id="themeToggleLabel" class="theme-label-text">Dark</span>
+      </div>
 
       <button class="nav-link-btn" onclick="openStorageSheet()" title="Manage LocalStorage & Backups">
         Storage
@@ -279,6 +300,9 @@
                   <div style="display:flex; gap:8px;">
                     <button id="btnWizardPaperTimerStart" class="apple-pill-btn primary" onclick="TimerEngine.togglePhase1()">
                       Start 15m Timer
+                    </button>
+                    <button class="apple-pill-btn" onclick="TimerEngine.addFiveMinutes()" title="Add 5 minutes to struggle timer">
+                      +5 Min
                     </button>
                     <button class="apple-pill-btn" onclick="TimerEngine.resetTimer()">Reset</button>
                   </div>
@@ -481,7 +505,7 @@
           <h2 id="drillProblemTitle" style="font-size:20px; font-weight:600; margin-top:6px;">Problem Title</h2>
         </div>
         <div style="font-family:var(--font-mono); font-size:13px; color:var(--apple-body-secondary);">
-          Accuracy: <b id="drillStatsText" style="color:#ffffff;">0/0 (0%)</b>
+          Accuracy: <b id="drillStatsText" style="color:var(--apple-text-primary);">0/0 (0%)</b>
         </div>
       </div>
 
@@ -548,6 +572,13 @@
 
     <div id="matrixTableWrapper">
       <!-- Injected dynamically -->
+    </div>
+  </section>
+
+  <!-- PROFILE & LEETCODE-GRADE ANALYTICS VIEW -->
+  <section id="viewProfile" class="apple-aux-view">
+    <div id="profileViewContainer" class="profile-view-wrap">
+      <!-- Injected dynamically by renderProfileView() -->
     </div>
   </section>
 
@@ -757,6 +788,27 @@
       </div>
     </div>
   </aside>
+
+  <!-- CINEMATIC CELESTIAL THEME TRANSITION OVERLAY (Rising Sun & Moon) -->
+  <div id="themeTransitionOverlay" class="theme-transition-stage" aria-hidden="true">
+    <div class="theme-celestial-glow" id="themeCelestialGlow"></div>
+    <div class="theme-celestial-body" id="themeCelestialBody"></div>
+  </div>
+
+  <!-- APPLE FIRST-TIME ONBOARDING NAME MODAL -->
+  <div id="onboardingNameModal" class="apple-modal-overlay" style="display:none;" onclick="closeOnboardingModal(event)">
+    <div class="apple-sheet-container" style="width:420px; text-align:center; padding:32px 28px;" onclick="event.stopPropagation()">
+      <div class="onboarding-avatar-circle" id="onboardingAvatarPreview">U</div>
+      <h2 style="font-size:22px; font-weight:600; margin:16px 0 8px; letter-spacing:-0.02em;">Welcome to AlgoMaster 30</h2>
+      <p style="font-size:13.5px; color:var(--apple-text-secondary); line-height:1.5; margin-bottom:20px;">
+        Personalize your 30-day algorithm mastery workstation. Your stats, journal logs, and achievement badges will be linked to your profile locally.
+      </p>
+      <input type="text" id="onboardingNameInput" class="palette-input-field" style="border:1px solid var(--apple-hairline); border-radius:var(--rounded-sm); margin-bottom:18px; text-align:center; font-size:15px;" placeholder="Enter your name (e.g. Utkarsh)">
+      <button class="apple-pill-btn primary" style="width:100%; padding:10px 0; font-size:14px;" onclick="saveOnboardingName()">
+        Start Training
+      </button>
+    </div>
+  </div>
 
   <!-- CORE SCRIPTS -->
   <script src="js/blind75.js"></script>
