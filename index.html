@@ -1,0 +1,2696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AlgoMaster 30 — Focused Flow Workspace & 100% Blind 75 Confidence</title>
+  <meta name="description" content="A calm, distraction-free desktop algorithm coach. Progressive disclosure, 2-Pass Cold Mastery, 60-Second Blind Pattern Drill, and 30-Second Interview Explanation Scripts for all 75 Blind 75 problems.">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  
+  <style>
+/* ============================================================================
+   ALGOMASTER 30 — FOCUSED FLOW WORKSPACE & 100% BLIND 75 CONFIDENCE
+   Spacious 2-Column Guided Flow • Progressive Disclosure • Vercel Geist Zinc
+   ============================================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
+
+:root {
+  /* Surfaces (Zinc / Obsidian Hierarchy) */
+  --bg-root: #09090B;
+  --bg-sidebar: #0D0D10;
+  --bg-surface: #121216;
+  --bg-card: #131317;
+  --bg-elevated: #1A1A20;
+  --bg-hover: #22222A;
+  --bg-active: #2A2A34;
+  --bg-glass: rgba(18, 18, 22, 0.85);
+
+  /* Borders & Specular Hairlines */
+  --border-subtle: rgba(255, 255, 255, 0.07);
+  --border-medium: rgba(255, 255, 255, 0.12);
+  --border-strong: rgba(255, 255, 255, 0.20);
+  --border-focus: rgba(99, 102, 241, 0.65);
+
+  /* Semantic Accents */
+  --accent-primary: #6366F1;       /* Indigo */
+  --accent-primary-hover: #7579F5;
+  --accent-primary-subtle: rgba(99, 102, 241, 0.14);
+
+  --accent-success: #10B981;       /* Emerald */
+  --accent-success-subtle: rgba(16, 185, 129, 0.12);
+
+  --accent-warning: #F59E0B;       /* Warm Amber */
+  --accent-warning-subtle: rgba(245, 158, 11, 0.12);
+
+  --accent-danger: #EF4444;        /* Coral Red */
+  --accent-danger-subtle: rgba(239, 68, 68, 0.12);
+
+  --accent-concept: #8B5CF6;       /* Violet */
+  --accent-concept-subtle: rgba(139, 92, 246, 0.12);
+
+  /* Typography Colors */
+  --text-primary: #F4F4F6;
+  --text-secondary: #A1A1AA;
+  --text-muted: #71717A;
+  --text-dim: #52525B;
+
+  /* Fonts */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', Menlo, Monaco, Consolas, monospace;
+
+  /* Radii */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-pill: 9999px;
+
+  /* Specular Card Shadows */
+  --card-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.06), 0 4px 16px -2px rgba(0, 0, 0, 0.45);
+  --card-shadow-hover: inset 0 1px 0 0 rgba(255, 255, 255, 0.10), 0 8px 24px -4px rgba(0, 0, 0, 0.6);
+  --modal-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.08), 0 24px 64px -12px rgba(0, 0, 0, 0.85);
+
+  /* Transitions */
+  --ease-smooth: 150ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Base Reset */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: 13.5px;
+  line-height: 1.5;
+  background-color: var(--bg-root);
+  color: var(--text-primary);
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scrollbars */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.14); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.25); }
+
+/* Global Button & Input Resets */
+button {
+  border: none;
+  background: none;
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  cursor: pointer;
+  outline: none;
+}
+input, textarea, select {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  outline: none;
+}
+kbd {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-xs);
+  padding: 1px 5px;
+  color: var(--text-secondary);
+}
+
+/* ============================================================================
+   TOP GLOBAL COMMAND BAR (48px)
+   ============================================================================ */
+
+.command-bar {
+  height: 48px;
+  min-height: 48px;
+  background: var(--bg-sidebar);
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  z-index: 50;
+  gap: 12px;
+}
+
+.command-bar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 13px;
+  color: #fff;
+  cursor: pointer;
+  user-select: none;
+}
+.brand-logo-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: #fff;
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.4);
+}
+.brand-text-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.brand-name {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.brand-tag {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 1px 5px;
+  border-radius: var(--radius-xs);
+  background: rgba(99, 102, 241, 0.16);
+  color: var(--accent-primary);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+.bar-divider {
+  width: 1px;
+  height: 20px;
+  background: var(--border-subtle);
+}
+
+.sidebar-toggle-btn {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xs);
+  padding: 3px 7px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  transition: all var(--ease-smooth);
+}
+.sidebar-toggle-btn:hover {
+  background: var(--bg-elevated);
+  color: #fff;
+  border-color: var(--border-medium);
+}
+
+.breadcrumb-path {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.breadcrumb-active {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* 4-View Switcher */
+.view-switcher {
+  display: flex;
+  align-items: center;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 2px;
+  gap: 2px;
+}
+.view-btn {
+  padding: 4px 10px;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--text-muted);
+  border-radius: var(--radius-xs);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: all var(--ease-smooth);
+  white-space: nowrap;
+}
+.view-btn:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.03);
+}
+.view-btn.active {
+  background: var(--bg-elevated);
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.badge-pill {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: var(--radius-pill);
+}
+.badge-pill.danger {
+  background: var(--accent-danger-subtle);
+  color: var(--accent-danger);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+/* Quick Search Palette Trigger */
+.command-palette-trigger {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 4px 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-muted);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all var(--ease-smooth);
+  width: 210px;
+  justify-content: space-between;
+}
+.command-palette-trigger:hover {
+  background: var(--bg-elevated);
+  border-color: var(--border-medium);
+  color: var(--text-secondary);
+}
+
+.command-bar-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* 2-Pass Mastery Telemetry */
+.mastery-telemetry-cluster {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.telemetry-pill {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 3px 8px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+}
+.telemetry-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+.telemetry-dot.yellow { background: var(--accent-warning); box-shadow: 0 0 6px rgba(245, 158, 11, 0.5); }
+.telemetry-dot.green { background: var(--accent-success); box-shadow: 0 0 6px rgba(16, 185, 129, 0.6); }
+.telemetry-label { color: var(--text-muted); font-size: 11px; }
+.telemetry-val { font-family: var(--font-mono); font-weight: 700; color: #fff; }
+.telemetry-pill.cold .telemetry-val { color: #a7f3d0; }
+
+.btn-icon {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-xs);
+  color: var(--text-muted);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  transition: all var(--ease-smooth);
+}
+.btn-icon:hover {
+  background: var(--bg-elevated);
+  color: #fff;
+  border-color: var(--border-medium);
+}
+
+/* ============================================================================
+   WORKSTATION 2-COLUMN GUIDED LAYOUT
+   ============================================================================ */
+
+.workstation-container {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  height: calc(100vh - 48px);
+  overflow: hidden;
+  transition: grid-template-columns 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.workstation-container.sidebar-collapsed {
+  grid-template-columns: 0px 1fr;
+}
+
+/* COLUMN 1: LEFT ROADMAP RAIL (240px, collapsible) */
+.nav-rail {
+  width: 240px;
+  background: var(--bg-sidebar);
+  border-right: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: width 200ms var(--ease-smooth);
+}
+.workstation-container.sidebar-collapsed .nav-rail {
+  width: 0;
+  border-right: none;
+}
+
+.nav-rail-header {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.nav-rail-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+.rail-close-btn {
+  font-size: 11px;
+  color: var(--text-muted);
+  padding: 2px 6px;
+  border-radius: var(--radius-xs);
+}
+.rail-close-btn:hover {
+  background: var(--bg-elevated);
+  color: #fff;
+}
+
+/* Overall Mastery Sidebar Card */
+.mastery-sidebar-card {
+  margin: 10px 12px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.mastery-sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+.mastery-pct {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: var(--accent-success);
+}
+.mastery-progress-track {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 999px;
+  overflow: hidden;
+  display: flex;
+}
+.mastery-bar-cold {
+  background: var(--accent-success);
+  height: 100%;
+  transition: width 300ms var(--ease-smooth);
+}
+.mastery-bar-pass1 {
+  background: var(--accent-warning);
+  height: 100%;
+  transition: width 300ms var(--ease-smooth);
+}
+.mastery-legend {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+.mastery-legend b {
+  color: #fff;
+}
+
+.roadmap-scroll-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 6px;
+}
+.phase-separator {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+  padding: 10px 8px 4px 8px;
+}
+.day-row-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 8px;
+  border-radius: var(--radius-xs);
+  color: var(--text-secondary);
+  font-size: 11.5px;
+  transition: all var(--ease-smooth);
+  cursor: pointer;
+  text-align: left;
+}
+.day-row-btn:hover {
+  background: var(--bg-hover);
+  color: #fff;
+}
+.day-row-btn.active {
+  background: var(--bg-elevated);
+  border-left: 2px solid var(--accent-primary);
+  color: #fff;
+  font-weight: 600;
+}
+.day-row-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.day-row-num {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--text-muted);
+  width: 22px;
+}
+.day-row-title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.day-row-status-dots {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+.status-mini-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+}
+.status-mini-dot.cold { background: var(--accent-success); }
+.status-mini-dot.pass1 { background: var(--accent-warning); }
+
+.nav-rail-footer {
+  padding: 10px 14px;
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+}
+.backup-link-btn {
+  color: var(--text-muted);
+  font-size: 11px;
+  cursor: pointer;
+}
+.backup-link-btn:hover { color: #fff; }
+
+/* ============================================================================
+   COLUMN 2: CENTERED MAIN STAGE (SPACIOUS 920PX MAX-WIDTH)
+   ============================================================================ */
+
+.main-focus-stage {
+  flex: 1;
+  overflow-y: auto;
+  background: var(--bg-root);
+  padding: 28px 48px 60px 48px;
+  max-width: 960px;
+  margin: 0 auto;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+/* Day Header Strip */
+.day-hero-strip {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 8px;
+}
+.day-hero-titles h1 {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #fff;
+  line-height: 1.25;
+}
+.day-hero-titles p {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+.day-nav-pager {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 3px;
+}
+.pager-btn {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: var(--radius-xs);
+  color: var(--text-secondary);
+  transition: all var(--ease-smooth);
+}
+.pager-btn:hover {
+  background: var(--bg-elevated);
+  color: #fff;
+}
+.day-indicator-badge {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  padding: 0 4px;
+}
+
+/* 2 CLEAN SEGMENTED TABS */
+.stage-segmented-nav {
+  display: flex;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 4px;
+  gap: 4px;
+}
+.stage-tab-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-md);
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--ease-smooth);
+}
+.stage-tab-btn:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.03);
+}
+.stage-tab-btn.active {
+  background: var(--bg-elevated);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+.tab-badge {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  padding: 2px 7px;
+  border-radius: var(--radius-pill);
+  background: var(--bg-surface);
+  color: var(--text-muted);
+}
+.tab-badge.primary {
+  background: rgba(99, 102, 241, 0.16);
+  color: #c7d2fe;
+}
+
+.sub-tab-content {
+  display: none;
+  flex-direction: column;
+  gap: 22px;
+}
+.sub-tab-content.active {
+  display: flex;
+}
+
+/* ============================================================================
+   TAB 1: LEARN THE PATTERN (CLEAN CONCEPT VIEW)
+   ============================================================================ */
+
+.coach-briefing-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-left: 3px solid var(--accent-primary);
+  border-radius: var(--radius-md);
+  box-shadow: var(--card-shadow);
+  padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.coach-briefing-header {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--accent-primary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.coach-briefing-text {
+  font-size: 13.5px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* Visualizer Card */
+.visualizer-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--card-shadow);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.visualizer-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.visualizer-title-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.section-tag {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 2px 7px;
+  border-radius: var(--radius-xs);
+  background: var(--accent-primary-subtle);
+  color: var(--accent-primary);
+}
+.visualizer-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+}
+.visualizer-input-pill {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.visualizer-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.ctrl-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xs);
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: all var(--ease-smooth);
+}
+.ctrl-btn:hover { background: var(--bg-elevated); color: #fff; }
+.ctrl-btn.play { background: var(--accent-primary); border-color: var(--accent-primary); color: #fff; }
+
+.visualizer-stage {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  min-height: 105px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 12px;
+}
+
+/* Visual Memory Array Strip & Cells */
+.vis-array-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 4px 2px 6px 2px;
+}
+.vis-cell-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  min-width: 44px;
+}
+.vis-pointer-marker {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  height: 14px;
+  color: var(--accent-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity var(--ease-smooth);
+}
+.vis-pointer-marker.active { opacity: 1; }
+.vis-pointer-marker.left { color: #38bdf8; }
+.vis-pointer-marker.right { color: #f43f5e; }
+.vis-cell-box {
+  width: 44px;
+  height: 40px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  transition: all var(--ease-smooth);
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+}
+.vis-cell-box.highlight-active {
+  border-color: var(--accent-primary);
+  background: rgba(99, 102, 241, 0.18);
+  color: #fff;
+  box-shadow: 0 0 12px rgba(99, 102, 241, 0.35);
+  transform: translateY(-2px);
+}
+.vis-cell-box.highlight-match {
+  border-color: var(--accent-success);
+  background: rgba(16, 185, 129, 0.22);
+  color: #a7f3d0;
+  box-shadow: 0 0 14px rgba(16, 185, 129, 0.4);
+  transform: translateY(-2px);
+}
+.vis-cell-box.highlight-complement {
+  border-color: var(--accent-warning);
+  background: rgba(245, 158, 11, 0.18);
+  color: #fde68a;
+}
+.vis-cell-index {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  color: var(--text-muted);
+}
+.action-pill {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: var(--radius-xs);
+  background: rgba(99, 102, 241, 0.16);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  color: #c7d2fe;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.action-pill.match {
+  background: rgba(16, 185, 129, 0.2);
+  border-color: rgba(16, 185, 129, 0.4);
+  color: #6ee7b7;
+}
+
+.visualizer-data-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.state-badge {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 3px 8px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xs);
+  color: var(--text-secondary);
+}
+.state-badge b { color: #fff; }
+
+.visualizer-step-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 10px;
+  font-size: 12.5px;
+}
+.vis-explanation { color: var(--text-secondary); }
+.vis-status-tag {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: var(--radius-xs);
+  background: rgba(16, 185, 129, 0.12);
+  color: var(--accent-success);
+}
+.vis-status-tag.violated {
+  background: rgba(239, 68, 68, 0.12);
+  color: var(--accent-danger);
+}
+
+/* The Core Rule & 3 Common Traps (2-Card Bento Grid) */
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+.bento-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: var(--card-shadow);
+}
+.bento-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.bento-title {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #fff;
+}
+.bento-body {
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+.proof-callout {
+  margin-top: 4px;
+  padding: 8px 10px;
+  background: var(--bg-surface);
+  border-left: 2px solid var(--accent-success);
+  border-radius: var(--radius-xs);
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+.proof-label {
+  font-weight: 700;
+  color: var(--accent-success);
+  margin-right: 4px;
+}
+.traps-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.trap-item {
+  display: flex;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
+.trap-icon {
+  color: var(--accent-warning);
+  font-size: 12px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.references-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.references-header {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+.references-list {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.ref-link-badge {
+  font-size: 11.5px;
+  padding: 3px 8px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xs);
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: all var(--ease-smooth);
+}
+.ref-link-badge:hover {
+  background: var(--bg-elevated);
+  color: #fff;
+  border-color: var(--border-medium);
+}
+
+.tab-bottom-cta {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 8px;
+}
+.btn-primary-action {
+  background: var(--accent-primary);
+  border: 1px solid var(--accent-primary-hover);
+  color: #fff;
+  font-size: 13.5px;
+  font-weight: 600;
+  padding: 10px 20px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all var(--ease-smooth);
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+}
+.btn-primary-action:hover {
+  background: var(--accent-primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.45);
+}
+.btn-primary-action.large {
+  padding: 13px 26px;
+  font-size: 14.5px;
+  border-radius: var(--radius-lg);
+}
+.btn-primary-action.success {
+  background: var(--accent-success);
+  border-color: #34d399;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+}
+.btn-primary-action.success:hover {
+  background: #059669;
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45);
+}
+
+/* ============================================================================
+   TAB 2: SOLVE TODAY'S PROBLEMS (THE 3-STEP GUIDED WIZARD)
+   ============================================================================ */
+
+/* Problem Switcher Pills */
+.problem-pills-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+.prob-pill-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all var(--ease-smooth);
+}
+.prob-pill-btn:hover {
+  border-color: var(--border-medium);
+  color: #fff;
+}
+.prob-pill-btn.active {
+  background: var(--bg-elevated);
+  border-color: var(--accent-primary);
+  color: #fff;
+  box-shadow: 0 0 14px rgba(99, 102, 241, 0.25);
+}
+
+.diff-badge {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: var(--radius-xs);
+  text-transform: uppercase;
+}
+.diff-badge.Easy { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+.diff-badge.Medium { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+.diff-badge.Hard { background: rgba(239, 68, 68, 0.15); color: #f87171; }
+
+.active-problem-workspace {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Accordion Step Cards */
+.accordion-step-card {
+  background: #0d0d11;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-lg);
+  transition: all var(--ease-smooth);
+  overflow: hidden;
+}
+.accordion-step-card.active-step {
+  background: #131318;
+  border-color: rgba(99, 102, 241, 0.45);
+  box-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.6), 0 0 16px rgba(99, 102, 241, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+.accordion-step-card.completed-step {
+  background: var(--bg-card);
+  border-color: rgba(16, 185, 129, 0.25);
+  opacity: 0.85;
+}
+.step-card-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px;
+  cursor: pointer;
+  user-select: none;
+}
+.step-card-number {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-medium);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+.active-step .step-card-number {
+  background: var(--accent-primary);
+  border-color: var(--accent-primary);
+  color: #fff;
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
+}
+.completed-step .step-card-number {
+  background: var(--accent-success);
+  border-color: var(--accent-success);
+  color: #fff;
+}
+.step-card-title-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.step-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+}
+.step-subtitle {
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+.step-status-indicator {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: var(--radius-xs);
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+}
+.active-step .step-status-indicator {
+  background: rgba(99, 102, 241, 0.15);
+  color: var(--accent-primary);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+}
+.completed-step .step-status-indicator {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--accent-success);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.step-card-body {
+  padding: 0 24px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding-top: 18px;
+}
+
+/* Problem Brief Hero in Step 1 */
+.problem-brief-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.problem-brief-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.wizard-prob-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.btn-portal-link {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 12px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-sm);
+  color: #fff;
+  text-decoration: none;
+  transition: all var(--ease-smooth);
+}
+.btn-portal-link:hover {
+  border-color: var(--accent-primary);
+  color: #a5b4fc;
+}
+
+/* Sanity Question Box V2 */
+.sanity-question-box-v2 {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-left: 3px solid var(--accent-warning);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.sanity-box-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent-warning);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.sanity-question-content {
+  font-size: 13px;
+  color: var(--text-primary);
+  line-height: 1.55;
+}
+.sanity-action-row {
+  display: flex;
+  justify-content: flex-end;
+}
+.btn-outline-sm {
+  font-size: 11px;
+  padding: 3px 9px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xs);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--ease-smooth);
+}
+.btn-outline-sm:hover {
+  background: var(--bg-elevated);
+  color: #fff;
+  border-color: var(--border-medium);
+}
+.sanity-answer-drawer {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-top: 4px;
+}
+.sanity-answer-drawer b { color: #fff; }
+
+/* 15m Paper Struggle Timer Card */
+.paper-struggle-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.timer-display-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.timer-tag {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+.timer-countdown-val {
+  font-family: var(--font-mono);
+  font-size: 26px;
+  font-weight: 800;
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+}
+.timer-btn-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.btn-timer {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: all var(--ease-smooth);
+}
+.btn-timer:hover { background: var(--bg-elevated); color: #fff; }
+.btn-timer.primary {
+  background: var(--accent-primary);
+  border-color: var(--accent-primary);
+  color: #fff;
+}
+
+/* 3 Collapsible Coach's Nudges */
+.wizard-nudges-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.nudges-group-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 2px;
+}
+.hint-tier-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+.hint-tier-summary {
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  user-select: none;
+}
+.hint-tier-summary:hover { color: #fff; background: rgba(255, 255, 255, 0.02); }
+.hint-tier-content {
+  padding: 10px 14px;
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  border-top: 1px solid var(--border-subtle);
+  background: var(--bg-surface);
+}
+
+.step-primary-cta {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 6px;
+}
+
+/* Step 2: Portal Coding Stage */
+.portal-coding-stage {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  text-align: center;
+}
+.stopwatch-display-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.timer-stopwatch-val {
+  font-family: var(--font-mono);
+  font-size: 44px;
+  font-weight: 800;
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+.stopwatch-status-label {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.portal-cta-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.btn-launch-portal.large {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: #000;
+  font-weight: 700;
+  font-size: 14px;
+  padding: 10px 20px;
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);
+  transition: all var(--ease-smooth);
+}
+.btn-launch-portal.large:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.45);
+}
+
+/* Step 3: Outcome Cards Grid */
+.outcome-selection-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.section-sub-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+.outcome-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+.outcome-card-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  text-align: left;
+  cursor: pointer;
+  transition: all var(--ease-smooth);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.outcome-card-btn:hover {
+  background: var(--bg-elevated);
+  border-color: var(--border-medium);
+  transform: translateY(-1px);
+}
+.outcome-card-btn.selected {
+  background: rgba(99, 102, 241, 0.14);
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 14px rgba(99, 102, 241, 0.25);
+}
+.outcome-card-btn[data-outcome="cold"].selected {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: var(--accent-success);
+  box-shadow: 0 0 14px rgba(16, 185, 129, 0.25);
+}
+.outcome-card-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.outcome-emoji { font-size: 16px; }
+.outcome-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #fff;
+}
+.outcome-desc {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+.coach-reaction-callout {
+  background: var(--bg-surface);
+  border-left: 3px solid var(--accent-primary);
+  border-radius: var(--radius-xs);
+  padding: 10px 14px;
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+/* Future Note Section */
+.future-note-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.future-note-input {
+  width: 100%;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 13px;
+  color: #fff;
+  transition: border-color var(--ease-smooth);
+}
+.future-note-input:focus { border-color: var(--border-focus); }
+.note-action-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.rematch-notice-text {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--accent-warning);
+}
+
+/* UNLOCKED REWARD: 30-SECOND INTERVIEW SCRIPT */
+.interview-pitch-card {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(139, 92, 246, 0.05) 100%), var(--bg-card);
+  border: 1px solid rgba(99, 102, 241, 0.35);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+.pitch-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.pitch-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #a5b4fc;
+}
+.pitch-timer-tag {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  padding: 2px 8px;
+  border-radius: var(--radius-xs);
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--accent-warning);
+}
+.pitch-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.pitch-bullet {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+.pitch-num {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-medium);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: #a5b4fc;
+  flex-shrink: 0;
+}
+.pitch-bullet b {
+  font-size: 12.5px;
+  color: #fff;
+  display: block;
+  margin-bottom: 2px;
+}
+.pitch-bullet p {
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.wizard-next-action-row {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 6px;
+}
+
+/* ============================================================================
+   MULTI-VIEW CONTAINERS: REMATCH QUEUE, MATRIX, AND BLIND DRILL
+   ============================================================================ */
+
+.full-view-container {
+  display: none !important;
+  flex: 1;
+  background: var(--bg-root);
+  overflow-y: auto;
+  padding: 32px 48px;
+  max-width: 960px;
+  margin: 0 auto;
+  width: 100%;
+}
+.full-view-container.active-view {
+  display: flex !important;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* VIEW 2: REMATCH QUEUE */
+.rematch-hero-banner {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-left: 3px solid var(--accent-danger);
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.rematch-hero-left h2 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+}
+.rematch-hero-left p {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 3px;
+}
+.rematch-count-pill {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-weight: 800;
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  background: var(--accent-danger-subtle);
+  color: var(--accent-danger);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.rematch-card-row {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  transition: all var(--ease-smooth);
+}
+.rematch-card-row:hover {
+  background: var(--bg-elevated);
+  border-color: var(--border-medium);
+}
+.rematch-card-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.rematch-card-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+}
+.rematch-card-meta {
+  font-size: 11px;
+  color: var(--accent-danger);
+  margin-top: 2px;
+}
+
+/* VIEW 3: 60-SECOND BLIND PATTERN DRILL */
+.drill-stage {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 860px;
+  margin: 0 auto;
+  width: 100%;
+}
+.drill-hero-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: var(--card-shadow);
+}
+.drill-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.drill-badge {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 2px 7px;
+  border-radius: var(--radius-xs);
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--accent-warning);
+}
+.drill-prob-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+}
+.drill-prob-invariant {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.55;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+}
+
+.drill-question-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.drill-question-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.pattern-chips-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 8px;
+}
+.pattern-chip-btn {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 9px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  text-align: left;
+  transition: all var(--ease-smooth);
+}
+.pattern-chip-btn:hover {
+  background: var(--bg-elevated);
+  color: #fff;
+}
+.pattern-chip-btn.selected {
+  background: rgba(99, 102, 241, 0.18);
+  border-color: var(--accent-primary);
+  color: #fff;
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.3);
+}
+
+.complexity-chips-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.complexity-chip-btn {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  padding: 6px 14px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--ease-smooth);
+}
+.complexity-chip-btn:hover { color: #fff; }
+.complexity-chip-btn.selected {
+  background: rgba(99, 102, 241, 0.18);
+  border-color: var(--accent-primary);
+  color: #fff;
+}
+
+.drill-feedback-card {
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: var(--card-shadow);
+}
+.drill-feedback-card.correct {
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+}
+.drill-feedback-card.incorrect {
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+}
+
+/* VIEW 4: ALL 75 + 30 BOSS MATRIX */
+.matrix-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.matrix-search {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  color: #fff;
+  font-size: 12px;
+  padding: 8px 14px;
+  width: 320px;
+}
+.matrix-search:focus { border-color: var(--border-focus); }
+.matrix-chips-bar {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.matrix-filter-chip {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: var(--radius-xs);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  cursor: pointer;
+}
+.matrix-filter-chip.active {
+  background: var(--bg-elevated);
+  color: #fff;
+  border-color: var(--border-medium);
+}
+
+.matrix-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--border-subtle);
+}
+.matrix-table th {
+  background: var(--bg-surface);
+  color: var(--text-muted);
+  text-align: left;
+  padding: 10px 14px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.matrix-table td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+}
+.matrix-table tr:hover td {
+  background: var(--bg-hover);
+  color: #fff;
+}
+
+.status-badge-pass2 {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: var(--radius-xs);
+  background: var(--accent-success-subtle);
+  color: var(--accent-success);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+.status-badge-pass1 {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: var(--radius-xs);
+  background: var(--accent-warning-subtle);
+  color: var(--accent-warning);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+.status-badge-unsolved {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  padding: 2px 7px;
+  border-radius: var(--radius-xs);
+  background: var(--bg-surface);
+  color: var(--text-muted);
+  border: 1px solid var(--border-subtle);
+}
+
+/* ============================================================================
+   MODALS (COMMAND PALETTE, BACKUP, SHORTCUTS)
+   ============================================================================ */
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+  display: none !important;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 100px;
+}
+.modal-backdrop.open {
+  display: flex !important;
+}
+
+.palette-box {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--modal-shadow);
+  width: 600px;
+  max-width: 90vw;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.palette-search-input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border-subtle);
+  padding: 14px 16px;
+  font-size: 14px;
+  color: #fff;
+  outline: none;
+}
+.palette-results-list {
+  max-height: 360px;
+  overflow-y: auto;
+  padding: 6px;
+}
+.palette-item {
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: all var(--ease-smooth);
+}
+.palette-item:hover {
+  background: var(--bg-elevated);
+}
+
+  </style>
+  <link rel="stylesheet" href="css/app.css?v=3.0">
+</head>
+<body>
+
+  <!-- TOP GLOBAL COMMAND BAR (48px) -->
+  <header class="command-bar">
+    <div class="command-bar-left">
+      <div class="brand-badge" onclick="switchView('today')">
+        <div class="brand-logo-icon">⚡</div>
+        <div class="brand-text-group">
+          <span class="brand-name">AlgoMaster 30</span>
+          <span class="brand-tag">Focused Flow</span>
+        </div>
+      </div>
+
+      <div class="bar-divider"></div>
+
+      <button id="btnToggleSidebar" class="sidebar-toggle-btn" onclick="toggleSidebar()" title="Toggle 30-Day Roadmap ([">
+        <span>[</span> <span>]</span>
+      </button>
+
+      <div class="breadcrumb-path" id="globalBreadcrumb">
+        <span>Phase 1</span>
+        <span>/</span>
+        <span class="breadcrumb-active">Day 01 · Arrays & Hashing</span>
+      </div>
+    </div>
+
+    <!-- 4-View Switcher -->
+    <nav class="view-switcher" aria-label="Views">
+      <button id="viewBtnToday" class="view-btn active" onclick="switchView('today')">
+        <span>🥋</span> Today's Workout
+      </button>
+      <button id="viewBtnRematch" class="view-btn" onclick="switchView('rematch')">
+        <span>🔁</span> Rematch Queue <span id="rematchDueBadge" class="badge-pill danger" style="display:none;">0</span>
+      </button>
+      <button id="viewBtnDrill" class="view-btn" onclick="switchView('drill')">
+        <span>⚡</span> Blind Pattern Drill
+      </button>
+      <button id="viewBtnMatrix" class="view-btn" onclick="switchView('matrix')">
+        <span>📊</span> All 75 Matrix
+      </button>
+    </nav>
+
+    <div class="command-bar-right">
+      <div class="command-palette-trigger" onclick="openCommandPalette()" role="button" aria-label="Search problems">
+        <span>Search 75 problems...</span>
+        <kbd>⌘K</kbd>
+      </div>
+
+      <!-- 2-Pass Mastery Telemetry -->
+      <div class="mastery-telemetry-cluster">
+        <div class="telemetry-pill pass1" title="Pass 1: Solved on topic day or needed hints">
+          <span class="telemetry-dot yellow"></span>
+          <span class="telemetry-label">First Pass:</span>
+          <b id="statPass1Count" class="telemetry-val">0/75</b>
+        </div>
+        <div class="telemetry-pill cold" title="Pass 2: Proven Cold with zero hints under 20m">
+          <span class="telemetry-dot green"></span>
+          <span class="telemetry-label">Proven Cold:</span>
+          <b id="statColdCount" class="telemetry-val">0/75</b>
+        </div>
+      </div>
+
+      <button class="btn-icon" onclick="openBackupModal()" title="Export / Import JSON Data">
+        <span>💾</span>
+      </button>
+      <button class="btn-icon" onclick="openShortcutsModal()" title="Keyboard Shortcuts (?)">
+        <span style="font-weight:700;">?</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- WORKSTATION: SPACIUS 2-COLUMN GUIDED WORKSPACE -->
+  <main id="viewGrind" class="workstation-container">
+
+    <!-- COLUMN 1: LEFT 30-DAY ROADMAP RAIL (240px, collapsible) -->
+    <aside id="navRail" class="nav-rail">
+      <div class="nav-rail-header">
+        <span class="nav-rail-title">30-Day Training Roadmap</span>
+        <button class="rail-close-btn" onclick="toggleSidebar()" title="Collapse Sidebar">✕</button>
+      </div>
+
+      <!-- Overall Mastery Gauge Card -->
+      <div class="mastery-sidebar-card">
+        <div class="mastery-sidebar-header">
+          <span>75 Blind Cold Mastery</span>
+          <span id="masteryPctLabel" class="mastery-pct">0%</span>
+        </div>
+        <div class="mastery-progress-track">
+          <div id="masteryColdBar" class="mastery-bar-cold" style="width: 0%;"></div>
+          <div id="masteryPass1Bar" class="mastery-bar-pass1" style="width: 0%;"></div>
+        </div>
+        <div class="mastery-legend">
+          <span><b id="legendColdCount">0</b> Proven Cold</span>
+          <span><b id="legendPass1Count">0</b> First Pass</span>
+        </div>
+      </div>
+
+      <div id="roadmapList" class="roadmap-scroll-list">
+        <!-- Injected dynamically by app.js -->
+      </div>
+
+      <div class="nav-rail-footer">
+        <div>
+          <span>🔥 Streak: </span><b id="streakCounter" style="color:var(--accent-warning);">1 Day</b>
+        </div>
+        <button class="backup-link-btn" onclick="openBackupModal()">
+          Backup / Reset
+        </button>
+      </div>
+    </aside>
+
+    <!-- COLUMN 2: CENTERED MAIN STAGE (1fr, max-width: 920px, spacious) -->
+    <section class="main-focus-stage">
+      
+      <!-- Day Hero Strip -->
+      <div class="day-hero-strip">
+        <div class="day-hero-titles">
+          <h1 id="canvasDayTitle">Day 01: Arrays & Hashing</h1>
+          <p id="canvasDaySubtitle">O(1) Lookups, State Deduplication, and Anagram Invariants</p>
+        </div>
+
+        <div class="day-nav-pager">
+          <button class="pager-btn" id="btnPrevDay" onclick="switchDay(AppState.currentDay - 1)">◀ Prev Day</button>
+          <span id="canvasDayIndicator" class="day-indicator-badge">01/30</span>
+          <button class="pager-btn" id="btnNextDay" onclick="switchDay(AppState.currentDay + 1)">Next Day ▶</button>
+        </div>
+      </div>
+
+      <!-- 2 CLEAN SEGMENTED TABS -->
+      <div class="stage-segmented-nav">
+        <button id="tabBtnLearn" class="stage-tab-btn active" onclick="switchDaySubTab('learn')">
+          <span class="tab-icon">📖</span>
+          <span class="tab-title">1. Learn Today's Pattern</span>
+          <span class="tab-badge">10 mins</span>
+        </button>
+        <button id="tabBtnSolve" class="stage-tab-btn" onclick="switchDaySubTab('solve')">
+          <span class="tab-icon">🎯</span>
+          <span class="tab-title">2. Solve Today's Problems</span>
+          <span id="tabSolveCountBadge" class="tab-badge primary">3 Problems</span>
+        </button>
+      </div>
+
+      <!-- ======================================================== -->
+      <!-- SUB-TAB 1: LEARN THE PATTERN (CLEAN, UNCLUTTERED) -->
+      <!-- ======================================================== -->
+      <div id="subTabLearn" class="sub-tab-content active">
+        <!-- 1. Coach's Plain-English Briefing -->
+        <div class="coach-briefing-card">
+          <div class="coach-briefing-header">
+            <span>📣</span> Coach's Daily Briefing
+          </div>
+          <div class="coach-briefing-text" id="coachDailyBriefingText">
+            Today we start with the simplest trade in computer science: spending memory to kill nested loops. If you catch yourself scanning an array twice just to see if a match exists, stop and reach for a hash map. The mental habit today is single-pass thinking—don't look forward, query what you've already seen behind you.
+          </div>
+        </div>
+
+        <!-- 2. Interactive Visual Dry-Run Stepper -->
+        <div class="visualizer-card">
+          <div class="visualizer-top-bar">
+            <div class="visualizer-title-group">
+              <span class="section-tag">Visual Dry-Run Stepper</span>
+              <span id="visPatternName" class="visualizer-name">Two Sum Complement Lookup</span>
+              <span id="visInputPill" class="visualizer-input-pill">nums = [2, 7, 11, 15], target = 9</span>
+            </div>
+
+            <div class="visualizer-controls">
+              <button class="ctrl-btn" onclick="VisualizerEngine.reset()" title="Reset to start">⏮ Reset</button>
+              <button class="ctrl-btn" onclick="VisualizerEngine.prevStep()" title="Step back">◀ Back</button>
+              <button class="ctrl-btn play" id="btnVisPlay" onclick="VisualizerEngine.togglePlay()" title="Play or Pause">▶ Play</button>
+              <button class="ctrl-btn" onclick="VisualizerEngine.nextStep()" title="Step forward">Step ▶</button>
+              <button class="ctrl-btn" id="btnVisSpeed" onclick="VisualizerEngine.toggleSpeed()" title="Toggle speed">1x</button>
+            </div>
+          </div>
+
+          <div class="visualizer-stage" id="visStage">
+            <!-- Injected dynamically by visualizer engine -->
+          </div>
+
+          <div class="visualizer-step-banner">
+            <div class="vis-explanation" id="visExplanation">Step 1/3: Initialize empty lookup map. Looking for complement = 9 - 2 = 7.</div>
+            <div class="vis-status-tag" id="visStatusTag">Holds ✓</div>
+          </div>
+        </div>
+
+        <!-- 3. The Core Rule & 3 Common Traps (2-Card Bento Grid) -->
+        <div class="bento-grid">
+          <div class="bento-card">
+            <div class="bento-header">
+              <span class="bento-title">💡 The Core Rule (The One Rule That Never Breaks)</span>
+              <button class="btn-outline-sm" onclick="copyInvariantText()" id="btnCopyInv">Copy Rule</button>
+            </div>
+            <div class="bento-body" id="canvasInvariantText">
+              Hash tables provide expected O(1) average access. For problems with target sums, maintaining seen elements allows immediate verification...
+            </div>
+            <div class="proof-callout">
+              <span class="proof-label">Proof of Speed:</span>
+              <span id="canvasProofText">Single pass with hash table lookups eliminates the nested loop from O(N²) down to strict O(N).</span>
+            </div>
+          </div>
+
+          <div class="bento-card">
+            <div class="bento-header">
+              <span class="bento-title">⚠️ Common Pitfalls & Real-World Traps</span>
+            </div>
+            <div class="traps-list" id="canvasTrapsList">
+              <!-- Traps injected dynamically -->
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. Authoritative Free Resources -->
+        <div class="references-card">
+          <div class="references-header">
+            <span>📚</span> Verified Authoritative Free References:
+          </div>
+          <div class="references-list" id="canvasReferencesList">
+            <!-- Reference badges injected dynamically -->
+          </div>
+        </div>
+
+        <!-- 5. Big CTA: Proceed to Problems -->
+        <div class="tab-bottom-cta">
+          <button class="btn-primary-action large" onclick="switchDaySubTab('solve')">
+            <span>I Understand the Pattern → Start Today's Problems</span>
+            <span>➔</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ======================================================== -->
+      <!-- SUB-TAB 2: SOLVE TODAY'S PROBLEMS (ONE AT A TIME) -->
+      <!-- ======================================================== -->
+      <div id="subTabSolve" class="sub-tab-content">
+        <!-- Horizontal Problem Switcher Pills -->
+        <div class="problem-pills-bar" id="dailyProblemPills">
+          <!-- Pills injected dynamically: [ #1: Two Sum 🟢 ], [ #3: Contains Duplicate 🟡 ], etc. -->
+        </div>
+
+        <!-- Active Problem Workspace (ONE PROBLEM ON SCREEN) -->
+        <div id="activeProblemContainer" class="active-problem-workspace">
+          
+          <!-- STEP 1: THINK ON PAPER FIRST (15m Struggle Timer + Sanity Check + Nudges) -->
+          <div id="step1PaperCard" class="accordion-step-card active-step">
+            <div class="step-card-header" onclick="toggleProblemAccordionStep(1)">
+              <div class="step-card-number">1</div>
+              <div class="step-card-title-group">
+                <span class="step-title">Step 1: Think on Paper First (Struggle Before Typing)</span>
+                <span class="step-subtitle">Spend up to 15 minutes drawing on paper and testing edge cases</span>
+              </div>
+              <div class="step-status-indicator" id="step1Status">Active</div>
+            </div>
+
+            <div class="step-card-body" id="step1Body">
+              <div class="problem-brief-hero">
+                <div class="problem-brief-left">
+                  <span id="wizardProblemDiff" class="diff-badge Easy">Easy</span>
+                  <h2 id="wizardProblemTitle" class="wizard-prob-title">#1: Two Sum</h2>
+                </div>
+                <a id="btnSolvePortalDirect" href="#" target="_blank" rel="noopener noreferrer" class="btn-portal-link" onclick="handleLaunchPortalFromStep1()">
+                  Solve on LeetCode ↗
+                </a>
+              </div>
+
+              <!-- Sanity Trap Question -->
+              <div class="sanity-question-box-v2">
+                <div class="sanity-box-label">
+                  <span>🔍</span> Pre-Code Sanity Question (Think Before Coding):
+                </div>
+                <div id="wizardSanityQuestion" class="sanity-question-content">
+                  If nums = [3, 3] and target = 6, does your code accidentally match the same element twice or handle duplicate keys?
+                </div>
+                <div class="sanity-action-row">
+                  <button class="btn-outline-sm" onclick="toggleWizardSanityAnswer()">
+                    Reveal Coach's Check
+                  </button>
+                </div>
+                <div id="wizardSanityAnswer" class="sanity-answer-drawer" style="display:none;">
+                  <b>Coach's Check:</b> Identify the base case immediately. Single-pass hash lookup checks the map BEFORE insertion so duplicates are safely handled.
+                </div>
+              </div>
+
+              <!-- 15:00 Paper Struggle Countdown Timer -->
+              <div class="paper-struggle-card">
+                <div class="timer-display-group">
+                  <span class="timer-tag">15-Minute Paper Struggle Timer</span>
+                  <span id="wizardPaperTimerVal" class="timer-countdown-val">15:00</span>
+                </div>
+                <div class="timer-btn-row">
+                  <button id="btnWizardPaperTimerStart" class="btn-timer primary" onclick="TimerEngine.startPhase1()">
+                    ▶ Start 15m Paper Timer
+                  </button>
+                  <button id="btnWizardPaperTimerReset" class="btn-timer" onclick="TimerEngine.resetTimer()">
+                    ↺ Reset
+                  </button>
+                </div>
+              </div>
+
+              <!-- 3 Collapsible Coach's Nudges -->
+              <div class="wizard-nudges-group">
+                <div class="nudges-group-title">Coach's Nudges (Open only if stuck on paper for >10 mins):</div>
+                <details class="hint-tier-item">
+                  <summary class="hint-tier-summary">
+                    <span>💡 Nudge 1: Look at It Differently</span>
+                    <span>▼</span>
+                  </summary>
+                  <div class="hint-tier-content" id="wizardNudge1">What if instead of asking 'what pairs with X', you ask 'did I already see what X needs'?</div>
+                </details>
+                <details class="hint-tier-item">
+                  <summary class="hint-tier-summary">
+                    <span>🔍 Nudge 2: What to Track as You Loop</span>
+                    <span>▼</span>
+                  </summary>
+                  <div class="hint-tier-content" id="wizardNudge2">Track seen values as keys and their array indices as values.</div>
+                </details>
+                <details class="hint-tier-item">
+                  <summary class="hint-tier-summary">
+                    <span>📋 Nudge 3: The Plain-English Gameplan</span>
+                    <span>▼</span>
+                  </summary>
+                  <div class="hint-tier-content" id="wizardNudge3">1. Init map. 2. For each num, complement = target - num. 3. If in map, return [map[comp], i]. 4. Else map[num] = i.</div>
+                </details>
+              </div>
+
+              <!-- Step 1 Primary Action -->
+              <div class="step-primary-cta">
+                <button class="btn-primary-action" onclick="advanceToStep2()">
+                  <span>I Have a Gameplan → Solve on LeetCode ↗</span>
+                  <span>➔</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- STEP 2: CODING ON ONLINE PORTAL (Distraction-Free Stopwatch) -->
+          <div id="step2PortalCard" class="accordion-step-card">
+            <div class="step-card-header" onclick="toggleProblemAccordionStep(2)">
+              <div class="step-card-number">2</div>
+              <div class="step-card-title-group">
+                <span class="step-title">Step 2: Coding on Online Judge (LeetCode / CSES)</span>
+                <span class="step-subtitle">Pure coding stopwatch — stay in flow without distractions</span>
+              </div>
+              <div class="step-status-indicator" id="step2Status">Pending</div>
+            </div>
+
+            <div class="step-card-body" id="step2Body" style="display:none;">
+              <div class="portal-coding-stage">
+                <div class="stopwatch-display-group">
+                  <span class="timer-tag">Portal Coding Stopwatch</span>
+                  <span id="wizardStopwatchVal" class="timer-stopwatch-val">00:00</span>
+                  <span class="stopwatch-status-label" id="wizardStopwatchStatus">Tracking coding time on portal...</span>
+                </div>
+
+                <div class="portal-cta-row">
+                  <a id="btnSolvePortalMain" href="#" target="_blank" rel="noopener noreferrer" class="btn-launch-portal large">
+                    <span>Open LeetCode / CSES Portal ↗</span>
+                  </a>
+                  <button class="btn-outline-sm" onclick="copyCleanBoilerplateTemplate()">
+                    📋 Copy Clean Starter Template
+                  </button>
+                </div>
+              </div>
+
+              <!-- Step 2 Primary Action -->
+              <div class="step-primary-cta">
+                <button class="btn-primary-action success" onclick="advanceToStep3()">
+                  <span>✓ I Finished on LeetCode → Log My Result</span>
+                  <span>➔</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- STEP 3: HONEST DEBRIEF & 30-SECOND INTERVIEW PITCH -->
+          <div id="step3DebriefCard" class="accordion-step-card">
+            <div class="step-card-header" onclick="toggleProblemAccordionStep(3)">
+              <div class="step-card-number">3</div>
+              <div class="step-card-title-group">
+                <span class="step-title">Step 3: Honest Debrief & 30-Second Interview Pitch</span>
+                <span class="step-subtitle">Log your true recall and unlock the interview explanation script</span>
+              </div>
+              <div class="step-status-indicator" id="step3Status">Pending</div>
+            </div>
+
+            <div class="step-card-body" id="step3Body" style="display:none;">
+              <!-- 4 Big Clear Outcome Buttons -->
+              <div class="outcome-selection-section">
+                <div class="section-sub-title">How Did You Solve It? (Honesty directly controls your rematch interval):</div>
+                <div class="outcome-cards-grid" id="wizardOutcomeGrid">
+                  <button class="outcome-card-btn" data-outcome="cold" onclick="selectWizardOutcome(this)">
+                    <div class="outcome-card-top">
+                      <span class="outcome-emoji">🔥</span>
+                      <span class="outcome-title">Solved Cold</span>
+                    </div>
+                    <div class="outcome-desc">Zero hints, optimal time, under 20 mins. (Unlocks Proven Cold + 14d check)</div>
+                  </button>
+
+                  <button class="outcome-card-btn" data-outcome="buggy" onclick="selectWizardOutcome(this)">
+                    <div class="outcome-card-top">
+                      <span class="outcome-emoji">⚠️</span>
+                      <span class="outcome-title">Tripped on a Bug</span>
+                    </div>
+                    <div class="outcome-desc">Right idea, but tripped on an edge case, off-by-one, or boundary. (Rematch in 5d)</div>
+                  </button>
+
+                  <button class="outcome-card-btn" data-outcome="hints" onclick="selectWizardOutcome(this)">
+                    <div class="outcome-card-top">
+                      <span class="outcome-emoji">💡</span>
+                      <span class="outcome-title">Needed a Nudge</span>
+                    </div>
+                    <div class="outcome-desc">Opened one of the coach's nudges or hints to make progress. (Rematch in 3d)</div>
+                  </button>
+
+                  <button class="outcome-card-btn" data-outcome="editorial" onclick="selectWizardOutcome(this)">
+                    <div class="outcome-card-top">
+                      <span class="outcome-emoji">📖</span>
+                      <span class="outcome-title">Read Editorial</span>
+                    </div>
+                    <div class="outcome-desc">Could not solve; read solution or video explanation. (Mandatory rematch tomorrow)</div>
+                  </button>
+                </div>
+
+                <div id="wizardCoachReaction" class="coach-reaction-callout" style="display:none;"></div>
+              </div>
+
+              <!-- Note to Future Self -->
+              <div class="future-note-section">
+                <label class="section-sub-title" for="wizardNoteInput">
+                  1-Line Note to Future Self:
+                </label>
+                <input type="text" id="wizardNoteInput" class="future-note-input" placeholder="e.g. Always check map BEFORE inserting to avoid self-match on target=6 nums=[3,3]...">
+                <div class="note-action-row">
+                  <button class="btn-timer primary" onclick="saveWizardDebrief()">
+                    Save Debrief & Schedule Review
+                  </button>
+                  <span id="wizardRematchNotice" class="rematch-notice-text"></span>
+                </div>
+              </div>
+
+              <!-- UNLOCKED REWARD: 30-SECOND INTERVIEW EXPLANATION PITCH -->
+              <div id="wizardPitchRewardCard" class="interview-pitch-card" style="display:none;">
+                <div class="pitch-card-header">
+                  <div class="pitch-badge">
+                    <span>🗣️</span> UNLOCKED INTERVIEW SCRIPT
+                  </div>
+                  <span class="pitch-timer-tag">30-Second Speaking Pitch</span>
+                  <button class="btn-outline-sm" onclick="copyInterviewPitch()">Copy Pitch</button>
+                </div>
+                <div class="pitch-card-body">
+                  <div class="pitch-bullet">
+                    <span class="pitch-num">1</span>
+                    <div>
+                      <b>The Naive Trap:</b>
+                      <p id="pitchNaiveTrap">A brute-force approach compares every pair in O(N²), which wastes time re-scanning seen elements.</p>
+                    </div>
+                  </div>
+                  <div class="pitch-bullet">
+                    <span class="pitch-num">2</span>
+                    <div>
+                      <b>The Key Insight:</b>
+                      <p id="pitchKeyInsight">Instead, as we scan once, we query our hash map for (target - nums[i]) before inserting nums[i].</p>
+                    </div>
+                  </div>
+                  <div class="pitch-bullet">
+                    <span class="pitch-num">3</span>
+                    <div>
+                      <b>The Complexity Guarantee:</b>
+                      <p id="pitchComplexity">This guarantees single-pass O(N) time and O(N) space, avoiding duplicate self-matching.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Bottom Action: Next Problem -->
+              <div class="wizard-next-action-row" id="wizardNextActionRow">
+                <button class="btn-primary-action" onclick="advanceToNextDailyProblem()">
+                  <span>Next Problem ➔</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ======================================================== -->
+  <!-- VIEW 2: REMATCH QUEUE (SPACED REPETITION) -->
+  <!-- ======================================================== -->
+  <section id="viewRematch" class="full-view-container">
+    <div class="rematch-hero-banner">
+      <div class="rematch-hero-left">
+        <h2>🔁 Daily Rematch Queue (Spaced Repetition)</h2>
+        <p>Problems scheduled for active recall because you needed nudges, read editorials, or hit edge-case bugs.</p>
+      </div>
+      <div class="rematch-count-pill">
+        Due Today: <span id="srsTotalDueToday">0</span>
+      </div>
+    </div>
+
+    <div>
+      <h3 style="font-size:14px; font-weight:700; color:#fff; margin-bottom:10px;">🔥 Problems to Re-Solve Cold Today</h3>
+      <div id="srsDueProblemsList" style="display:flex; flex-direction:column; gap:8px;">
+        <!-- Due items injected dynamically -->
+      </div>
+    </div>
+
+    <div style="margin-top:20px;">
+      <h3 style="font-size:14px; font-weight:700; color:#fff; margin-bottom:10px;">📓 Honest Mistake Journal & Trap Notes</h3>
+      <div id="mistakeJournalList" style="display:flex; flex-direction:column; gap:10px;">
+        <!-- Journal entries injected dynamically -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================== -->
+  <!-- VIEW 3: 60-SECOND BLIND PATTERN DRILL (CONFIDENCE BUILDER) -->
+  <!-- ======================================================== -->
+  <section id="viewDrill" class="full-view-container">
+    <div class="drill-stage">
+      <div class="drill-hero-card">
+        <div class="drill-card-top">
+          <span class="drill-badge">⚡ Blind Pattern Recognition Drill</span>
+          <div style="font-family:var(--font-mono); font-size:11px; color:var(--text-muted);">
+            Score: <b id="drillStatsText" style="color:#fff;">0/0 (0%)</b>
+          </div>
+        </div>
+
+        <div style="display:flex; align-items:center; justify-content:space-between;">
+          <h2 id="drillProblemTitle" class="drill-prob-title">#3: Longest Substring Without Repeating Characters</h2>
+          <span id="drillProblemDiff" class="diff-badge Medium">Medium</span>
+        </div>
+
+        <div class="drill-prob-invariant" id="drillProblemPrompt">
+          Given a string s, find the length of the longest substring without duplicate characters.
+        </div>
+
+        <!-- Question 1: Pattern -->
+        <div class="drill-question-section">
+          <div class="drill-question-label">1. Which Core Pattern / Data Structure Solves This?</div>
+          <div class="pattern-chips-grid" id="drillPatternChips">
+            <!-- Pattern chips injected dynamically -->
+          </div>
+        </div>
+
+        <!-- Question 2: Time Complexity -->
+        <div class="drill-question-section">
+          <div class="drill-question-label">2. What Is The Optimal Time Complexity?</div>
+          <div class="complexity-chips-row" id="drillComplexityChips">
+            <button class="complexity-chip-btn" data-complexity="O(1)" onclick="selectDrillComplexity(this)">O(1)</button>
+            <button class="complexity-chip-btn" data-complexity="O(log N)" onclick="selectDrillComplexity(this)">O(log N)</button>
+            <button class="complexity-chip-btn" data-complexity="O(N)" onclick="selectDrillComplexity(this)">O(N)</button>
+            <button class="complexity-chip-btn" data-complexity="O(N log N)" onclick="selectDrillComplexity(this)">O(N log N)</button>
+            <button class="complexity-chip-btn" data-complexity="O(N^2)" onclick="selectDrillComplexity(this)">O(N^2)</button>
+          </div>
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:8px;">
+          <button id="btnCheckDrill" class="btn-primary-action" onclick="checkPatternDrill()">
+            <span>Verify Pattern Recognition</span>
+          </button>
+        </div>
+
+        <!-- Feedback Card -->
+        <div id="drillFeedbackCard" class="drill-feedback-card" style="display:none;">
+          <div id="drillFeedbackStatus" style="font-size:14px; font-weight:700;"></div>
+          <div style="font-size:12.5px; color:var(--text-secondary); line-height:1.5;">
+            <b>1-Sentence Core Trick:</b> <span id="drillCoreTrick"></span>
+          </div>
+
+          <!-- Unlocked Pitch Script -->
+          <div class="interview-pitch-card" style="margin-top:6px;">
+            <div class="pitch-card-header">
+              <div class="pitch-badge"><span>🗣️</span> 30-SECOND INTERVIEW EXPLANATION</div>
+            </div>
+            <div class="pitch-card-body">
+              <div class="pitch-bullet">
+                <span class="pitch-num">1</span>
+                <div><b>The Naive Trap:</b> <p id="drillPitchTrap"></p></div>
+              </div>
+              <div class="pitch-bullet">
+                <span class="pitch-num">2</span>
+                <div><b>The Key Insight:</b> <p id="drillPitchInsight"></p></div>
+              </div>
+              <div class="pitch-bullet">
+                <span class="pitch-num">3</span>
+                <div><b>The Guarantee:</b> <p id="drillPitchGuarantee"></p></div>
+              </div>
+            </div>
+          </div>
+
+          <div style="display:flex; justify-content:flex-end; margin-top:8px;">
+            <button class="btn-primary-action success" onclick="loadRandomPatternDrill()">
+              <span>Next Random Problem ➔</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================== -->
+  <!-- VIEW 4: ALL 75 + 30 BOSS MATRIX -->
+  <!-- ======================================================== -->
+  <section id="viewMatrix" class="full-view-container">
+    <div class="matrix-toolbar">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <h2 style="font-size:18px; font-weight:700; color:#fff;">All 75 Blind + 30 Boss Problems</h2>
+        <span class="kbd-pill" id="matrixCompletionCount" style="color:var(--accent-success);">0/75 Proven Cold</span>
+      </div>
+
+      <input type="text" id="matrixSearchInput" class="matrix-search" placeholder="Search 75 problems by name, category, or invariant...">
+    </div>
+
+    <div class="matrix-chips-bar" id="matrixFilterChips">
+      <button class="matrix-filter-chip active" onclick="filterMatrix('all', this)">All (75)</button>
+      <button class="matrix-filter-chip" onclick="filterMatrix('cold', this)">🟢 Proven Cold</button>
+      <button class="matrix-filter-chip" onclick="filterMatrix('pass1', this)">🟡 First Pass</button>
+      <button class="matrix-filter-chip" onclick="filterMatrix('unsolved', this)">⚪ Unsolved</button>
+    </div>
+
+    <table class="matrix-table">
+      <thead>
+        <tr>
+          <th style="width:50px;">ID</th>
+          <th>Problem Title</th>
+          <th>Category</th>
+          <th>Difficulty</th>
+          <th>Optimal Time</th>
+          <th>Day</th>
+          <th>Rematch</th>
+          <th>Mastery Status</th>
+        </tr>
+      </thead>
+      <tbody id="matrixTableBody">
+        <!-- Injected dynamically -->
+      </tbody>
+    </table>
+  </section>
+
+  <!-- COMMAND PALETTE MODAL (⌘K) -->
+  <div id="commandPaletteBackdrop" class="modal-backdrop" onclick="closeCommandPalette(event)">
+    <div class="palette-box" onclick="event.stopPropagation()">
+      <input type="text" id="paletteSearchInput" class="palette-search-input" placeholder="Type a problem name, pattern, or trap (e.g. 'Two Sum', 'Sliding Window', 'Kadane')...">
+      <div id="paletteResultsList" class="palette-results-list">
+        <!-- Injected dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- DATA BACKUP & RECOVERY MODAL -->
+  <div id="backupModalBackdrop" class="modal-backdrop" onclick="closeBackupModal(event)">
+    <div class="palette-box" style="width:480px;" onclick="event.stopPropagation()">
+      <div style="padding:14px 16px; border-bottom:1px solid var(--border-subtle); display:flex; justify-content:space-between; align-items:center;">
+        <span style="font-weight:700; font-size:13px;">Data Backup & Recovery</span>
+        <button class="pager-btn" onclick="closeBackupModal()">✕</button>
+      </div>
+      <div style="padding:16px; display:flex; flex-direction:column; gap:14px; font-size:12px; color:var(--text-secondary);">
+        <p>Export your sprint progress, timers, 2-pass cold mastery records, and rematch intervals to a JSON file, or restore from an existing backup.</p>
+        <div style="display:flex; gap:10px;">
+          <button class="btn-timer primary" onclick="exportDataJSON()">Export JSON Backup</button>
+          <button class="btn-timer" onclick="document.getElementById('fileImportInput').click()">Import JSON File</button>
+          <input type="file" id="fileImportInput" style="display:none;" onchange="importDataJSON(event)" accept=".json">
+        </div>
+        <div style="border-top:1px solid var(--border-subtle); padding-top:10px;">
+          <button class="pager-btn" style="color:var(--accent-danger); border-color:rgba(239, 68, 68, 0.3);" onclick="clearAllProgress()">
+            Reset All Sprint Data
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- KEYBOARD SHORTCUTS MODAL (?) -->
+  <div id="shortcutsModalBackdrop" class="modal-backdrop" onclick="closeShortcutsModal(event)">
+    <div class="palette-box" style="width:440px;" onclick="event.stopPropagation()">
+      <div style="padding:14px 16px; border-bottom:1px solid var(--border-subtle); display:flex; justify-content:space-between; align-items:center;">
+        <span style="font-weight:700; font-size:13px;">Desktop Keyboard Shortcuts</span>
+        <button class="pager-btn" onclick="closeShortcutsModal()">✕</button>
+      </div>
+      <div style="padding:16px; display:flex; flex-direction:column; gap:10px; font-size:12px;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span>Command Palette</span>
+          <kbd>⌘K</kbd>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span>Toggle 30-Day Sidebar</span>
+          <div><kbd>[</kbd> <kbd>]</kbd></div>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span>Previous / Next Day</span>
+          <div><kbd>,</kbd> <kbd>.</kbd></div>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span>Play / Pause Visualizer</span>
+          <kbd>Space</kbd>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span>Close Modal</span>
+          <kbd>Esc</kbd>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script src="js/blind75.js"></script>
+  <script src="js/curriculum.js"></script>
+  <script src="js/coach-data.js"></script>
+  <script src="js/visualizer-data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
