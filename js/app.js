@@ -1,9 +1,9 @@
 // ============================================================================
-// ALGOMASTER 30 — FOCUSED FLOW WORKSPACE & 100% BLIND 75 CONFIDENCE CONTROLLER
-// Progressive Disclosure • 2-Pass Cold Mastery • Blind Pattern Drill
+// ALGOMASTER 30 — APPLE DESIGN SPECIFICATION CONTROLLER
+// Strict Apple DESIGN.md • Zero Emojis • Offline-First Native LocalStorage
 // ============================================================================
 
-const STORAGE_KEY = "algomaster30_master_state_v3";
+const STORAGE_KEY = "algomaster30_apple_system_v4";
 
 // Application State
 const AppState = {
@@ -16,8 +16,8 @@ const AppState = {
   sidebarCollapsed: false,
   
   // 2-Pass Mastery System:
-  // 'cold' = Pass 2: Proven Cold (100% ready, solved with zero hints)
-  // 'pass1' = Pass 1: Solved on topic day or needed nudges / editorial
+  // 'cold' = Pass 2: Proven Cold (optimal, zero hints)
+  // 'pass1' = Pass 1: Solved on topic day or needed hints/editorial
   mastery: {},
 
   timers: {},      // { [problemId]: { p1: sec, p2: sec, total: sec, best: sec } }
@@ -29,7 +29,7 @@ const AppState = {
 };
 
 // ============================================================================
-// STATE PERSISTENCE & LOCAL STORAGE
+// HTML NATIVE LOCAL STORAGE & SERVICE WORKER CACHE
 // ============================================================================
 
 function loadSavedState() {
@@ -52,7 +52,7 @@ function loadSavedState() {
       if (parsed.streak) AppState.streak = parsed.streak;
     }
   } catch (err) {
-    console.warn("Could not load saved state:", err);
+    console.warn("Could not load saved state from localStorage:", err);
   }
 }
 
@@ -75,12 +75,36 @@ function persistState() {
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
   } catch (err) {
-    console.warn("Could not persist state:", err);
+    console.warn("Could not persist state to localStorage:", err);
+  }
+}
+
+function registerServiceWorker() {
+  if (typeof window !== "undefined" && "serviceWorker" in navigator) {
+    navigator.serviceWorker.register("./sw.js").then((reg) => {
+      console.log("AlgoMaster Service Worker active with scope:", reg.scope);
+      updateOfflineStatusBadge(true);
+    }).catch((err) => {
+      console.warn("Service Worker registration error:", err);
+      updateOfflineStatusBadge(false);
+    });
+  }
+}
+
+function updateOfflineStatusBadge(isCached) {
+  const badge = document.getElementById("appleOfflinePill");
+  const label = document.getElementById("appleOfflineText");
+  if (!badge || !label) return;
+  if (isCached) {
+    label.textContent = "Offline Ready";
+    badge.style.display = "inline-flex";
+  } else {
+    label.textContent = "Online Mode";
   }
 }
 
 // ============================================================================
-// 15-MINUTE PAPER STRUGGLE & PORTAL STOPWATCH ENGINE
+// TIMERS & STOPWATCH ENGINE
 // ============================================================================
 
 const TimerEngine = {
@@ -99,7 +123,7 @@ const TimerEngine = {
     this.activePhase = 1;
     this.startTicker();
     const btn = document.getElementById("btnWizardPaperTimerStart");
-    if (btn) btn.textContent = "⏸ Pause";
+    if (btn) btn.textContent = "Pause";
   },
 
   pausePhase1() {
@@ -109,7 +133,7 @@ const TimerEngine = {
     }
     this.intervalId = null;
     const btn = document.getElementById("btnWizardPaperTimerStart");
-    if (btn) btn.textContent = "▶ Resume";
+    if (btn) btn.textContent = "Resume";
   },
 
   togglePhase1() {
@@ -121,11 +145,14 @@ const TimerEngine = {
   },
 
   switchToPhase2() {
-    if (this.intervalId) clearInterval(this.intervalId);
+    if (this.intervalId) {
+      if (typeof clearInterval !== "undefined") clearInterval(this.intervalId);
+      else if (typeof window !== "undefined" && window.clearInterval) window.clearInterval(this.intervalId);
+    }
     this.activePhase = 2;
     this.startTicker();
     const statusEl = document.getElementById("wizardStopwatchStatus");
-    if (statusEl) statusEl.textContent = "Tracking coding time on portal...";
+    if (statusEl) statusEl.textContent = "Tracking implementation time...";
   },
 
   stopPhase2() {
@@ -174,12 +201,12 @@ const TimerEngine = {
     const p2El = document.getElementById("wizardStopwatchVal");
     if (p2El) p2El.textContent = "00:00";
     const btn = document.getElementById("btnWizardPaperTimerStart");
-    if (btn) btn.textContent = "▶ Start 15m Paper Timer";
+    if (btn) btn.textContent = "Start 15m Timer";
   }
 };
 
 // ============================================================================
-// VISUALIZER ENGINE (INTERACTIVE DRY-RUN STATE STEPPER)
+// VISUALIZER INSPECTOR ENGINE
 // ============================================================================
 
 const VisualizerEngine = {
@@ -214,13 +241,13 @@ const VisualizerEngine = {
     if (!stage) return;
     stage.innerHTML = "";
 
-    // Parse array items from inputDescription if present
+    // Parse array items from inputDescription
     const arrayMatch = trace.inputDescription ? trace.inputDescription.match(/\[(.*?)\]/) : null;
     if (arrayMatch) {
       const rawItems = arrayMatch[1].split(',').map(s => s.trim().replace(/^['"]|['"]$/g, ''));
       if (rawItems.length > 0 && rawItems[0] !== "") {
         const arrayContainer = document.createElement("div");
-        arrayContainer.className = "vis-array-container";
+        arrayContainer.className = "inspector-array-strip";
 
         const activeIndices = [];
         if (step.indices) {
@@ -242,25 +269,25 @@ const VisualizerEngine = {
 
         rawItems.forEach((val, idx) => {
           const cellWrapper = document.createElement("div");
-          cellWrapper.className = "vis-cell-wrapper";
+          cellWrapper.className = "inspector-slot-column";
 
           // Pointer marker above cell
           const pointerMarker = document.createElement("div");
           let pointerText = "";
-          let pointerClass = "vis-pointer-marker";
+          let pointerClass = "inspector-pointer-tag";
 
           if (leftIdx === idx && rightIdx === idx) {
-            pointerText = "▲ L,R";
+            pointerText = "L, R";
             pointerClass += " active left";
           } else if (leftIdx === idx) {
-            pointerText = "▲ L";
+            pointerText = "L";
             pointerClass += " active left";
           } else if (rightIdx === idx) {
-            pointerText = "▲ R";
+            pointerText = "R";
             pointerClass += " active right";
           } else if (activeIndices.includes(idx)) {
-            const key = Object.keys(step.indices || {}).find(k => step.indices[k] === idx) || "i";
-            pointerText = `▲ ${key}`;
+            const key = Object.keys(step.indices || {}).find(k => step.indices[k] === idx) || "p";
+            pointerText = key;
             pointerClass += " active";
           }
 
@@ -268,9 +295,9 @@ const VisualizerEngine = {
           pointerMarker.textContent = pointerText;
           cellWrapper.appendChild(pointerMarker);
 
-          // Value box
+          // Value cell
           const cellBox = document.createElement("div");
-          let boxClass = "vis-cell-box";
+          let boxClass = "inspector-memory-cell";
           if (isMatchStep && (activeIndices.includes(idx) || (step.hashTable && step.hashTable[step.complement] === idx))) {
             boxClass += " highlight-match";
           } else if (activeIndices.includes(idx) || leftIdx === idx || rightIdx === idx) {
@@ -284,7 +311,7 @@ const VisualizerEngine = {
 
           // Index label
           const indexLabel = document.createElement("div");
-          indexLabel.className = "vis-cell-index";
+          indexLabel.className = "inspector-index-label";
           indexLabel.textContent = `[${idx}]`;
           cellWrapper.appendChild(indexLabel);
 
@@ -297,20 +324,20 @@ const VisualizerEngine = {
 
     // Render Data Badges & Snapshots Row
     const dataRow = document.createElement("div");
-    dataRow.className = "visualizer-data-row";
+    dataRow.className = "inspector-metrics-row";
 
     if (step.action) {
       const isMatch = step.action.includes("Match") || (step.invariantStatus && step.invariantStatus.includes("Target Met"));
       const actionPill = document.createElement("div");
-      actionPill.className = `action-pill ${isMatch ? "match" : ""}`;
-      actionPill.innerHTML = `<span>⚡</span> <span>${step.action}</span>`;
+      actionPill.className = `action-status-pill ${isMatch ? "match" : ""}`;
+      actionPill.textContent = step.action;
       dataRow.appendChild(actionPill);
     }
 
     if (step.indices) {
       Object.entries(step.indices).forEach(([k, v]) => {
         const b = document.createElement("div");
-        b.className = "state-badge";
+        b.className = "inspector-pill-badge";
         b.innerHTML = `${k}: <b>${v}</b>`;
         dataRow.appendChild(b);
       });
@@ -318,68 +345,56 @@ const VisualizerEngine = {
 
     if (step.currentVal !== undefined) {
       const b = document.createElement("div");
-      b.className = "state-badge";
+      b.className = "inspector-pill-badge";
       b.innerHTML = `val: <b>${step.currentVal}</b>`;
       dataRow.appendChild(b);
     }
 
     if (step.complement !== undefined) {
       const b = document.createElement("div");
-      b.className = "state-badge";
+      b.className = "inspector-pill-badge";
       b.innerHTML = `need: <b>${step.complement}</b>`;
       dataRow.appendChild(b);
     }
 
     if (step.currentArea !== undefined) {
       const b = document.createElement("div");
-      b.className = "state-badge";
+      b.className = "inspector-pill-badge";
       b.innerHTML = `area: <b>${step.currentArea}</b>`;
       dataRow.appendChild(b);
     }
 
     if (step.pointers) {
       const b = document.createElement("div");
-      b.className = "state-badge";
+      b.className = "inspector-pill-badge";
       b.innerHTML = `ptrs: <b>${step.pointers}</b>`;
       dataRow.appendChild(b);
     }
 
     if (step.stackVals) {
       const b = document.createElement("div");
-      b.className = "state-badge";
+      b.className = "inspector-pill-badge";
       b.innerHTML = `stack: <b>${step.stackVals}</b>`;
       dataRow.appendChild(b);
     }
 
     if (step.hashTable) {
-      const entries = Object.entries(step.hashTable).map(([k, v]) => `${k}➔[${v}]`).join(", ") || "∅";
+      const entries = Object.entries(step.hashTable).map(([k, v]) => `${k}->[${v}]`).join(", ") || "none";
       const b = document.createElement("div");
-      b.className = "state-badge";
+      b.className = "inspector-pill-badge";
       b.innerHTML = `map: <b>{${entries}}</b>`;
-      dataRow.appendChild(b);
-    }
-
-    if (step.hashSet) {
-      const b = document.createElement("div");
-      b.className = "state-badge";
-      b.innerHTML = `set: <b>{${step.hashSet.join(", ")}}</b>`;
       dataRow.appendChild(b);
     }
 
     stage.appendChild(dataRow);
 
-    // Update Banner
+    // Update Step Caption Bar
     const explEl = document.getElementById("visExplanation");
-    if (explEl) explEl.textContent = `Step ${this.currentStepIndex + 1}/${trace.steps.length}: ${step.explanation}`;
+    if (explEl) explEl.textContent = `Step ${this.currentStepIndex + 1} of ${trace.steps.length}: ${step.explanation}`;
 
     const statusTag = document.getElementById("visStatusTag");
     if (statusTag) {
-      statusTag.textContent = step.invariantStatus;
-      if (step.invariantStatus.includes("Violat") || step.invariantStatus.includes("Dead")) {
-        statusTag.className = "vis-status-tag violated";
-      } else {
-        statusTag.className = "vis-status-tag";
-      }
+      statusTag.textContent = step.invariantStatus || "Invariant Maintained";
     }
   },
 
@@ -418,7 +433,7 @@ const VisualizerEngine = {
   play() {
     this.isPlaying = true;
     const btn = document.getElementById("btnVisPlay");
-    if (btn) btn.textContent = "⏸ Pause";
+    if (btn) btn.textContent = "Pause";
     const delay = this.speed === 1 ? 1400 : 700;
     const timerFn = typeof window !== "undefined" && window.setInterval ? window.setInterval : (typeof setInterval !== "undefined" ? setInterval : ((fn) => 1));
     this.timerId = timerFn(() => {
@@ -435,17 +450,16 @@ const VisualizerEngine = {
   pause() {
     this.isPlaying = false;
     const btn = document.getElementById("btnVisPlay");
-    if (btn) btn.textContent = "▶ Play";
+    if (btn) btn.textContent = "Play";
     if (this.timerId) {
-      clearInterval(this.timerId);
-      this.timerId = null;
+      if (typeof clearInterval !== "undefined") clearInterval(this.timerId);
+      else if (typeof window !== "undefined" && window.clearInterval) window.clearInterval(this.timerId);
     }
+    this.timerId = null;
   },
 
-  toggleSpeed() {
-    this.speed = this.speed === 1 ? 2 : 1;
-    const btn = document.getElementById("btnVisSpeed");
-    if (btn) btn.textContent = `${this.speed}x`;
+  setSpeed(s) {
+    this.speed = s;
     if (this.isPlaying) {
       this.pause();
       this.play();
@@ -454,70 +468,63 @@ const VisualizerEngine = {
 };
 
 // ============================================================================
-// GUIDED PROBLEM WIZARD (ACCORDION STEPS 1 -> 2 -> 3)
+// 3-STEP ACCORDION WIZARD
 // ============================================================================
 
 function setProblemStep(stepNum) {
   AppState.activeProblemStep = stepNum;
 
-  const card1 = document.getElementById("step1PaperCard");
-  const body1 = document.getElementById("step1Body");
-  const status1 = document.getElementById("step1Status");
+  const card1 = document.getElementById("wizardStep1Card");
+  const card2 = document.getElementById("wizardStep2Card");
+  const card3 = document.getElementById("wizardStep3Card");
 
-  const card2 = document.getElementById("step2PortalCard");
-  const body2 = document.getElementById("step2Body");
-  const status2 = document.getElementById("step2Status");
+  const body1 = document.getElementById("wizardStep1Body");
+  const body2 = document.getElementById("wizardStep2Body");
+  const body3 = document.getElementById("wizardStep3Body");
 
-  const card3 = document.getElementById("step3DebriefCard");
-  const body3 = document.getElementById("step3Body");
-  const status3 = document.getElementById("step3Status");
+  const stat1 = document.getElementById("step1StatusCaption");
+  const stat2 = document.getElementById("step2StatusCaption");
+  const stat3 = document.getElementById("step3StatusCaption");
 
-  // Step 1
-  if (stepNum === 1) {
-    if (card1) { card1.className = "accordion-step-card active-step"; }
-    if (body1) { body1.style.display = "flex"; }
-    if (status1) { status1.textContent = "Active"; }
-
-    if (card2) { card2.className = "accordion-step-card"; }
-    if (body2) { body2.style.display = "none"; }
-    if (status2) { status2.textContent = "Pending"; }
-
-    if (card3) { card3.className = "accordion-step-card"; }
-    if (body3) { body3.style.display = "none"; }
-    if (status3) { status3.textContent = "Pending"; }
+  if (card1 && body1) {
+    if (stepNum === 1) {
+      card1.className = "wizard-step-tile active";
+      body1.style.display = "flex";
+      if (stat1) stat1.textContent = "Active Step";
+    } else {
+      card1.className = "wizard-step-tile completed";
+      body1.style.display = "none";
+      if (stat1) stat1.textContent = "Completed";
+    }
   }
-  // Step 2
-  else if (stepNum === 2) {
-    if (card1) { card1.className = "accordion-step-card completed-step"; }
-    if (body1) { body1.style.display = "none"; }
-    if (status1) { status1.textContent = "✓ Completed"; }
 
-    if (card2) { card2.className = "accordion-step-card active-step"; }
-    if (body2) { body2.style.display = "flex"; }
-    if (status2) { status2.textContent = "Active"; }
-
-    if (card3) { card3.className = "accordion-step-card"; }
-    if (body3) { body3.style.display = "none"; }
-    if (status3) { status3.textContent = "Pending"; }
+  if (card2 && body2) {
+    if (stepNum === 2) {
+      card2.className = "wizard-step-tile active";
+      body2.style.display = "flex";
+      if (stat2) stat2.textContent = "Active Step";
+    } else if (stepNum > 2) {
+      card2.className = "wizard-step-tile completed";
+      body2.style.display = "none";
+      if (stat2) stat2.textContent = "Completed";
+    } else {
+      card2.className = "wizard-step-tile locked";
+      body2.style.display = "none";
+      if (stat2) stat2.textContent = "Locked";
+    }
   }
-  // Step 3
-  else if (stepNum === 3) {
-    if (card1) { card1.className = "accordion-step-card completed-step"; }
-    if (body1) { body1.style.display = "none"; }
-    if (status1) { status1.textContent = "✓ Completed"; }
 
-    if (card2) { card2.className = "accordion-step-card completed-step"; }
-    if (body2) { body2.style.display = "none"; }
-    if (status2) { status2.textContent = "✓ Solved"; }
-
-    if (card3) { card3.className = "accordion-step-card active-step"; }
-    if (body3) { body3.style.display = "flex"; }
-    if (status3) { status3.textContent = "Active"; }
+  if (card3 && body3) {
+    if (stepNum === 3) {
+      card3.className = "wizard-step-tile active";
+      body3.style.display = "flex";
+      if (stat3) stat3.textContent = "Active Step";
+    } else {
+      card3.className = "wizard-step-tile locked";
+      body3.style.display = "none";
+      if (stat3) stat3.textContent = "Locked";
+    }
   }
-}
-
-function toggleProblemAccordionStep(stepNum) {
-  setProblemStep(stepNum);
 }
 
 function advanceToStep2() {
@@ -527,10 +534,6 @@ function advanceToStep2() {
   }
   setProblemStep(2);
   TimerEngine.switchToPhase2();
-}
-
-function handleLaunchPortalFromStep1() {
-  advanceToStep2();
 }
 
 function advanceToStep3() {
@@ -543,29 +546,35 @@ function advanceToStep3() {
   }
 }
 
-function toggleWizardSanityAnswer() {
-  const el = document.getElementById("wizardSanityAnswer");
-  if (!el) return;
-  el.style.display = (el.style.display === "none" || !el.style.display) ? "block" : "none";
+function toggleSanityReveal() {
+  const aEl = document.getElementById("wizardSanityAnswer");
+  if (!aEl) return;
+  aEl.style.display = (aEl.style.display === "none" || !aEl.style.display) ? "block" : "none";
 }
 
-function selectWizardOutcome(btn) {
-  document.querySelectorAll("#wizardOutcomeGrid .outcome-card-btn").forEach(b => b.classList.remove("selected"));
-  if (btn && btn.classList) btn.classList.add("selected");
-  const outcome = btn?.dataset?.outcome || "cold";
-
-  const reactionBox = document.getElementById("wizardCoachReaction");
-  if (reactionBox && typeof COACH_DATA !== "undefined" && COACH_DATA.reactions && COACH_DATA.reactions[outcome]) {
-    reactionBox.style.display = "block";
-    reactionBox.textContent = `Coach: "${COACH_DATA.reactions[outcome]}"`;
+function toggleNudgeBody(num) {
+  const body = document.getElementById(`wizardNudge${num}`);
+  const icon = document.getElementById(`nudgeToggleIcon${num}`);
+  if (!body) return;
+  if (body.style.display === "block") {
+    body.style.display = "none";
+    if (icon) icon.textContent = "▾";
+  } else {
+    body.style.display = "block";
+    if (icon) icon.textContent = "▴";
   }
+}
 
-  const days = outcome === "cold" ? 14 : outcome === "buggy" ? 5 : outcome === "hints" ? 3 : 1;
-  const rematchEl = document.getElementById("wizardRematchNotice");
-  if (rematchEl) {
-    rematchEl.textContent = outcome === "cold"
-      ? "✓ 100% Proven Cold Unlocked! (+14d cold verification)"
-      : `Scheduled for Rematch in +${days} days (${outcome === 'editorial' ? 'Mandatory Tomorrow' : 'Active Recall'})`;
+function selectOutcomeCard(el, outcome) {
+  document.querySelectorAll("#wizardOutcomeGrid .outcome-option-tile").forEach(t => t.classList.remove("selected"));
+  el.classList.add("selected");
+
+  const reactionBanner = document.getElementById("wizardReactionBanner");
+  if (reactionBanner) {
+    const days = outcome === "cold" ? 14 : outcome === "buggy" ? 5 : outcome === "hints" ? 3 : 1;
+    reactionBanner.textContent = outcome === "cold"
+      ? "Proven Cold achieved. Scheduled for 14-day cold verification."
+      : `Scheduled for rematch review in +${days} days.`;
   }
 }
 
@@ -581,15 +590,12 @@ function saveWizardDebrief() {
   const problem = BLIND_75_DATABASE.find(p => p.id === problemId);
   if (!problem) return;
 
-  const selectedBtn = document.querySelector("#wizardOutcomeGrid .outcome-card-btn.selected");
-  const outcome = selectedBtn?.dataset?.outcome || "cold";
+  const selectedTile = document.querySelector("#wizardOutcomeGrid .outcome-option-tile.selected");
+  const outcome = selectedTile?.dataset?.outcome || "cold";
   const noteEl = document.getElementById("wizardNoteInput");
   const note = noteEl ? noteEl.value.trim() : "";
   const nextReviewDate = calculateNextReviewDate(outcome);
 
-  // 2-Pass Mastery Update:
-  // 'cold' grants Pass 2: Proven Cold!
-  // Any other outcome grants Pass 1: Solved (scheduled for rematch)
   if (outcome === "cold") {
     AppState.mastery[problemId] = "cold";
   } else {
@@ -598,7 +604,6 @@ function saveWizardDebrief() {
     }
   }
 
-  // Save Autopsy
   const prev = AppState.autopsies[problemId] || {};
   AppState.autopsies[problemId] = {
     outcome,
@@ -607,7 +612,6 @@ function saveWizardDebrief() {
     reviewCount: (prev.reviewCount || 0) + 1
   };
 
-  // Add to Mistake Journal
   if (note.length > 0) {
     AppState.mistakeJournal.unshift({
       problemId,
@@ -631,7 +635,7 @@ function unlockInterviewPitchCard(problem) {
   if (!pitchCard) return;
 
   const pitch = problem.interviewPitch || {
-    naiveTrap: "A brute-force approach compares all pairs in O(N²), which wastes time re-scanning seen elements.",
+    naiveTrap: "A brute-force approach compares all pairs in O(N²), which is too slow.",
     keyInsight: "Instead, as we scan once, we maintain a hash map for immediate O(1) complement lookups.",
     complexityGuarantee: "This guarantees O(N) time and O(N) space, avoiding redundant checks."
   };
@@ -642,21 +646,32 @@ function unlockInterviewPitchCard(problem) {
   const insightEl = document.getElementById("pitchKeyInsight");
   if (insightEl) insightEl.textContent = pitch.keyInsight;
 
-  const compEl = document.getElementById("pitchComplexity");
+  const compEl = document.getElementById("pitchComplexityGuarantee");
   if (compEl) compEl.textContent = pitch.complexityGuarantee;
 
   pitchCard.style.display = "flex";
-  if (typeof pitchCard.scrollIntoView === "function") {
-    pitchCard.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+function copyPitchScript() {
+  const trap = document.getElementById("pitchNaiveTrap")?.textContent || "";
+  const insight = document.getElementById("pitchKeyInsight")?.textContent || "";
+  const comp = document.getElementById("pitchComplexityGuarantee")?.textContent || "";
+
+  const pitchText = `30-Second Interview Explanation:\n1. The Naive Trap: ${trap}\n2. The Key Insight: ${insight}\n3. The Complexity Guarantee: ${comp}`;
+
+  if (navigator?.clipboard?.writeText) {
+    navigator.clipboard.writeText(pitchText).then(() => {
+      alert("Interview Pitch script copied to clipboard.");
+    });
   }
 }
 
 function loadSavedDebrief(autopsy) {
-  document.querySelectorAll("#wizardOutcomeGrid .outcome-card-btn").forEach(b => {
-    if (b.dataset.outcome === autopsy.outcome) {
-      b.classList.add("selected");
+  document.querySelectorAll("#wizardOutcomeGrid .outcome-option-tile").forEach(t => {
+    if (t.dataset.outcome === autopsy.outcome) {
+      t.classList.add("selected");
     } else {
-      b.classList.remove("selected");
+      t.classList.remove("selected");
     }
   });
 
@@ -667,33 +682,19 @@ function loadSavedDebrief(autopsy) {
   if (problem) unlockInterviewPitchCard(problem);
 }
 
-function copyInterviewPitch() {
-  const trap = document.getElementById("pitchNaiveTrap")?.textContent || "";
-  const insight = document.getElementById("pitchKeyInsight")?.textContent || "";
-  const comp = document.getElementById("pitchComplexity")?.textContent || "";
-
-  const pitchText = `30-Second Interview Explanation:\n1. The Naive Trap: ${trap}\n2. The Key Insight: ${insight}\n3. The Complexity Guarantee: ${comp}`;
-
-  if (navigator?.clipboard?.writeText) {
-    navigator.clipboard.writeText(pitchText).then(() => {
-      alert("✓ 30-Second Interview Pitch copied to clipboard! Practice speaking it out loud.");
-    });
-  }
-}
-
 function advanceToNextDailyProblem() {
   const dayData = CURRICULUM_DATABASE.find(d => d.day === AppState.currentDay) || CURRICULUM_DATABASE[0];
   const tasks = dayData.blind75Tasks || [];
   if (AppState.activeProblemIndex < tasks.length - 1) {
     selectDailyProblem(AppState.activeProblemIndex + 1);
   } else {
-    alert("🎉 Outstanding work! You have completed today's problems. Drill patterns or review your Rematch Queue.");
+    alert("Practice session complete for today. Review Rematches or drill patterns.");
     switchDaySubTab("learn");
   }
 }
 
 // ============================================================================
-// DAILY WORKOUT NAVIGATION (TAB 1 VS TAB 2 & PILLS)
+// DAILY CURRICULUM & PILLS
 // ============================================================================
 
 function switchDaySubTab(tab) {
@@ -702,19 +703,19 @@ function switchDaySubTab(tab) {
 
   const tabBtnLearn = document.getElementById("tabBtnLearn");
   const tabBtnSolve = document.getElementById("tabBtnSolve");
-  const subTabLearn = document.getElementById("subTabLearn");
-  const subTabSolve = document.getElementById("subTabSolve");
+  const panelLearn = document.getElementById("tabPanelLearn");
+  const panelSolve = document.getElementById("tabPanelSolve");
 
   if (tab === "learn") {
     if (tabBtnLearn) tabBtnLearn.classList.add("active");
     if (tabBtnSolve) tabBtnSolve.classList.remove("active");
-    if (subTabLearn) subTabLearn.classList.add("active");
-    if (subTabSolve) subTabSolve.classList.remove("active");
+    if (panelLearn) panelLearn.style.display = "flex";
+    if (panelSolve) panelSolve.style.display = "none";
   } else {
     if (tabBtnLearn) tabBtnLearn.classList.remove("active");
     if (tabBtnSolve) tabBtnSolve.classList.add("active");
-    if (subTabLearn) subTabLearn.classList.remove("active");
-    if (subTabSolve) subTabSolve.classList.add("active");
+    if (panelLearn) panelLearn.style.display = "none";
+    if (panelSolve) panelSolve.style.display = "flex";
     selectDailyProblem(AppState.activeProblemIndex || 0);
   }
 }
@@ -729,36 +730,43 @@ function renderDailyProblemPills(dayNumber) {
   tasks.forEach((task, idx) => {
     const p = BLIND_75_DATABASE.find(x => x.id === task.id) || task;
     const masteryState = AppState.mastery[p.id];
-    const statusIcon = masteryState === "cold" ? "🟢" : masteryState === "pass1" ? "🟡" : "⚪";
 
     const pill = document.createElement("button");
-    pill.className = `prob-pill-btn ${idx === AppState.activeProblemIndex ? "active" : ""}`;
+    pill.className = `practice-pill-btn ${idx === AppState.activeProblemIndex ? "active" : ""} ${masteryState === "cold" ? "cold-mastered" : ""}`;
     pill.onclick = () => selectDailyProblem(idx);
+
+    let statusIndicator = `<span style="width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,0.2);"></span>`;
+    if (masteryState === "cold") {
+      statusIndicator = `<span style="width:6px; height:6px; border-radius:50%; background:var(--status-cold);"></span>`;
+    } else if (masteryState === "pass1") {
+      statusIndicator = `<span style="width:6px; height:6px; border-radius:50%; background:var(--apple-action-dark);"></span>`;
+    }
+
     pill.innerHTML = `
-      <span>${statusIcon}</span>
+      ${statusIndicator}
       <span>#${p.id}: ${p.title}</span>
-      <span class="diff-badge ${p.difficulty}">${p.difficulty}</span>
+      <span class="apple-diff-pill ${p.difficulty}">${p.difficulty}</span>
     `;
     container.appendChild(pill);
   });
 
-  // Daily Boss Fight Pill
+  // Daily Benchmark Challenge Pill
   if (dayData.extremeProblem) {
     const ext = dayData.extremeProblem;
     const bossPill = document.createElement("button");
-    bossPill.className = `prob-pill-btn ${AppState.activeProblemIndex === tasks.length ? "active" : ""}`;
+    bossPill.className = `practice-pill-btn ${AppState.activeProblemIndex === tasks.length ? "active" : ""}`;
     bossPill.onclick = () => selectDailyBossFight(dayData.extremeProblem);
     bossPill.innerHTML = `
-      <span>⚔️</span>
-      <span>Boss: ${ext.title}</span>
-      <span class="diff-badge Hard">Hard</span>
+      <span style="width:6px; height:6px; border-radius:50%; background:#ffffff;"></span>
+      <span>Benchmark: ${ext.title}</span>
+      <span class="apple-diff-pill Boss">Benchmark</span>
     `;
     container.appendChild(bossPill);
   }
 
   const solveBadge = document.getElementById("tabSolveCountBadge");
   if (solveBadge) {
-    solveBadge.textContent = `${tasks.length} Problems`;
+    solveBadge.textContent = String(tasks.length);
   }
 }
 
@@ -776,7 +784,7 @@ function selectDailyProblem(index) {
   if (!problem) return;
 
   // Highlight active pill
-  document.querySelectorAll("#dailyProblemPills .prob-pill-btn").forEach((el, i) => {
+  document.querySelectorAll("#dailyProblemPills .practice-pill-btn").forEach((el, i) => {
     if (i === index) el.classList.add("active");
     else el.classList.remove("active");
   });
@@ -788,11 +796,8 @@ function selectDailyProblem(index) {
   const diffBadge = document.getElementById("wizardProblemDiff");
   if (diffBadge) {
     diffBadge.textContent = problem.difficulty;
-    diffBadge.className = `diff-badge ${problem.difficulty}`;
+    diffBadge.className = `apple-diff-pill ${problem.difficulty}`;
   }
-
-  const directLink = document.getElementById("btnSolvePortalDirect");
-  if (directLink) directLink.href = problem.leetcodeUrl;
 
   const mainPortalLink = document.getElementById("btnSolvePortalMain");
   if (mainPortalLink) mainPortalLink.href = problem.leetcodeUrl;
@@ -808,10 +813,10 @@ function selectDailyProblem(index) {
   const aEl = document.getElementById("wizardSanityAnswer");
   if (aEl) {
     aEl.style.display = "none";
-    aEl.innerHTML = `<b>Coach's Check:</b> ${sanity.coachCheck}`;
+    aEl.innerHTML = `<b>Coach check:</b> ${sanity.coachCheck}`;
   }
 
-  // Nudges
+  // Principles / Nudges
   const n1 = document.getElementById("wizardNudge1");
   const n2 = document.getElementById("wizardNudge2");
   const n3 = document.getElementById("wizardNudge3");
@@ -832,22 +837,19 @@ function selectDailyProblem(index) {
 function selectDailyBossFight(boss) {
   AppState.activeProblemIndex = 999;
   const titleEl = document.getElementById("wizardProblemTitle");
-  if (titleEl) titleEl.textContent = `⚔️ Boss Fight: ${boss.title}`;
+  if (titleEl) titleEl.textContent = `Benchmark: ${boss.title}`;
 
   const diffBadge = document.getElementById("wizardProblemDiff");
   if (diffBadge) {
-    diffBadge.textContent = "Boss";
-    diffBadge.className = "diff-badge Hard";
+    diffBadge.textContent = "Benchmark";
+    diffBadge.className = "apple-diff-pill Boss";
   }
-
-  const directLink = document.getElementById("btnSolvePortalDirect");
-  if (directLink) directLink.href = boss.url;
 
   const mainPortalLink = document.getElementById("btnSolvePortalMain");
   if (mainPortalLink) mainPortalLink.href = boss.url;
 
   const qEl = document.getElementById("wizardSanityQuestion");
-  if (qEl) qEl.textContent = `Boss Challenge: ${boss.whyThisBenchmark}`;
+  if (qEl) qEl.textContent = `Benchmark Challenge: ${boss.whyThisBenchmark}`;
 
   setProblemStep(1);
 }
@@ -869,60 +871,45 @@ function switchDay(dayNumber) {
     breadcrumbEl.innerHTML = `
       <span>${dayData.phase.split(":")[0]}</span>
       <span>/</span>
-      <span class="breadcrumb-active">Day ${String(dayData.day).padStart(2, "0")} · ${dayData.category}</span>
+      <span class="nav-breadcrumb-active">Day ${String(dayData.day).padStart(2, "0")}: ${dayData.category}</span>
     `;
   }
 
-  const titleEl = document.getElementById("canvasDayTitle");
-  if (titleEl) titleEl.textContent = `Day ${String(dayData.day).padStart(2, "0")}: ${dayData.title}`;
+  const headingEl = document.getElementById("dayHeading");
+  if (headingEl) {
+    headingEl.textContent = `Day ${String(dayData.day).padStart(2, "0")}. ${dayData.category}`;
+  }
 
-  const subEl = document.getElementById("canvasDaySubtitle");
-  if (subEl) subEl.textContent = dayData.subtitle;
-
-  const indEl = document.getElementById("canvasDayIndicator");
-  if (indEl) indEl.textContent = `${String(dayData.day).padStart(2, "0")}/30`;
+  const subEl = document.getElementById("dayCategorySub");
+  if (subEl) {
+    subEl.textContent = `${dayData.phase} — ${dayData.objective}`;
+  }
 
   const briefingText = (typeof COACH_DATA !== "undefined" && COACH_DATA.briefings && COACH_DATA.briefings[dayNumber]) ||
-    "Master today's pattern with honest focus. Struggle on paper before looking at code.";
-  const briefEl = document.getElementById("coachDailyBriefingText");
+    `Focus on establishing the core invariant before writing code. In ${dayData.category}, we eliminate redundant checks by maintaining state in memory.`;
+  const briefEl = document.getElementById("briefingText");
   if (briefEl) briefEl.textContent = briefingText;
 
-  const invEl = document.getElementById("canvasInvariantText");
-  if (invEl) invEl.textContent = dayData.invariant;
+  const ruleEl = document.getElementById("cardCoreRule");
+  if (ruleEl) ruleEl.textContent = dayData.invariant;
 
-  const proofEl = document.getElementById("canvasProofText");
-  if (proofEl) proofEl.textContent = dayData.amortizedProof;
-
-  const trapsContainer = document.getElementById("canvasTrapsList");
-  if (trapsContainer) {
-    trapsContainer.innerHTML = "";
-    (dayData.traps || []).forEach(t => {
-      const item = document.createElement("div");
-      item.className = "trap-item";
-      item.innerHTML = `<span class="trap-icon">⚠</span> <div>${t}</div>`;
-      trapsContainer.appendChild(item);
-    });
+  const trapsEl = document.getElementById("cardTraps");
+  if (trapsEl && dayData.antiPatterns) {
+    trapsEl.innerHTML = dayData.antiPatterns.map(ap => `<div class="trap-bullet-item">${ap}</div>`).join("");
   }
 
-  const refContainer = document.getElementById("canvasReferencesList");
-  if (refContainer) {
-    refContainer.innerHTML = "";
-    (dayData.authoritativeResources || []).forEach(r => {
-      const link = document.createElement("a");
-      link.className = "ref-link-badge";
-      link.href = r.url;
-      link.target = "_blank";
-      link.rel = "noopener noreferrer";
-      link.innerHTML = `<span>📖</span> <b>${r.source}:</b> ${r.title}`;
-      refContainer.appendChild(link);
-    });
+  const linkNeet = document.getElementById("linkNeetcode");
+  if (linkNeet && dayData.verifiedLinks && dayData.verifiedLinks.neetcode) {
+    linkNeet.href = dayData.verifiedLinks.neetcode;
+  }
+  const linkUsaco = document.getElementById("linkUsaco");
+  if (linkUsaco && dayData.verifiedLinks && dayData.verifiedLinks.usaco) {
+    linkUsaco.href = dayData.verifiedLinks.usaco;
   }
 
-  VisualizerEngine.init();
   renderDailyProblemPills(dayNumber);
+  VisualizerEngine.init();
   renderRoadmap();
-  updateTopStats();
-
   switchDaySubTab(AppState.currentSubTab || "learn");
 }
 
@@ -931,69 +918,77 @@ function renderRoadmap() {
   if (!container) return;
   container.innerHTML = "";
 
-  let lastPhase = "";
+  const phases = {};
+  CURRICULUM_DATABASE.forEach(d => {
+    const pName = d.phase.split(":")[0];
+    if (!phases[pName]) phases[pName] = [];
+    phases[pName].push(d);
+  });
 
-  CURRICULUM_DATABASE.forEach(dayData => {
-    if (dayData.phase !== lastPhase) {
-      lastPhase = dayData.phase;
-      const sep = document.createElement("div");
-      sep.className = "phase-separator";
-      sep.textContent = dayData.phase.split(":")[0];
-      container.appendChild(sep);
-    }
+  Object.entries(phases).forEach(([phaseName, days]) => {
+    const group = document.createElement("div");
+    group.className = "roadmap-phase-group";
 
-    const tasks = dayData.blind75Tasks || [];
-    const coldCount = tasks.filter(t => AppState.mastery[t.id] === "cold").length;
-    const pass1Count = tasks.filter(t => AppState.mastery[t.id] === "pass1").length;
+    const label = document.createElement("div");
+    label.className = "roadmap-phase-header";
+    label.textContent = phaseName;
+    group.appendChild(label);
 
-    const row = document.createElement("button");
-    row.className = `day-row-btn ${dayData.day === AppState.currentDay ? "active" : ""}`;
-    row.onclick = () => switchDay(dayData.day);
+    days.forEach(d => {
+      const row = document.createElement("div");
+      row.className = `day-list-item ${d.day === AppState.currentDay ? "active" : ""}`;
+      row.onclick = () => switchDay(d.day);
 
-    row.innerHTML = `
-      <div class="day-row-left">
-        <span class="day-row-num">D${String(dayData.day).padStart(2, "0")}</span>
-        <span class="day-row-title">${dayData.category}</span>
-      </div>
-      <div class="day-row-status-dots">
-        ${coldCount > 0 ? `<span class="status-mini-dot cold" title="${coldCount} Proven Cold"></span>` : ""}
-        ${pass1Count > 0 ? `<span class="status-mini-dot pass1" title="${pass1Count} First Pass"></span>` : ""}
-      </div>
-    `;
-    container.appendChild(row);
+      const tasks = d.blind75Tasks || [];
+      const completedTasks = tasks.filter(t => AppState.mastery[t.id]);
+      let statusClass = "";
+      if (completedTasks.length === tasks.length && tasks.length > 0) {
+        statusClass = "complete";
+      } else if (completedTasks.length > 0) {
+        statusClass = "partial";
+      }
+
+      row.innerHTML = `
+        <div class="day-item-left">
+          <span class="day-index-label">${String(d.day).padStart(2, "0")}</span>
+          <span>${d.category}</span>
+        </div>
+        <span class="day-status-indicator ${statusClass}"></span>
+      `;
+      group.appendChild(row);
+    });
+
+    container.appendChild(group);
   });
 }
 
 function toggleSidebar() {
-  AppState.sidebarCollapsed = !AppState.sidebarCollapsed;
-  const container = document.getElementById("viewGrind");
-  if (container) {
-    if (AppState.sidebarCollapsed) container.classList.add("sidebar-collapsed");
-    else container.classList.remove("sidebar-collapsed");
-  }
+  const workstation = document.getElementById("viewGrind");
+  if (!workstation) return;
+  workstation.classList.toggle("sidebar-collapsed");
+  AppState.sidebarCollapsed = workstation.classList.contains("sidebar-collapsed");
+  persistState();
 }
 
 // ============================================================================
-// 60-SECOND BLIND PATTERN RECOGNITION DRILL ENGINE
+// 60-SECOND BLIND PATTERN DRILL
 // ============================================================================
 
 const DRILL_PATTERNS = [
-  "Hash Map / Set",
   "Two Pointers",
   "Sliding Window",
+  "Hash Map / Set",
+  "Fast & Slow Pointers",
   "Monotonic Stack",
   "Binary Search",
-  "Linked List / Fast & Slow",
-  "Tree DFS / Recursion",
-  "Tree BFS / Level Order",
-  "Trie (Prefix Tree)",
-  "Heap / Priority Queue",
-  "Graph BFS / DFS",
-  "Graph Topo Sort",
+  "BFS / DFS",
   "1D Dynamic Programming",
   "2D Dynamic Programming",
+  "Trie",
+  "Union-Find",
+  "Heap / Priority Queue",
   "Greedy / Intervals",
-  "Bit Manipulation"
+  "Backtracking"
 ];
 
 let activeDrillProblem = null;
@@ -1007,10 +1002,10 @@ function initPatternDrill() {
 
   DRILL_PATTERNS.forEach(pat => {
     const btn = document.createElement("button");
-    btn.className = "pattern-chip-btn";
+    btn.className = "pattern-selection-chip";
     btn.textContent = pat;
     btn.onclick = () => {
-      document.querySelectorAll("#drillPatternChips .pattern-chip-btn").forEach(b => b.classList.remove("selected"));
+      document.querySelectorAll("#drillPatternChips .pattern-selection-chip").forEach(b => b.classList.remove("selected"));
       btn.classList.add("selected");
       selectedDrillPattern = pat;
     };
@@ -1024,8 +1019,8 @@ function loadRandomPatternDrill() {
   selectedDrillPattern = null;
   selectedDrillComplexity = null;
 
-  document.querySelectorAll("#drillPatternChips .pattern-chip-btn").forEach(b => b.classList.remove("selected"));
-  document.querySelectorAll("#drillComplexityChips .complexity-chip-btn").forEach(b => b.classList.remove("selected"));
+  document.querySelectorAll("#drillPatternChips .pattern-selection-chip").forEach(b => b.classList.remove("selected"));
+  document.querySelectorAll("#drillComplexityChips .complexity-selection-chip").forEach(b => b.classList.remove("selected"));
 
   const feedbackCard = document.getElementById("drillFeedbackCard");
   if (feedbackCard) feedbackCard.style.display = "none";
@@ -1039,17 +1034,17 @@ function loadRandomPatternDrill() {
   const diffEl = document.getElementById("drillProblemDiff");
   if (diffEl) {
     diffEl.textContent = activeDrillProblem.difficulty;
-    diffEl.className = `diff-badge ${activeDrillProblem.difficulty}`;
+    diffEl.className = `apple-diff-pill ${activeDrillProblem.difficulty}`;
   }
 
   const promptEl = document.getElementById("drillProblemPrompt");
   if (promptEl) {
-    promptEl.textContent = `Problem Premise / Invariant: ${activeDrillProblem.keyInvariant}`;
+    promptEl.textContent = `Problem Premise: ${activeDrillProblem.keyInvariant}`;
   }
 }
 
 function selectDrillComplexity(btn) {
-  document.querySelectorAll("#drillComplexityChips .complexity-chip-btn").forEach(b => b.classList.remove("selected"));
+  document.querySelectorAll("#drillComplexityChips .complexity-selection-chip").forEach(b => b.classList.remove("selected"));
   btn.classList.add("selected");
   selectedDrillComplexity = btn.dataset.complexity;
 }
@@ -1057,7 +1052,7 @@ function selectDrillComplexity(btn) {
 function checkPatternDrill() {
   if (!activeDrillProblem) return;
   if (!selectedDrillPattern) {
-    alert("Please select a pattern/data structure chip first!");
+    alert("Please select a pattern/data structure chip first.");
     return;
   }
 
@@ -1076,10 +1071,10 @@ function checkPatternDrill() {
   if (isPatternCorrect) {
     AppState.drillStats.correct++;
     if (feedbackCard) feedbackCard.className = "drill-feedback-card correct";
-    if (statusEl) statusEl.innerHTML = `<span style="color:var(--accent-success);">✓ Spot-on! Optimal Pattern: ${correctPattern}</span>`;
+    if (statusEl) statusEl.innerHTML = `<span style="color:var(--status-cold);">Correct. Optimal Pattern: ${correctPattern}</span>`;
   } else {
     if (feedbackCard) feedbackCard.className = "drill-feedback-card incorrect";
-    if (statusEl) statusEl.innerHTML = `<span style="color:var(--accent-danger);">✕ Not quite. True Pattern: ${correctPattern}</span> (You selected: ${selectedDrillPattern})`;
+    if (statusEl) statusEl.innerHTML = `<span style="color:var(--status-danger);">Incorrect. Optimal Pattern: ${correctPattern}</span> (Selected: ${selectedDrillPattern})`;
   }
 
   const pitch = activeDrillProblem.interviewPitch || {};
@@ -1098,69 +1093,66 @@ function checkPatternDrill() {
 }
 
 // ============================================================================
-// REMATCH QUEUE (SPACED REPETITION) & ALL MATRIX
+// REMATCH QUEUE & 75 INDEX
 // ============================================================================
 
 function renderRematchQueueView() {
   const todayStr = new Date().toISOString().split("T")[0];
-  const dueList = document.getElementById("srsDueProblemsList");
-  if (!dueList) return;
-  dueList.innerHTML = "";
+  const container = document.getElementById("rematchTableContainer");
+  if (!container) return;
+  container.innerHTML = "";
 
-  const journalList = document.getElementById("mistakeJournalList");
-  if (journalList) journalList.innerHTML = "";
-
-  let dueCount = 0;
-
+  const dueProblems = [];
   BLIND_75_DATABASE.forEach(p => {
     const autopsy = AppState.autopsies[p.id];
     if (autopsy && autopsy.nextReviewDate && autopsy.nextReviewDate <= todayStr) {
-      dueCount++;
-      const item = document.createElement("div");
-      item.className = "rematch-card-row";
-      item.innerHTML = `
-        <div class="rematch-card-info">
-          <span class="diff-badge ${p.difficulty}">${p.difficulty}</span>
-          <div>
-            <div class="rematch-card-title">#${p.id}: ${p.title}</div>
-            <div class="rematch-card-meta">Scheduled for review: ${autopsy.nextReviewDate}</div>
-            ${autopsy.note ? `<div style="font-size:11.5px; color:var(--text-muted); margin-top:3px;">"${autopsy.note}"</div>` : ""}
-          </div>
-        </div>
-        <button class="btn-timer primary" onclick="jumpToProblemFromRematch(${p.dayMapped}, ${p.id})">
-          Fight Rematch ⚔️
-        </button>
-      `;
-      dueList.appendChild(item);
+      dueProblems.push({ problem: p, autopsy });
     }
   });
 
-  if (dueCount === 0) {
-    dueList.innerHTML = `<div style="font-size:12.5px; color:var(--text-muted); padding:12px; background:var(--bg-card); border-radius:var(--radius-sm);">✓ No rematches due today! You are caught up. Keep solving cold on today's workout.</div>`;
+  if (dueProblems.length === 0) {
+    container.innerHTML = `
+      <div style="font-size:13px; color:var(--apple-body-muted); padding:24px; background:var(--apple-tile-1); border:1px solid var(--apple-hairline); border-radius:var(--rounded-md); text-align:center;">
+        No rematches due today. All active recall targets are up to date.
+      </div>
+    `;
+    return;
   }
 
-  const dueCounter = document.getElementById("srsTotalDueToday");
-  if (dueCounter) dueCounter.textContent = dueCount;
+  const table = document.createElement("table");
+  table.className = "apple-data-table";
+  const thead = document.createElement("thead");
+  thead.innerHTML = `
+    <tr>
+      <th>Problem</th>
+      <th>Difficulty</th>
+      <th>Pattern</th>
+      <th>Scheduled Date</th>
+      <th>Review Note</th>
+      <th>Action</th>
+    </tr>
+  `;
+  table.appendChild(thead);
+  const tbody = document.createElement("tbody");
+  table.appendChild(tbody);
+  dueProblems.forEach(({ problem: p, autopsy }) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td><b>#${p.id}: ${p.title}</b></td>
+      <td><span class="apple-diff-pill ${p.difficulty}">${p.difficulty}</span></td>
+      <td>${p.patternTag || p.category}</td>
+      <td style="font-family:var(--font-mono); font-size:11px;">${autopsy.nextReviewDate}</td>
+      <td style="font-size:12px; color:var(--apple-body-secondary);">${autopsy.note || "No note recorded."}</td>
+      <td>
+        <button class="apple-pill-btn" onclick="jumpToProblemFromRematch(${p.dayMapped}, ${p.id})">
+          Review Problem →
+        </button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
 
-  if (journalList) {
-    if (AppState.mistakeJournal.length === 0) {
-      journalList.innerHTML = `<div style="font-size:12px; color:var(--text-muted); padding:10px;">No mistake notes logged yet. Log your honest debrief in Step 3 after solving a problem!</div>`;
-    } else {
-      AppState.mistakeJournal.slice(0, 30).forEach(entry => {
-        const card = document.createElement("div");
-        card.className = "bento-card";
-        card.style.padding = "10px 14px";
-        card.innerHTML = `
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <b style="color:#fff; font-size:12px;">${entry.title}</b>
-            <span style="font-size:10px; color:var(--text-muted); font-family:var(--font-mono);">${entry.date}</span>
-          </div>
-          <div style="font-size:12px; color:var(--text-secondary); margin-top:4px;">"${entry.note}"</div>
-        `;
-        journalList.appendChild(card);
-      });
-    }
-  }
+  container.appendChild(table);
 }
 
 function jumpToProblemFromRematch(day, problemId) {
@@ -1176,15 +1168,45 @@ function jumpToProblemFromRematch(day, problemId) {
   }
 }
 
-// All 75 Matrix View
+// 75 Matrix View
 let currentMatrixFilter = "all";
 
-function renderMatrixView() {
-  const tbody = document.getElementById("matrixTableBody");
-  if (!tbody) return;
-  tbody.innerHTML = "";
+function setMatrixFilter(filter) {
+  currentMatrixFilter = filter;
+  ["All", "Cold", "Pass1", "Unsolved"].forEach(name => {
+    const btn = document.getElementById(`matrixFilter${name}`);
+    if (btn) {
+      if (name.toLowerCase() === filter.toLowerCase()) btn.className = "apple-pill-btn primary";
+      else btn.className = "apple-pill-btn";
+    }
+  });
+  renderMatrixView();
+}
 
-  const searchKeyword = (document.getElementById("matrixSearchInput")?.value || "").toLowerCase().trim();
+function renderMatrixView() {
+  const container = document.getElementById("matrixTableWrapper");
+  if (!container) return;
+  container.innerHTML = "";
+
+  const searchKeyword = document.getElementById("matrixSearchInput")?.value.toLowerCase().trim() || "";
+
+  const table = document.createElement("table");
+  table.className = "apple-data-table";
+  const thead = document.createElement("thead");
+  thead.innerHTML = `
+    <tr>
+      <th>ID</th>
+      <th>Problem Title</th>
+      <th>Category</th>
+      <th>Difficulty</th>
+      <th>Complexity</th>
+      <th>Day</th>
+      <th>Status</th>
+    </tr>
+  `;
+  table.appendChild(thead);
+  const tbody = document.createElement("tbody");
+  table.appendChild(tbody);
 
   const filtered = BLIND_75_DATABASE.filter(p => {
     const matchesSearch = !searchKeyword || p.title.toLowerCase().includes(searchKeyword) || p.category.toLowerCase().includes(searchKeyword);
@@ -1197,54 +1219,47 @@ function renderMatrixView() {
 
   filtered.forEach(p => {
     const masteryState = AppState.mastery[p.id];
-    const autopsy = AppState.autopsies[p.id] || {};
 
-    let badgeHtml = '<span class="status-badge-unsolved">⚪ Unsolved</span>';
+    let badgeHtml = '<span class="apple-diff-pill" style="background:rgba(255,255,255,0.08); color:var(--apple-body-muted);">Unsolved</span>';
     if (masteryState === "cold") {
-      badgeHtml = '<span class="status-badge-pass2">🟢 Pass 2: Proven Cold</span>';
+      badgeHtml = '<span class="apple-diff-pill Easy">Cold Mastered</span>';
     } else if (masteryState === "pass1") {
-      badgeHtml = '<span class="status-badge-pass1">🟡 Pass 1: Solved</span>';
+      badgeHtml = '<span class="apple-diff-pill" style="background:var(--apple-action-subtle); color:var(--apple-action-dark);">First Pass</span>';
     }
 
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td style="font-family:var(--font-mono); font-weight:700;">#${p.id}</td>
+      <td style="font-family:var(--font-mono); font-weight:600;">#${p.id}</td>
       <td>
-        <a href="${p.leetcodeUrl}" target="_blank" rel="noopener noreferrer" style="color:#fff; text-decoration:none; font-weight:600;">
+        <a href="${p.leetcodeUrl}" target="_blank" rel="noopener noreferrer" style="color:#ffffff; text-decoration:none;">
           ${p.title} ↗
         </a>
       </td>
       <td>${p.category}</td>
-      <td><span class="diff-badge ${p.difficulty}">${p.difficulty}</span></td>
+      <td><span class="apple-diff-pill ${p.difficulty}">${p.difficulty}</span></td>
       <td style="font-family:var(--font-mono); font-size:11px;">${p.timeComplexity || "O(N)"}</td>
-      <td><a href="#" style="color:var(--accent-primary); text-decoration:none;" onclick="jumpToProblemFromRematch(${p.dayMapped}, ${p.id})">Day ${p.dayMapped}</a></td>
-      <td style="font-family:var(--font-mono); font-size:11px; color:var(--text-muted);">${autopsy.nextReviewDate || "—"}</td>
+      <td>
+        <a href="#" style="color:var(--apple-action-dark); text-decoration:none;" onclick="jumpToProblemFromRematch(${p.dayMapped}, ${p.id})">
+          Day ${p.dayMapped}
+        </a>
+      </td>
       <td>${badgeHtml}</td>
     `;
     tbody.appendChild(tr);
   });
 
-  const coldCount = Object.values(AppState.mastery).filter(m => m === "cold").length;
-  const countEl = document.getElementById("matrixCompletionCount");
-  if (countEl) countEl.textContent = `${coldCount}/75 Proven Cold`;
-}
-
-function filterMatrix(filterName, btn) {
-  currentMatrixFilter = filterName;
-  document.querySelectorAll("#matrixFilterChips .matrix-filter-chip").forEach(b => b.classList.remove("active"));
-  if (btn) btn.classList.add("active");
-  renderMatrixView();
+  container.appendChild(table);
 }
 
 // ============================================================================
-// 4-VIEW CONTROLLER & TELEMETRY
+// TOP VIEW SWITCHER & TELEMETRY
 // ============================================================================
 
 function switchView(viewName) {
   AppState.currentView = viewName;
   persistState();
 
-  document.querySelectorAll(".view-btn").forEach(b => b.classList.remove("active"));
+  document.querySelectorAll(".nav-switch-btn").forEach(b => b.classList.remove("active"));
   const btnMap = { today: "viewBtnToday", rematch: "viewBtnRematch", drill: "viewBtnDrill", matrix: "viewBtnMatrix" };
   const activeBtn = document.getElementById(btnMap[viewName]);
   if (activeBtn) activeBtn.classList.add("active");
@@ -1284,10 +1299,10 @@ function updateTopStats() {
   const coldCount = Object.values(AppState.mastery).filter(m => m === "cold").length;
   const pass1Count = Object.values(AppState.mastery).filter(m => m === "pass1").length;
 
-  const coldEl = document.getElementById("statColdCount");
+  const coldEl = document.getElementById("legendColdCount");
   if (coldEl) coldEl.textContent = `${coldCount}/75`;
 
-  const pass1El = document.getElementById("statPass1Count");
+  const pass1El = document.getElementById("legendPass1Count");
   if (pass1El) pass1El.textContent = `${pass1Count}/75`;
 
   const pct = Math.round((coldCount / 75) * 100);
@@ -1299,12 +1314,6 @@ function updateTopStats() {
 
   const pass1Bar = document.getElementById("masteryPass1Bar");
   if (pass1Bar) pass1Bar.style.width = `${(pass1Count / 75) * 100}%`;
-
-  const legCold = document.getElementById("legendColdCount");
-  if (legCold) legCold.textContent = coldCount;
-
-  const legPass1 = document.getElementById("legendPass1Count");
-  if (legPass1) legPass1.textContent = pass1Count;
 
   const todayStr = new Date().toISOString().split("T")[0];
   let rematchesDue = 0;
@@ -1320,18 +1329,9 @@ function updateTopStats() {
       rematchBadge.style.display = "none";
     }
   }
-}
 
-function copyInvariantText() {
-  const dayData = CURRICULUM_DATABASE.find(d => d.day === AppState.currentDay);
-  if (!dayData || !navigator?.clipboard?.writeText) return;
-  navigator.clipboard.writeText(dayData.invariant).then(() => {
-    const btn = document.getElementById("btnCopyInv");
-    if (btn) {
-      btn.textContent = "✓ Copied!";
-      setTimeout(() => { btn.textContent = "Copy Rule"; }, 1500);
-    }
-  });
+  const streakEl = document.getElementById("streakCountVal");
+  if (streakEl) streakEl.textContent = String(AppState.streak || 1);
 }
 
 function copyCleanBoilerplateTemplate() {
@@ -1339,12 +1339,85 @@ function copyCleanBoilerplateTemplate() {
   if (!dayData || !dayData.starterCode || !navigator?.clipboard?.writeText) return;
   const snippet = dayData.starterCode.python || dayData.starterCode.cpp;
   navigator.clipboard.writeText(snippet).then(() => {
-    alert("✓ Clean interview boilerplate copied to clipboard!");
+    alert("Clean interview boilerplate copied to clipboard.");
   });
 }
 
 // ============================================================================
-// COMMAND PALETTE (⌘K) & MODALS
+// APPLE LOCALSTORAGE & DATA SHEET
+// ============================================================================
+
+function openStorageSheet() {
+  const backdrop = document.getElementById("storageModalBackdrop");
+  if (backdrop) backdrop.classList.add("open");
+  updateStorageMetrics();
+}
+
+function closeStorageSheet() {
+  const backdrop = document.getElementById("storageModalBackdrop");
+  if (backdrop) backdrop.classList.remove("open");
+}
+
+function updateStorageMetrics() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY) || "";
+    const bytes = new Blob([raw]).size;
+    const kb = (bytes / 1024).toFixed(1);
+    const el = document.getElementById("storageUsageVal");
+    if (el) el.textContent = `${kb} KB`;
+  } catch (e) {
+    // Ignore
+  }
+}
+
+function exportDataJSON() {
+  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(localStorage.getItem(STORAGE_KEY) || "{}");
+  const downloadAnchor = document.createElement("a");
+  downloadAnchor.setAttribute("href", dataStr);
+  downloadAnchor.setAttribute("download", `algomaster30_backup_${new Date().toISOString().split("T")[0]}.json`);
+  document.body.appendChild(downloadAnchor);
+  downloadAnchor.click();
+  downloadAnchor.remove();
+}
+
+function importDataJSON(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const content = e.target.result;
+      JSON.parse(content);
+      localStorage.setItem(STORAGE_KEY, content);
+      alert("Data imported successfully.");
+      location.reload();
+    } catch (err) {
+      alert("Invalid JSON backup file.");
+    }
+  };
+  reader.readAsText(file);
+}
+
+function forceReCacheApp() {
+  if (typeof caches !== "undefined") {
+    caches.delete("algomaster-apple-cache-v1").then(() => {
+      alert("Application cache purged. Reloading fresh assets...");
+      location.reload();
+    });
+  } else {
+    location.reload();
+  }
+}
+
+function clearAllProgress() {
+  if (confirm("Reset all training progress, cold records, and mistake notes? This cannot be undone.")) {
+    localStorage.removeItem(STORAGE_KEY);
+    location.reload();
+  }
+}
+
+// ============================================================================
+// COMMAND PALETTE (⌘K) & SHORTCUTS
 // ============================================================================
 
 function openCommandPalette() {
@@ -1375,13 +1448,13 @@ function renderPaletteResults(keyword) {
 
   matches.forEach(p => {
     const item = document.createElement("div");
-    item.className = "palette-item";
+    item.className = "palette-result-row";
     item.innerHTML = `
       <div>
-        <b style="color:#fff;">#${p.id} ${p.title}</b>
-        <span style="font-size:11px; color:var(--text-muted); margin-left:8px;">${p.category}</span>
+        <b style="color:#ffffff;">#${p.id} ${p.title}</b>
+        <span style="font-size:11px; color:var(--apple-body-muted); margin-left:8px;">${p.category}</span>
       </div>
-      <span class="diff-badge ${p.difficulty}">${p.difficulty}</span>
+      <span class="apple-diff-pill ${p.difficulty}">${p.difficulty}</span>
     `;
     item.onclick = () => {
       closeCommandPalette();
@@ -1389,15 +1462,6 @@ function renderPaletteResults(keyword) {
     };
     container.appendChild(item);
   });
-}
-
-function openBackupModal() {
-  const m = document.getElementById("backupModalBackdrop");
-  if (m) m.classList.add("open");
-}
-function closeBackupModal() {
-  const m = document.getElementById("backupModalBackdrop");
-  if (m) m.classList.remove("open");
 }
 
 function openShortcutsModal() {
@@ -1409,47 +1473,11 @@ function closeShortcutsModal() {
   if (m) m.classList.remove("open");
 }
 
-function exportDataJSON() {
-  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(localStorage.getItem(STORAGE_KEY) || "{}");
-  const downloadAnchor = document.createElement("a");
-  downloadAnchor.setAttribute("href", dataStr);
-  downloadAnchor.setAttribute("download", `algomaster30_backup_${new Date().toISOString().split("T")[0]}.json`);
-  document.body.appendChild(downloadAnchor);
-  downloadAnchor.click();
-  downloadAnchor.remove();
-}
-
-function importDataJSON(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    try {
-      const content = e.target.result;
-      JSON.parse(content);
-      localStorage.setItem(STORAGE_KEY, content);
-      alert("✓ Data successfully imported!");
-      location.reload();
-    } catch (err) {
-      alert("Invalid JSON backup file!");
-    }
-  };
-  reader.readAsText(file);
-}
-
-function clearAllProgress() {
-  if (confirm("Reset all training progress, 2-pass cold records, and rematch notes? This cannot be undone.")) {
-    localStorage.removeItem(STORAGE_KEY);
-    location.reload();
-  }
-}
-
-// Global Keyboard Shortcuts
 function setupShortcuts() {
   window.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
       closeCommandPalette();
-      closeBackupModal();
+      closeStorageSheet();
       closeShortcutsModal();
     }
     if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
@@ -1489,12 +1517,13 @@ function setupShortcuts() {
 }
 
 // ============================================================================
-// BULLETPROOF BOOT LIFECYCLE
+// BOOT LIFECYCLE
 // ============================================================================
 
 function bootApp() {
   try {
     loadSavedState();
+    registerServiceWorker();
     setupShortcuts();
     switchView(AppState.currentView || "today");
     switchDay(AppState.currentDay || 1);
