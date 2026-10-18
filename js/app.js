@@ -107,6 +107,223 @@ function updateOfflineStatusBadge(isCached) {
 }
 
 // ============================================================================
+// ============================================================================
+// AUDIO NOTIFICATION & APPLE CUSTOM DIALOG SYSTEM
+// Zero Emojis • Zero Native Alerts/Prompts/Confirms • Offline Web Audio API
+// ============================================================================
+
+function playNotificationChime() {
+  try {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return;
+    const ctx = new AudioCtx();
+    if (ctx.state === "suspended") {
+      ctx.resume();
+    }
+    const now = ctx.currentTime;
+
+    // Harmonic two-tone Apple chime:
+    // First bell: C5 (523.25 Hz)
+    const osc1 = ctx.createOscillator();
+    const gain1 = ctx.createGain();
+    osc1.type = "sine";
+    osc1.frequency.setValueAtTime(523.25, now);
+    gain1.gain.setValueAtTime(0, now);
+    gain1.gain.linearRampToValueAtTime(0.28, now + 0.03);
+    gain1.gain.exponentialRampToValueAtTime(0.0001, now + 0.75);
+    osc1.connect(gain1);
+    gain1.connect(ctx.destination);
+    osc1.start(now);
+    osc1.stop(now + 0.8);
+
+    // Second bell: G5 (783.99 Hz, perfect fifth harmonic chime)
+    const osc2 = ctx.createOscillator();
+    const gain2 = ctx.createGain();
+    osc2.type = "sine";
+    osc2.frequency.setValueAtTime(783.99, now + 0.14);
+    gain2.gain.setValueAtTime(0, now + 0.14);
+    gain2.gain.linearRampToValueAtTime(0.32, now + 0.18);
+    gain2.gain.exponentialRampToValueAtTime(0.0001, now + 1.2);
+    osc2.connect(gain2);
+    gain2.connect(ctx.destination);
+    osc2.start(now + 0.14);
+    osc2.stop(now + 1.25);
+  } catch (err) {
+    console.warn("Audio chime prevented or unsupported:", err);
+  }
+}
+
+let timerToastTimeout = null;
+
+function showTimerToast(title, desc) {
+  const toast = document.getElementById("appleTimerToast");
+  if (!toast) return;
+  const titleEl = toast.querySelector(".timer-toast-title");
+  const descEl = toast.querySelector(".timer-toast-desc");
+  if (titleEl && title) titleEl.textContent = title;
+  if (descEl && desc) descEl.textContent = desc;
+  toast.classList.add("show");
+
+  if (timerToastTimeout) clearTimeout(timerToastTimeout);
+  timerToastTimeout = setTimeout(() => {
+    toast.classList.remove("show");
+  }, 8000);
+}
+
+function dismissTimerToast() {
+  const toast = document.getElementById("appleTimerToast");
+  if (toast) toast.classList.remove("show");
+  if (timerToastTimeout) clearTimeout(timerToastTimeout);
+}
+
+const AppleDialog = {
+  _resolve: null,
+
+  open({ title, message, iconType = "info", showInput = false, inputValue = "", placeholder = "", confirmText = "OK", cancelText = null, destructive = false }) {
+    return new Promise((resolve) => {
+      this._resolve = resolve;
+      const modal = document.getElementById("appleCustomDialogModal");
+      if (!modal) {
+        resolve(showInput ? inputValue : true);
+        return;
+      }
+
+      const titleEl = document.getElementById("appleDialogTitle");
+      const msgEl = document.getElementById("appleDialogMessage");
+      const iconWrap = document.getElementById("appleDialogIconWrap");
+      const inputWrap = document.getElementById("appleDialogInputWrap");
+      const inputEl = document.getElementById("appleDialogInput");
+      const actionsEl = document.getElementById("appleDialogActions");
+
+      if (titleEl) titleEl.textContent = title || "";
+      if (msgEl) msgEl.textContent = message || "";
+
+      if (iconWrap) {
+        if (destructive || iconType === "warning") {
+          iconWrap.className = "apple-dialog-icon warning";
+          iconWrap.innerHTML = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>`;
+        } else if (showInput || iconType === "prompt") {
+          iconWrap.className = "apple-dialog-icon prompt";
+          iconWrap.innerHTML = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>`;
+        } else {
+          iconWrap.className = "apple-dialog-icon info";
+          iconWrap.innerHTML = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 16 12 12 12 8"></polyline><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>`;
+        }
+      }
+
+      if (inputWrap && inputEl) {
+        if (showInput) {
+          inputWrap.style.display = "block";
+          inputEl.value = inputValue || "";
+          inputEl.placeholder = placeholder || "Type here...";
+          setTimeout(() => inputEl.focus(), 60);
+        } else {
+          inputWrap.style.display = "none";
+        }
+      }
+
+      if (actionsEl) {
+        let btns = "";
+        if (cancelText) {
+          btns += `<button type="button" class="apple-pill-btn dialog-cancel-btn" onclick="AppleDialog.cancel()">${cancelText}</button>`;
+        }
+        const confirmBtnClass = destructive ? "apple-pill-btn danger" : "apple-pill-btn primary";
+        btns += `<button type="button" class="${confirmBtnClass} dialog-confirm-btn" onclick="AppleDialog.confirm()">${confirmText}</button>`;
+        actionsEl.innerHTML = btns;
+      }
+
+      modal.classList.add("open");
+    });
+  },
+
+  confirm() {
+    const modal = document.getElementById("appleCustomDialogModal");
+    if (modal) modal.classList.remove("open");
+    const inputEl = document.getElementById("appleDialogInput");
+    const val = inputEl ? inputEl.value : null;
+    if (this._resolve) {
+      const fn = this._resolve;
+      this._resolve = null;
+      fn(val !== null ? val : true);
+    }
+  },
+
+  cancel() {
+    const modal = document.getElementById("appleCustomDialogModal");
+    if (modal) modal.classList.remove("open");
+    if (this._resolve) {
+      const fn = this._resolve;
+      this._resolve = null;
+      fn(null);
+    }
+  },
+
+  alert(title, message, callback) {
+    return this.open({
+      title,
+      message,
+      iconType: "info",
+      confirmText: "OK",
+      cancelText: null
+    }).then(() => {
+      if (callback) callback();
+    });
+  },
+
+  confirmDialog(title, message, onConfirm, onCancel, options = {}) {
+    return this.open({
+      title,
+      message,
+      iconType: options.destructive ? "warning" : "info",
+      confirmText: options.confirmText || (options.destructive ? "Reset Everything" : "Confirm"),
+      cancelText: options.cancelText || "Cancel",
+      destructive: !!options.destructive
+    }).then((res) => {
+      if (res) {
+        if (onConfirm) onConfirm();
+      } else {
+        if (onCancel) onCancel();
+      }
+    });
+  },
+
+  prompt(title, message, defaultValue, onSubmit, onCancel) {
+    return this.open({
+      title,
+      message,
+      iconType: "prompt",
+      showInput: true,
+      inputValue: defaultValue || "",
+      placeholder: "Enter value...",
+      confirmText: "Save",
+      cancelText: "Cancel"
+    }).then((val) => {
+      if (val !== null) {
+        if (onSubmit) onSubmit(val);
+      } else {
+        if (onCancel) onCancel();
+      }
+    });
+  }
+};
+
+// Global Keyboard Handler for AppleDialog
+if (typeof window !== "undefined") {
+  window.addEventListener("keydown", (e) => {
+    const modal = document.getElementById("appleCustomDialogModal");
+    if (modal && modal.classList.contains("open")) {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        AppleDialog.cancel();
+      } else if (e.key === "Enter") {
+        e.preventDefault();
+        AppleDialog.confirm();
+      }
+    }
+  });
+}
+
+// ============================================================================
 // TIMERS & STOPWATCH ENGINE
 // ============================================================================
 
@@ -115,6 +332,8 @@ const TimerEngine = {
   phase1Remaining: 15 * 60,
   phase2Seconds: 0,
   intervalId: null,
+  isOvertime: false,
+  overtimeSeconds: 0,
 
   formatTime(totalSec) {
     const m = Math.floor(Math.max(0, totalSec) / 60);
@@ -124,6 +343,12 @@ const TimerEngine = {
 
   startPhase1() {
     this.activePhase = 1;
+    // Request browser notification permission so user can receive notifications when time is up
+    if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "default") {
+      try {
+        Notification.requestPermission().catch(() => {});
+      } catch (err) {}
+    }
     this.startTicker();
     const btn = document.getElementById("btnWizardPaperTimerStart");
     if (btn) btn.textContent = "Pause";
@@ -169,6 +394,26 @@ const TimerEngine = {
     if (statusEl) statusEl.textContent = `Completed in ${this.formatTime(this.phase2Seconds)}`;
   },
 
+  handlePhase1Expired() {
+    // 1. Play Apple Web Audio harmonic chime
+    playNotificationChime();
+
+    // 2. Native OS Browser notification
+    if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
+      try {
+        new Notification("AlgoMaster 30 — Time is Up!", {
+          body: "15-minute paper struggle completed. You can now reveal hints or begin coding.",
+          icon: "icons/icon.svg"
+        });
+      } catch (err) {
+        console.warn("Notification trigger error:", err);
+      }
+    }
+
+    // 3. In-App Glass Toast Banner
+    showTimerToast("Time is Up — 15m Struggle Complete", "You've crossed 15 minutes. Tracking overtime. Reveal hints or advance to code!");
+  },
+
   startTicker() {
     if (this.intervalId) {
       if (typeof clearInterval !== "undefined") clearInterval(this.intervalId);
@@ -179,9 +424,23 @@ const TimerEngine = {
       if (this.activePhase === 1) {
         if (this.phase1Remaining > 0) {
           this.phase1Remaining--;
+          const el = document.getElementById("wizardPaperTimerVal");
+          if (el) el.textContent = this.formatTime(this.phase1Remaining);
+          if (this.phase1Remaining === 0) {
+            this.handlePhase1Expired();
+          }
+        } else {
+          // Timer crossed 00:00 — track overtime so user can monitor exact elapsed struggle duration
+          this.isOvertime = true;
+          this.overtimeSeconds = (this.overtimeSeconds || 0) + 1;
+          const el = document.getElementById("wizardPaperTimerVal");
+          if (el) el.textContent = "00:00";
+          const otEl = document.getElementById("wizardPaperTimerOvertime");
+          if (otEl) {
+            otEl.style.display = "inline-flex";
+            otEl.textContent = `Overtime: +${this.formatTime(this.overtimeSeconds)}`;
+          }
         }
-        const el = document.getElementById("wizardPaperTimerVal");
-        if (el) el.textContent = this.formatTime(this.phase1Remaining);
       } else if (this.activePhase === 2) {
         this.phase2Seconds++;
         const el = document.getElementById("wizardStopwatchVal");
@@ -191,7 +450,19 @@ const TimerEngine = {
   },
 
   addFiveMinutes() {
-    this.phase1Remaining += 5 * 60;
+    if (this.isOvertime) {
+      if (this.overtimeSeconds > 300) {
+        this.overtimeSeconds -= 300;
+      } else {
+        this.phase1Remaining = 300 - this.overtimeSeconds;
+        this.overtimeSeconds = 0;
+        this.isOvertime = false;
+        const otEl = document.getElementById("wizardPaperTimerOvertime");
+        if (otEl) otEl.style.display = "none";
+      }
+    } else {
+      this.phase1Remaining += 5 * 60;
+    }
     const el = document.getElementById("wizardPaperTimerVal");
     if (el) el.textContent = this.formatTime(this.phase1Remaining);
   },
@@ -205,10 +476,14 @@ const TimerEngine = {
     this.activePhase = 0;
     this.phase1Remaining = 15 * 60;
     this.phase2Seconds = 0;
+    this.isOvertime = false;
+    this.overtimeSeconds = 0;
     const p1El = document.getElementById("wizardPaperTimerVal");
     if (p1El) p1El.textContent = "15:00";
     const p2El = document.getElementById("wizardStopwatchVal");
     if (p2El) p2El.textContent = "00:00";
+    const otEl = document.getElementById("wizardPaperTimerOvertime");
+    if (otEl) otEl.style.display = "none";
     const btn = document.getElementById("btnWizardPaperTimerStart");
     if (btn) btn.textContent = "Start 15m Timer";
   }
@@ -756,8 +1031,10 @@ function copyPitchScript() {
 
   if (navigator?.clipboard?.writeText) {
     navigator.clipboard.writeText(pitchText).then(() => {
-      alert("Interview Pitch script copied to clipboard.");
+      AppleDialog.alert("Interview Pitch Copied", "Your 30-second speaking script has been copied to the clipboard.");
     });
+  } else {
+    AppleDialog.alert("Interview Pitch", pitchText);
   }
 }
 
@@ -783,7 +1060,7 @@ function advanceToNextDailyProblem() {
   if (AppState.activeProblemIndex < tasks.length - 1) {
     selectDailyProblem(AppState.activeProblemIndex + 1);
   } else {
-    alert("Practice session complete for today. Review Rematches or drill patterns.");
+    AppleDialog.alert("Session Complete", "Practice session complete for today! Review your Rematches or test your reflexes in Pattern Drill.");
     switchDaySubTab("learn");
   }
 }
@@ -1193,7 +1470,7 @@ function selectDrillComplexity(btn) {
 function checkPatternDrill() {
   if (!activeDrillProblem) return;
   if (!selectedDrillPattern) {
-    alert("Please select a pattern/data structure chip first.");
+    AppleDialog.alert("Pattern Required", "Please select a pattern or data structure chip first before validating.");
     return;
   }
 
@@ -1396,9 +1673,28 @@ function renderMatrixView() {
 // TOP VIEW SWITCHER & TELEMETRY
 // ============================================================================
 
+function updateNavContextElements(viewName) {
+  const hamburgerBtn = document.getElementById("btnToggleSidebar");
+  const breadcrumb = document.getElementById("globalBreadcrumb");
+  const navDivider = document.querySelector(".nav-left .nav-divider");
+  const searchTrigger = document.querySelector(".nav-search-trigger");
+
+  const isToday = (viewName === "today");
+  if (hamburgerBtn) hamburgerBtn.style.display = isToday ? "inline-flex" : "none";
+  if (breadcrumb) breadcrumb.style.display = isToday ? "flex" : "none";
+  if (navDivider) navDivider.style.display = isToday ? "block" : "none";
+
+  // Contextual search button: Show on Today and Rematches.
+  // Hide on 75 Index (has its own dedicated search bar), Drill (focused test), and Profile (static analytics).
+  const showSearch = (viewName === "today" || viewName === "rematch");
+  if (searchTrigger) searchTrigger.style.display = showSearch ? "inline-flex" : "none";
+}
+
 function switchView(viewName) {
   AppState.currentView = viewName;
   persistState();
+
+  updateNavContextElements(viewName);
 
   document.querySelectorAll(".nav-switch-btn").forEach(b => b.classList.remove("active"));
   const btnMap = { today: "viewBtnToday", rematch: "viewBtnRematch", drill: "viewBtnDrill", matrix: "viewBtnMatrix", profile: "viewBtnProfile" };
@@ -1788,12 +2084,20 @@ function saveOnboardingName() {
 
 function editUserName() {
   const current = AppState.userName || "Engineer";
-  const newName = prompt("Enter your name / handle:", current);
-  if (newName !== null && newName.trim().length > 0) {
-    AppState.userName = newName.trim();
-    persistState();
-    renderProfileView();
-  }
+  AppleDialog.prompt(
+    "Edit Profile Handle",
+    "Enter your name or interview handle to personalize your training logs:",
+    current,
+    (newName) => {
+      if (newName && newName.trim().length > 0) {
+        AppState.userName = newName.trim();
+        persistState();
+        if (AppState.currentView === "profile") {
+          renderProfileView();
+        }
+      }
+    }
+  );
 }
 
 function updateTopStats() {
@@ -1835,13 +2139,82 @@ function updateTopStats() {
   if (streakEl) streakEl.textContent = String(AppState.streak || 1);
 }
 
+function generateAlgorithmBlueprint(dayData) {
+  const currentProblem = (dayData && dayData.blind75Tasks && dayData.blind75Tasks[AppState.activeProblemIndex]) || {
+    id: 1, title: "Algorithmic Challenge", difficulty: "Medium", leetCodeSlug: "algorithm-challenge"
+  };
+  const category = dayData?.category || "Core Algorithms";
+  const pattern = dayData?.visualizer?.pattern || dayData?.systemDesignLens?.title || "Invariant Loop Traversal";
+  const hint1 = dayData?.progressiveHints?.hint1 || "Identify the invariant relation between elements.";
+  const hint2 = dayData?.progressiveHints?.hint2 || "Map intermediate states to avoid redundant recalculation.";
+  const cleanTitle = currentProblem.title.replace(/[^a-zA-Z0-9]/g, "");
+
+  return `/* ============================================================================
+ * ALGORITHM SPECIFICATION & INVARIANT BLUEPRINT
+ * Problem #${currentProblem.id}: ${currentProblem.title} [${currentProblem.difficulty}]
+ * Paradigm: ${category}
+ * Invariant Pattern: ${pattern}
+ * ============================================================================
+ *
+ * 1. PRECONDITIONS & BOUNDARY CONDITIONS:
+ *    - Input Domain: Sequence / Matrix / Graph nodes within problem size bounds
+ *    - Valid Base: Non-empty collection, size >= 1
+ *    - Edge Cases: Empty collection, single element, negative keys, duplicates
+ *
+ * 2. STATE FORMULATION & LOOP INVARIANTS:
+ *    - Loop Invariant:
+ *      At the start of each iteration i, the state structure accurately represents
+ *      all examined elements in prefix [0 ... i-1].
+ *    - State Auxiliary Structure:
+ *      Keyed lookup / Dual index pointers / Monotonic stack / Memoized table
+ *
+ * 3. ALGORITHMIC SPECIFICATION (PSEUDOCODE):
+ *    ALGORITHM Solve${cleanTitle}(Input):
+ *        // Step A: Guard against trivial edge conditions
+ *        IF Input is null OR Length(Input) == 0 THEN
+ *            RETURN BaseDefaultValue
+ *        END IF
+ *
+ *        // Step B: Initialize state structures
+ *        INITIALIZE stateTracker (e.g. HashTable, TwoPointers, PriorityQueue)
+ *
+ *        // Step C: Execute invariant-preserving transitions
+ *        FOR EACH item AT index i IN Input DO:
+ *            targetInvariant = COMPUTE_TARGET_INVARIANT(item)
+ *
+ *            IF stateTracker.CONTAINS(targetInvariant) THEN
+ *                candidateResult = CONSTRUCT_SOLUTION(stateTracker[targetInvariant], i)
+ *                RETURN candidateResult
+ *            END IF
+ *
+ *            stateTracker.INSERT(item, i)
+ *        END FOR
+ *
+ *        RETURN UnresolvedSentinel // or optimal accumulated state
+ *
+ * 4. COMPLEXITY COMMITMENT:
+ *    - Time Complexity:  O(N) amortized single-pass scan
+ *    - Space Complexity: O(N) auxiliary invariant state
+ *
+ * 5. COACHING INVARIANT HINTS:
+ *    - Primary Hint: "${hint1}"
+ *    - Deep Invariant: "${hint2}"
+ * ============================================================================ */`;
+}
+
 function copyCleanBoilerplateTemplate() {
-  const dayData = CURRICULUM_DATABASE.find(d => d.day === AppState.currentDay);
-  if (!dayData || !dayData.starterCode || !navigator?.clipboard?.writeText) return;
-  const snippet = dayData.starterCode.python || dayData.starterCode.cpp;
-  navigator.clipboard.writeText(snippet).then(() => {
-    alert("Clean interview boilerplate copied to clipboard.");
-  });
+  const dayData = CURRICULUM_DATABASE.find(d => d.day === AppState.currentDay) || CURRICULUM_DATABASE[0];
+  const blueprint = generateAlgorithmBlueprint(dayData);
+  if (navigator?.clipboard?.writeText) {
+    navigator.clipboard.writeText(blueprint).then(() => {
+      AppleDialog.alert(
+        "Algorithm Blueprint Copied",
+        "Language-agnostic algorithm specification & invariant blueprint copied to clipboard."
+      );
+    });
+  } else {
+    AppleDialog.alert("Algorithm Blueprint", blueprint);
+  }
 }
 
 // ============================================================================
@@ -1890,10 +2263,11 @@ function importDataJSON(event) {
       const content = e.target.result;
       JSON.parse(content);
       localStorage.setItem(STORAGE_KEY, content);
-      alert("Data imported successfully.");
-      location.reload();
+      AppleDialog.alert("Data Imported", "Your training progress has been restored successfully.", () => {
+        location.reload();
+      });
     } catch (err) {
-      alert("Invalid JSON backup file.");
+      AppleDialog.alert("Import Failed", "The selected file is not a valid JSON backup file.");
     }
   };
   reader.readAsText(file);
@@ -1902,8 +2276,9 @@ function importDataJSON(event) {
 function forceReCacheApp() {
   if (typeof caches !== "undefined") {
     caches.delete("algomaster-apple-cache-v1").then(() => {
-      alert("Application cache purged. Reloading fresh assets...");
-      location.reload();
+      AppleDialog.alert("Cache Purged", "Application cache purged. Reloading fresh assets...", () => {
+        location.reload();
+      });
     });
   } else {
     location.reload();
@@ -1911,10 +2286,16 @@ function forceReCacheApp() {
 }
 
 function clearAllProgress() {
-  if (confirm("Reset all training progress, cold records, and mistake notes? This cannot be undone.")) {
-    localStorage.removeItem(STORAGE_KEY);
-    location.reload();
-  }
+  AppleDialog.confirmDialog(
+    "Reset All Training Data?",
+    "Reset all training progress, cold mastery records, and mistake autopsy logs? This cannot be undone.",
+    () => {
+      localStorage.removeItem(STORAGE_KEY);
+      location.reload();
+    },
+    null,
+    { destructive: true, confirmText: "Reset Everything" }
+  );
 }
 
 // ============================================================================
