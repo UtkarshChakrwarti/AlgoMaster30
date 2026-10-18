@@ -1619,16 +1619,70 @@ kbd {
   justify-content: center;
 }
 .portal-solve-link {
-  padding: 9px 22px;
+  padding: 9px 18px;
   border-radius: var(--rounded-pill);
   background: var(--apple-action-blue);
   color: #ffffff;
   text-decoration: none;
-  font-size: 13.5px;
+  font-size: 13px;
   font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  transition: all var(--apple-transition);
 }
 .portal-solve-link:hover {
   background: var(--apple-action-hover);
+  transform: translateY(-0.5px);
+}
+.portal-solve-link.alt-runner {
+  background: var(--apple-tile-2);
+  color: var(--apple-text-primary);
+  border: 1px solid var(--apple-hairline-strong);
+}
+.portal-solve-link.alt-runner:hover {
+  background: var(--apple-tile-3);
+  border-color: var(--apple-accent-translucent);
+}
+.portal-solve-link.highlight-runner {
+  background: var(--status-warning) !important;
+  color: #000000 !important;
+  font-weight: 600;
+  border-color: transparent !important;
+  box-shadow: 0 3px 12px rgba(255, 159, 10, 0.35);
+}
+
+.apple-diff-pill.premium-badge {
+  background: rgba(255, 149, 0, 0.15);
+  color: #ff9500;
+  border: 1px solid rgba(255, 149, 0, 0.35);
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: -0.01em;
+}
+[data-theme="light"] .apple-diff-pill.premium-badge {
+  background: rgba(255, 149, 0, 0.12);
+  color: #b35900;
+  border-color: rgba(255, 149, 0, 0.35);
+}
+
+.matrix-free-runner-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 10.5px;
+  font-weight: 500;
+  color: var(--apple-action-dark);
+  padding: 2px 8px;
+  border-radius: 9999px;
+  background: var(--apple-action-subtle);
+  border: 1px solid var(--apple-border-subtle);
+  text-decoration: none;
+  transition: all var(--apple-transition);
+}
+.matrix-free-runner-link:hover {
+  background: var(--apple-action);
+  color: #ffffff !important;
+  transform: translateY(-0.5px);
 }
 
 /* STEP 3: Debrief & Speaking Pitch */

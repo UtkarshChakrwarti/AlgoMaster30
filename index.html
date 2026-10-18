@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -77,7 +77,7 @@
       </button>
 
       <!-- Apple Theme Mode Switcher (Sun / Moon Segmented Pill) -->
-      <div id="appleThemePill" class="apple-theme-pill is-dark" onclick="toggleTheme()" role="button" title="Switch Theme (Light / Dark)">
+      <div id="appleThemePill" class="apple-theme-pill is-light" onclick="toggleTheme()" role="button" title="Switch Theme (Light / Dark)">
         <span class="theme-icon-wrap theme-sun-icon" aria-hidden="true">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="5"></circle>
@@ -96,7 +96,7 @@
             <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
           </svg>
         </span>
-        <span id="themeToggleLabel" class="theme-label-text">Dark</span>
+        <span id="themeToggleLabel" class="theme-label-text">Light</span>
       </div>
 
       <!-- Shortcuts (?) Icon Button -->
@@ -290,7 +290,10 @@
               <div id="wizardStep1Body" class="step-content-body">
                 <div class="wizard-title-row">
                   <h2 id="wizardProblemTitle">#1: Two Sum</h2>
-                  <span id="wizardProblemDiff" class="apple-diff-pill Easy">Easy</span>
+                  <div style="display:flex; align-items:center; gap:6px;">
+                    <span id="wizardProblemDiff" class="apple-diff-pill Easy">Easy</span>
+                    <span id="wizardProblemPremiumBadge" class="apple-diff-pill warning" style="display:none; font-size:10px;">Premium</span>
+                  </div>
                 </div>
 
                 <!-- 15:00 Paper Struggle Countdown -->
@@ -384,8 +387,11 @@
                   </div>
 
                   <div class="portal-buttons-cluster">
-                    <a id="btnSolvePortalMain" href="https://leetcode.com" target="_blank" rel="noopener" class="portal-solve-link">
-                      Open on Portal ↗
+                    <a id="btnSolvePortalMain" href="https://leetcode.com/problems/two-sum/" target="_blank" rel="noopener" class="portal-solve-link" title="Open on LeetCode">
+                      <span id="portalMainLabel">Open on LeetCode ↗</span>
+                    </a>
+                    <a id="btnSolvePortalAlt" href="https://neetcode.io/problems/two-integer-sum" target="_blank" rel="noopener" class="portal-solve-link alt-runner" title="Free Online Runner (Run & test code online with zero paywall)">
+                      <span id="portalAltLabel">Free Online Runner ↗</span>
                     </a>
                     <button class="apple-pill-btn" onclick="copyCleanBoilerplateTemplate()" title="Copy language-agnostic Algorithm Blueprint to clipboard">
                       Copy Algorithm Blueprint

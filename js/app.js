@@ -467,6 +467,24 @@ const TimerEngine = {
     if (el) el.textContent = this.formatTime(this.phase1Remaining);
   },
 
+  isTimerRunning() {
+    return this.intervalId !== null;
+  },
+
+  pauseAny() {
+    if (this.activePhase === 1) {
+      this.pausePhase1();
+    } else if (this.activePhase === 2) {
+      if (this.intervalId) {
+        if (typeof clearInterval !== "undefined") clearInterval(this.intervalId);
+        else if (typeof window !== "undefined" && window.clearInterval) window.clearInterval(this.intervalId);
+      }
+      this.intervalId = null;
+      const statusEl = document.getElementById("wizardStopwatchStatus");
+      if (statusEl) statusEl.textContent = `Paused at ${this.formatTime(this.phase2Seconds)}`;
+    }
+  },
+
   resetTimer() {
     if (this.intervalId) {
       if (typeof clearInterval !== "undefined") clearInterval(this.intervalId);
@@ -488,6 +506,32 @@ const TimerEngine = {
     if (btn) btn.textContent = "Start 15m Timer";
   }
 };
+
+// Deliberate Practice Navigation Lock
+// Intercepts and guards all screen, day, subtab, and problem jumps while the timer is running
+function checkTimerLock(onProceed) {
+  if (TimerEngine.isTimerRunning()) {
+    const phaseName = TimerEngine.activePhase === 1 ? "15-minute paper struggle" : "implementation timer";
+    AppleDialog.confirmDialog(
+      "Struggle Timer Active",
+      `Your ${phaseName} is currently in progress. Deliberate practice requires uninterrupted focus.\n\nTo navigate to another section or problem, please confirm pausing the timer.`,
+      () => {
+        TimerEngine.pauseAny();
+        if (typeof onProceed === "function") onProceed();
+      },
+      () => {
+        // User chose to stay focused: do nothing
+      },
+      {
+        confirmText: "Pause & Proceed",
+        cancelText: "Stay Focused"
+      }
+    );
+    return false;
+  }
+  if (typeof onProceed === "function") onProceed();
+  return true;
+}
 
 // ============================================================================
 // VISUALIZER INSPECTOR ENGINE
@@ -1055,14 +1099,16 @@ function loadSavedDebrief(autopsy) {
 }
 
 function advanceToNextDailyProblem() {
-  const dayData = CURRICULUM_DATABASE.find(d => d.day === AppState.currentDay) || CURRICULUM_DATABASE[0];
-  const tasks = dayData.blind75Tasks || [];
-  if (AppState.activeProblemIndex < tasks.length - 1) {
-    selectDailyProblem(AppState.activeProblemIndex + 1);
-  } else {
-    AppleDialog.alert("Session Complete", "Practice session complete for today! Review your Rematches or test your reflexes in Pattern Drill.");
-    switchDaySubTab("learn");
-  }
+  checkTimerLock(() => {
+    const dayData = CURRICULUM_DATABASE.find(d => d.day === AppState.currentDay) || CURRICULUM_DATABASE[0];
+    const tasks = dayData.blind75Tasks || [];
+    if (AppState.activeProblemIndex < tasks.length - 1) {
+      selectDailyProblem(AppState.activeProblemIndex + 1);
+    } else {
+      AppleDialog.alert("Session Complete", "Practice session complete for today! Review your Rematches or test your reflexes in Pattern Drill.");
+      switchDaySubTab("learn");
+    }
+  });
 }
 
 // ============================================================================
@@ -1070,6 +1116,16 @@ function advanceToNextDailyProblem() {
 // ============================================================================
 
 function switchDaySubTab(tab) {
+  if (AppState.currentSubTab === tab) return;
+  // If moving away from active solve phase while timer is running, prompt user
+  if (AppState.currentSubTab === "solve" && tab === "learn" && TimerEngine.isTimerRunning()) {
+    checkTimerLock(() => doSwitchDaySubTab(tab));
+  } else {
+    doSwitchDaySubTab(tab);
+  }
+}
+
+function doSwitchDaySubTab(tab) {
   AppState.currentSubTab = tab;
   persistState();
 
@@ -1112,7 +1168,11 @@ function renderDailyProblemPills(dayNumber) {
 
     const pill = document.createElement("button");
     pill.className = `practice-pill-btn ${idx === AppState.activeProblemIndex ? "active" : ""} ${masteryState === "cold" ? "cold-mastered" : ""}`;
-    pill.onclick = () => selectDailyProblem(idx);
+    pill.onclick = () => {
+      if (idx !== AppState.activeProblemIndex) {
+        checkTimerLock(() => selectDailyProblem(idx));
+      }
+    };
     pill.innerHTML = `
       <span>#${p.id}: ${p.title}</span>
       <span class="apple-diff-pill ${p.difficulty}">${p.difficulty}</span>
@@ -1125,8 +1185,12 @@ function renderDailyProblemPills(dayNumber) {
   if (dayData.extremeProblem) {
     const ext = dayData.extremeProblem;
     const bossPill = document.createElement("button");
-    bossPill.className = `practice-pill-btn ${AppState.activeProblemIndex === tasks.length ? "active" : ""}`;
-    bossPill.onclick = () => selectDailyBossFight(dayData.extremeProblem);
+    bossPill.className = `practice-pill-btn ${AppState.activeProblemIndex === 999 ? "active" : ""}`;
+    bossPill.onclick = () => {
+      if (AppState.activeProblemIndex !== 999) {
+        checkTimerLock(() => selectDailyBossFight(dayData.extremeProblem));
+      }
+    };
     bossPill.innerHTML = `
       <span>Benchmark: ${ext.title}</span>
       <span class="apple-diff-pill Boss">Benchmark</span>
@@ -1143,14 +1207,21 @@ function renderDailyProblemPills(dayNumber) {
 function selectDailyProblem(index) {
   const dayData = CURRICULUM_DATABASE.find(d => d.day === AppState.currentDay) || CURRICULUM_DATABASE[0];
   const tasks = dayData.blind75Tasks || [];
-  if (!tasks[index]) return;
+  if (index >= tasks.length) index = 0;
+  if (!tasks[index]) {
+    if (dayData.extremeProblem) {
+      selectDailyBossFight(dayData.extremeProblem);
+      return;
+    }
+    return;
+  }
 
   AppState.activeProblemIndex = index;
   const taskId = tasks[index].id;
   AppState.activeProblemId = taskId;
   persistState();
 
-  const problem = BLIND_75_DATABASE.find(p => p.id === taskId);
+  const problem = BLIND_75_DATABASE.find(p => p.id === taskId) || tasks[index];
   if (!problem) return;
 
   // Highlight active pill
@@ -1159,7 +1230,7 @@ function selectDailyProblem(index) {
     else el.classList.remove("active");
   });
 
-  // Populate Step 1
+  // Populate Step 1 Header
   const titleEl = document.getElementById("wizardProblemTitle");
   if (titleEl) titleEl.textContent = `#${problem.id}: ${problem.title}`;
 
@@ -1169,8 +1240,37 @@ function selectDailyProblem(index) {
     diffBadge.className = `apple-diff-pill ${problem.difficulty}`;
   }
 
+  const premiumBadge = document.getElementById("wizardProblemPremiumBadge");
+  if (premiumBadge) {
+    premiumBadge.style.display = problem.isPremium ? "inline-flex" : "none";
+  }
+
+  // Update Main LeetCode Link & Dynamic Label
   const mainPortalLink = document.getElementById("btnSolvePortalMain");
-  if (mainPortalLink) mainPortalLink.href = problem.leetcodeUrl;
+  const mainPortalLabel = document.getElementById("portalMainLabel");
+  if (mainPortalLink) {
+    mainPortalLink.href = problem.leetcodeUrl;
+    if (mainPortalLabel) {
+      mainPortalLabel.textContent = problem.isPremium ? "Open on LeetCode (Premium 🔒) ↗" : "Open on LeetCode ↗";
+    }
+  }
+
+  // Update Free Online Runner Link (NeetCode / GFG)
+  const altPortalLink = document.getElementById("btnSolvePortalAlt");
+  const altPortalLabel = document.getElementById("portalAltLabel");
+  if (altPortalLink) {
+    const freeUrl = problem.freeAlternativeUrl || problem.leetcodeUrl;
+    altPortalLink.href = freeUrl;
+    if (altPortalLabel) {
+      const runnerName = problem.freeAlternativeName || "Free Online Runner";
+      altPortalLabel.textContent = `${runnerName} ↗`;
+    }
+    if (problem.isPremium) {
+      altPortalLink.classList.add("highlight-runner");
+    } else {
+      altPortalLink.classList.remove("highlight-runner");
+    }
+  }
 
   // Sanity Question
   const sanity = (typeof COACH_DATA !== "undefined" && COACH_DATA.sanityChecks && COACH_DATA.sanityChecks[problem.id]) || {
@@ -1215,8 +1315,25 @@ function selectDailyBossFight(boss) {
     diffBadge.className = "apple-diff-pill Boss";
   }
 
+  const premiumBadge = document.getElementById("wizardProblemPremiumBadge");
+  if (premiumBadge) {
+    premiumBadge.style.display = "none";
+  }
+
   const mainPortalLink = document.getElementById("btnSolvePortalMain");
-  if (mainPortalLink) mainPortalLink.href = boss.url;
+  const mainPortalLabel = document.getElementById("portalMainLabel");
+  if (mainPortalLink) {
+    mainPortalLink.href = boss.url;
+    if (mainPortalLabel) mainPortalLabel.textContent = "Open Benchmark Judge ↗";
+  }
+
+  const altPortalLink = document.getElementById("btnSolvePortalAlt");
+  const altPortalLabel = document.getElementById("portalAltLabel");
+  if (altPortalLink) {
+    altPortalLink.href = boss.url;
+    if (altPortalLabel) altPortalLabel.textContent = "Run on Online Judge ↗";
+    altPortalLink.classList.remove("highlight-runner");
+  }
 
   const qEl = document.getElementById("wizardSanityQuestion");
   if (qEl) qEl.textContent = `Benchmark Challenge: ${boss.whyThisBenchmark}`;
@@ -1229,6 +1346,11 @@ function selectDailyBossFight(boss) {
 // ============================================================================
 
 function switchDay(dayNumber) {
+  if (dayNumber === AppState.currentDay) return;
+  checkTimerLock(() => doSwitchDay(dayNumber));
+}
+
+function doSwitchDay(dayNumber) {
   if (dayNumber < 1 || dayNumber > 30) return;
   AppState.currentDay = dayNumber;
   AppState.activeProblemIndex = 0;
@@ -1322,7 +1444,11 @@ const DAY_DEEP_LINKS = {
   renderDailyProblemPills(dayNumber);
   VisualizerEngine.init();
   renderRoadmap();
-  switchDaySubTab(AppState.currentSubTab || "learn");
+  
+  // Proactively select problem 0 so Step 1 title and portal links ALWAYS match the current day's problem
+  selectDailyProblem(0);
+
+  doSwitchDaySubTab(AppState.currentSubTab || "learn");
 }
 
 function renderRoadmap() {
@@ -1574,15 +1700,21 @@ function renderRematchQueueView() {
 }
 
 function jumpToProblemFromRematch(day, problemId) {
-  switchView("today");
-  switchDay(day);
-  switchDaySubTab("solve");
+  checkTimerLock(() => doJumpToProblemFromRematch(day, problemId));
+}
+
+function doJumpToProblemFromRematch(day, problemId) {
+  doSwitchView("today");
+  doSwitchDay(day);
+  doSwitchDaySubTab("solve");
 
   const dayData = CURRICULUM_DATABASE.find(d => d.day === day);
   const tasks = dayData?.blind75Tasks || [];
   const idx = tasks.findIndex(t => t.id === problemId);
   if (idx !== -1) {
     selectDailyProblem(idx);
+  } else {
+    selectDailyProblem(0);
   }
 }
 
@@ -1645,13 +1777,35 @@ function renderMatrixView() {
       badgeHtml = '<span class="apple-diff-pill" style="background:var(--apple-action-subtle); color:var(--apple-action-dark);">First Pass</span>';
     }
 
+    let premiumBadge = "";
+    if (p.isPremium) {
+      premiumBadge = `<span class="apple-diff-pill premium-badge" title="LeetCode Subscription Required">Premium 🔒</span>`;
+    }
+
+    const freeRunnerLink = p.freeAlternativeUrl ? `
+      <a href="${p.freeAlternativeUrl}" target="_blank" rel="noopener noreferrer" class="matrix-free-runner-link" title="Run online for free on ${p.freeAlternativeName || 'NeetCode'}">
+        Free Runner ↗
+      </a>
+    ` : "";
+
+    const gfgLink = p.gfgUrl ? `
+      <a href="${p.gfgUrl}" target="_blank" rel="noopener noreferrer" class="matrix-free-runner-link" title="Run online for free on GeeksforGeeks">
+        GFG ↗
+      </a>
+    ` : "";
+
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td style="font-family:var(--font-mono); font-weight:600;">#${p.id}</td>
       <td>
-        <a href="${p.leetcodeUrl}" target="_blank" rel="noopener noreferrer" style="color:var(--apple-text-primary); text-decoration:none;">
-          ${p.title} ↗
-        </a>
+        <div style="display:inline-flex; align-items:center; gap:6px; flex-wrap:wrap;">
+          <a href="${p.leetcodeUrl}" target="_blank" rel="noopener noreferrer" style="color:var(--apple-text-primary); text-decoration:none; font-weight:500;">
+            ${p.title} ↗
+          </a>
+          ${premiumBadge}
+          ${freeRunnerLink}
+          ${gfgLink}
+        </div>
       </td>
       <td>${p.category}</td>
       <td><span class="apple-diff-pill ${p.difficulty}">${p.difficulty}</span></td>
@@ -1691,6 +1845,11 @@ function updateNavContextElements(viewName) {
 }
 
 function switchView(viewName) {
+  if (AppState.currentView === viewName) return;
+  checkTimerLock(() => doSwitchView(viewName));
+}
+
+function doSwitchView(viewName) {
   AppState.currentView = viewName;
   persistState();
 
@@ -2303,6 +2462,10 @@ function clearAllProgress() {
 // ============================================================================
 
 function openCommandPalette() {
+  checkTimerLock(() => doOpenCommandPalette());
+}
+
+function doOpenCommandPalette() {
   const backdrop = document.getElementById("commandPaletteBackdrop");
   if (backdrop) backdrop.classList.add("open");
   const input = document.getElementById("paletteSearchInput");
@@ -2462,8 +2625,8 @@ function initMobileGatewayPipe() {
 
 function initTheme() {
   const saved = localStorage.getItem("algomaster_theme");
-  const prefersLight = typeof window !== "undefined" && window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches;
-  const theme = saved || (prefersLight ? "light" : "dark");
+  // Default strictly to "light" mode by default, then respect user preferences if previously saved
+  const theme = saved ? saved : "light";
   setTheme(theme);
 }
 
@@ -2550,6 +2713,46 @@ function setTheme(theme) {
   }
 }
 
+// Curriculum & Blind 75 Full Reconciliation
+// Ensures 100% of all 79 problems are mapped into daily tasks with verified URLs & runner alternatives
+function reconcileCurriculumAndBlind75() {
+  if (typeof BLIND_75_DATABASE === "undefined" || typeof CURRICULUM_DATABASE === "undefined") return;
+  CURRICULUM_DATABASE.forEach(dayData => {
+    if (!dayData.blind75Tasks) dayData.blind75Tasks = [];
+    const existingIds = new Set(dayData.blind75Tasks.map(t => t.id));
+    
+    // Find all problems in BLIND_75_DATABASE mapped to this day
+    const mappedProblems = BLIND_75_DATABASE.filter(p => p.dayMapped === dayData.day);
+    mappedProblems.forEach(p => {
+      if (!existingIds.has(p.id)) {
+        dayData.blind75Tasks.push({
+          id: p.id,
+          title: p.title,
+          difficulty: p.difficulty,
+          url: p.leetcodeUrl,
+          invariant: p.keyInvariant,
+          isPremium: !!p.isPremium,
+          freeAlternativeUrl: p.freeAlternativeUrl,
+          freeAlternativeName: p.freeAlternativeName,
+          gfgUrl: p.gfgUrl || null
+        });
+        existingIds.add(p.id);
+      }
+    });
+
+    // Also enrich existing task items with premium and freeAlternativeUrl metadata
+    dayData.blind75Tasks.forEach(t => {
+      const p = BLIND_75_DATABASE.find(x => x.id === t.id);
+      if (p) {
+        t.isPremium = !!p.isPremium;
+        t.freeAlternativeUrl = p.freeAlternativeUrl;
+        t.freeAlternativeName = p.freeAlternativeName;
+        if (p.gfgUrl) t.gfgUrl = p.gfgUrl;
+      }
+    });
+  });
+}
+
 // ============================================================================
 // BOOT LIFECYCLE
 // ============================================================================
@@ -2557,6 +2760,7 @@ function setTheme(theme) {
 function bootApp() {
   try {
     initTheme();
+    reconcileCurriculumAndBlind75();
     loadSavedState();
     registerServiceWorker();
     setupShortcuts();

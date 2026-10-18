@@ -426,7 +426,7 @@ const CURRICULUM_DATABASE = [
       }
     ],
     blind75Tasks: [
-      // Median of Two Sorted Arrays is canonical
+      { id: 76, title: "Median of Two Sorted Arrays", difficulty: "Hard", url: "https://leetcode.com/problems/median-of-two-sorted-arrays/", invariant: "Binary Search on Partition Cut: Binary search cut i in smaller array A such that max_left <= min_right simultaneously in O(log(min(M, N)))." }
     ],
     extremeProblem: {
       title: "Median of Two Sorted Arrays",
@@ -681,7 +681,9 @@ const CURRICULUM_DATABASE = [
         description: "2-pass DFS technique: post-order subtree aggregation followed by pre-order parent contribution push."
       }
     ],
-    blind75Tasks: [],
+    blind75Tasks: [
+      { id: 77, title: "Sum of Distances in Tree", difficulty: "Hard", url: "https://leetcode.com/problems/sum-of-distances-in-tree/", invariant: "Tree DP Rerooting: First postorder DFS computes subtree counts and base answer for root. Second preorder DFS updates child root: ans[v] = ans[u] - count[v] + (N - count[v])." }
+    ],
     extremeProblem: {
       title: "Sum of Distances in Tree",
       platform: "LeetCode 834",
@@ -1248,7 +1250,9 @@ const CURRICULUM_DATABASE = [
         description: "Lowest set bit i & -i prefix updates in O(log N)."
       }
     ],
-    blind75Tasks: [],
+    blind75Tasks: [
+      { id: 78, title: "Range Update Queries", difficulty: "Hard", url: "https://cses.fi/problemset/task/1651/", invariant: "Difference Array on Fenwick / Segment Tree: Add value u at a and subtract u at b+1 on a BIT, reducing range updates to two O(log N) point updates and point queries to prefix sums." }
+    ],
     extremeProblem: {
       title: "Range Update Queries",
       platform: "CSES Range Queries",
@@ -1286,7 +1290,9 @@ const CURRICULUM_DATABASE = [
         description: "Writing 10-line brute force verifiers to stress test against 1,000 random inputs before submission."
       }
     ],
-    blind75Tasks: [],
+    blind75Tasks: [
+      { id: 79, title: "Distinct Values Queries", difficulty: "Hard", url: "https://cses.fi/problemset/task/1734/", invariant: "Offline Fenwick Sweep Line: Sort queries by right boundary R. Maintain BIT storing 1 at the latest position of each distinct value seen so far, clearing its prior occurrence." }
+    ],
     extremeProblem: {
       title: "Distinct Values Queries",
       platform: "CSES Range Queries",
