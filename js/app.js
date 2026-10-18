@@ -80,7 +80,7 @@ function persistState() {
 }
 
 function registerServiceWorker() {
-  if (typeof window !== "undefined" && "serviceWorker" in navigator) {
+  if (typeof window !== "undefined" && typeof navigator !== "undefined" && "serviceWorker" in navigator) {
     navigator.serviceWorker.register("./sw.js").then((reg) => {
       console.log("AlgoMaster Service Worker active with scope:", reg.scope);
       updateOfflineStatusBadge(true);
@@ -965,6 +965,12 @@ function toggleSidebar() {
   if (!workstation) return;
   workstation.classList.toggle("sidebar-collapsed");
   AppState.sidebarCollapsed = workstation.classList.contains("sidebar-collapsed");
+  const btn = document.getElementById("btnToggleSidebar");
+  if (btn) {
+    btn.classList.toggle("is-collapsed", AppState.sidebarCollapsed);
+    btn.setAttribute("aria-expanded", String(!AppState.sidebarCollapsed));
+    btn.setAttribute("title", AppState.sidebarCollapsed ? "Expand Roadmap Sidebar (Shortcut: [ )" : "Collapse Roadmap Sidebar (Shortcut: [ )");
+  }
   persistState();
 }
 
@@ -1473,6 +1479,16 @@ function closeShortcutsModal() {
 
 function setupShortcuts() {
   window.addEventListener("keydown", (e) => {
+    // Non-dismissible mobile gateway check: never allow shortcut dismissal
+    const mobileGate = document.getElementById("mobileGatewayOverlay");
+    if (mobileGate) {
+      const isVisible = window.getComputedStyle ? window.getComputedStyle(mobileGate).display !== "none" : mobileGate.classList.contains("gateway-active");
+      if (isVisible) {
+        if (e.key === "Escape") e.preventDefault();
+        return;
+      }
+    }
+
     if (e.key === "Escape") {
       closeCommandPalette();
       closeStorageSheet();
@@ -1515,6 +1531,54 @@ function setupShortcuts() {
 }
 
 // ============================================================================
+// MOBILE GATEWAY MEDIA PIPE (NON-DISMISSIBLE DESKTOP GATEWAY)
+// ============================================================================
+
+function initMobileGatewayPipe() {
+  if (typeof window === "undefined" || !window.matchMedia) return;
+
+  const mediaPipeQuery = window.matchMedia("(max-width: 1024px), (hover: none) and (max-width: 1180px)");
+
+  function updateGateMetrics() {
+    const metricsEl = document.getElementById("mobileGateViewportMetrics");
+    if (metricsEl) {
+      metricsEl.textContent = `${window.innerWidth} × ${window.innerHeight} px`;
+    }
+  }
+
+  function handleMediaPipeline(e) {
+    const isMobile = e ? e.matches : mediaPipeQuery.matches;
+    const overlay = document.getElementById("mobileGatewayOverlay");
+    if (overlay) {
+      if (isMobile) {
+        overlay.classList.add("gateway-active");
+        document.body.classList.add("mobile-locked");
+      } else {
+        overlay.classList.remove("gateway-active");
+        document.body.classList.remove("mobile-locked");
+      }
+    }
+    updateGateMetrics();
+  }
+
+  try {
+    if (mediaPipeQuery.addEventListener) {
+      mediaPipeQuery.addEventListener("change", handleMediaPipeline);
+    } else if (mediaPipeQuery.addListener) {
+      mediaPipeQuery.addListener(handleMediaPipeline);
+    }
+  } catch (err) {
+    console.warn("mediaPipe listener fallback:", err);
+  }
+
+  window.addEventListener("resize", updateGateMetrics, { passive: true });
+  window.addEventListener("orientationchange", updateGateMetrics, { passive: true });
+
+  handleMediaPipeline(mediaPipeQuery);
+  updateGateMetrics();
+}
+
+// ============================================================================
 // APPLE THEME CONTROLLER (LIGHT & DARK DUAL MODE)
 // ============================================================================
 
@@ -1550,6 +1614,20 @@ function bootApp() {
     loadSavedState();
     registerServiceWorker();
     setupShortcuts();
+    initMobileGatewayPipe();
+
+    // Restore sidebar state
+    if (AppState.sidebarCollapsed) {
+      const workstation = document.getElementById("viewGrind");
+      if (workstation) workstation.classList.add("sidebar-collapsed");
+      const btn = document.getElementById("btnToggleSidebar");
+      if (btn) {
+        btn.classList.add("is-collapsed");
+        btn.setAttribute("aria-expanded", "false");
+        btn.setAttribute("title", "Expand Roadmap Sidebar (Shortcut: [ )");
+      }
+    }
+
     switchView(AppState.currentView || "today");
     switchDay(AppState.currentDay || 1);
     updateTopStats();
