@@ -646,35 +646,121 @@ const VISUALIZER_TRACES = {
  ]
  },
 
- // Day 20: Word Search Backtracking Grid Visited Bitmask
- 20: {
- pattern: "In-Place Grid Visited Marker",
- inputDescription: "board 3x4, word = 'ABCCED'",
- type: "grid-backtrack",
- steps: [
- {
- step: 0,
- pos: "(r=0, c=0) 'A'",
- action: "board[0][0] = '#'",
- invariantStatus: "Visited Marked",
- explanation: "Temporarily mutate cell to '#' to prevent cyclic re-visitation."
- },
- {
- step: 1,
- pos: "(r=0, c=1) 'B'",
- action: "Explore 4 directions",
- invariantStatus: "Branch Matches",
- explanation: "Next letter 'B' found. Recurse into neighbors."
- },
- {
- step: 2,
- pos: "Unwind",
- action: "board[0][0] = 'A'",
- invariantStatus: "Backtracked Cleanly ",
- explanation: "Restore cell back to 'A' during post-order backtrack."
- }
- ]
- },
+  // Day 20: Word Search Backtracking Grid Visited Bitmask
+  20: {
+    pattern: "In-Place Grid Visited Marker",
+    inputDescription: "board 3x4, word = 'ABCCED'",
+    type: "grid-backtrack",
+    targetWord: "ABCCED",
+    boardDimensions: { rows: 3, cols: 4 },
+    steps: [
+      {
+        step: 0,
+        pos: "(r=0, c=0)",
+        char: "A",
+        activeCell: [0, 0],
+        matchedCount: 1,
+        board: [
+          ["#", "B", "C", "E"],
+          ["S", "F", "C", "S"],
+          ["A", "D", "E", "E"]
+        ],
+        action: "board[0][0] = '#'",
+        invariantStatus: "Visited Marked (#)",
+        explanation: "Cell (0,0) matches word[0] ('A'). Mutate in-place to '#' to prevent cyclic re-visitation with O(1) extra space."
+      },
+      {
+        step: 1,
+        pos: "(r=0, c=1)",
+        char: "B",
+        activeCell: [0, 1],
+        matchedCount: 2,
+        board: [
+          ["#", "#", "C", "E"],
+          ["S", "F", "C", "S"],
+          ["A", "D", "E", "E"]
+        ],
+        action: "board[0][1] = '#'",
+        invariantStatus: "Visited Marked (#)",
+        explanation: "Branch right to (0,1). Matches word[1] ('B'). Mutate in-place to '#' and recurse into neighbors."
+      },
+      {
+        step: 2,
+        pos: "(r=0, c=2)",
+        char: "C",
+        activeCell: [0, 2],
+        matchedCount: 3,
+        board: [
+          ["#", "#", "#", "E"],
+          ["S", "F", "C", "S"],
+          ["A", "D", "E", "E"]
+        ],
+        action: "board[0][2] = '#'",
+        invariantStatus: "Visited Marked (#)",
+        explanation: "Branch right to (0,2). Matches word[2] ('C'). Mutate in-place to '#' and search down."
+      },
+      {
+        step: 3,
+        pos: "(r=1, c=2)",
+        char: "C",
+        activeCell: [1, 2],
+        matchedCount: 4,
+        board: [
+          ["#", "#", "#", "E"],
+          ["S", "F", "#", "S"],
+          ["A", "D", "E", "E"]
+        ],
+        action: "board[1][2] = '#'",
+        invariantStatus: "Visited Marked (#)",
+        explanation: "Branch down to (1,2). Matches word[3] ('C'). Mutate in-place to '#' and continue DFS."
+      },
+      {
+        step: 4,
+        pos: "(r=2, c=2)",
+        char: "E",
+        activeCell: [2, 2],
+        matchedCount: 5,
+        board: [
+          ["#", "#", "#", "E"],
+          ["S", "F", "#", "S"],
+          ["A", "D", "#", "E"]
+        ],
+        action: "board[2][2] = '#'",
+        invariantStatus: "Visited Marked (#)",
+        explanation: "Branch down to (2,2). Matches word[4] ('E'). Mutate in-place to '#' and branch left."
+      },
+      {
+        step: 5,
+        pos: "(r=2, c=1)",
+        char: "D",
+        activeCell: [2, 1],
+        matchedCount: 6,
+        board: [
+          ["#", "#", "#", "E"],
+          ["S", "F", "#", "S"],
+          ["A", "#", "#", "E"]
+        ],
+        action: "Word 'ABCCED' Found",
+        invariantStatus: "Target Matched (100%)",
+        explanation: "Branch left to (2,1). Final letter 'D' matches. Complete 6-letter contiguous path verified."
+      },
+      {
+        step: 6,
+        pos: "Unwind Post-Order",
+        char: "A",
+        activeCell: null,
+        matchedCount: 6,
+        board: [
+          ["A", "B", "C", "E"],
+          ["S", "F", "C", "S"],
+          ["A", "D", "E", "E"]
+        ],
+        action: "board[r][c] = origChar",
+        invariantStatus: "Backtracked Cleanly",
+        explanation: "Post-order backtrack restores all '#' mutations back to original characters, leaving board unmodified."
+      }
+    ]
+  },
 
  // Day 21: Island Flood-Fill BFS / DFS
  21: {

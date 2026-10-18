@@ -241,13 +241,77 @@ const VisualizerEngine = {
     if (!stage) return;
     stage.innerHTML = "";
 
-    // Parse array items from inputDescription
-    const arrayMatch = trace.inputDescription ? trace.inputDescription.match(/\[(.*?)\]/) : null;
-    if (arrayMatch) {
-      const rawItems = arrayMatch[1].split(',').map(s => s.trim().replace(/^['"]|['"]$/g, ''));
-      if (rawItems.length > 0 && rawItems[0] !== "") {
-        const arrayContainer = document.createElement("div");
-        arrayContainer.className = "inspector-array-strip";
+    // 1. Check for 2D Grid / Backtracking Matrix (e.g. Day 20 Word Search In-Place Visited)
+    if (step.board && Array.isArray(step.board)) {
+      const gridWrap = document.createElement("div");
+      gridWrap.className = "vis-grid-container";
+
+      // Target Word Sequence Tracker
+      if (trace.targetWord) {
+        const tracker = document.createElement("div");
+        tracker.className = "vis-word-tracker";
+        const lbl = document.createElement("span");
+        lbl.className = "vis-word-label";
+        lbl.textContent = `Target Word (${step.matchedCount || 0}/${trace.targetWord.length}):`;
+        tracker.appendChild(lbl);
+
+        const letters = trace.targetWord.split("");
+        letters.forEach((ch, idx) => {
+          const charEl = document.createElement("span");
+          charEl.className = "vis-word-char";
+          if (idx < (step.matchedCount || 0)) {
+            charEl.classList.add("matched");
+          } else if (idx === (step.matchedCount || 0) && step.activeCell) {
+            charEl.classList.add("current");
+          }
+          charEl.textContent = ch;
+          tracker.appendChild(charEl);
+        });
+        gridWrap.appendChild(tracker);
+      }
+
+      // 2D Matrix Board
+      const boardEl = document.createElement("div");
+      boardEl.className = "vis-matrix-board";
+      const cols = (step.board[0] && step.board[0].length) || 4;
+      boardEl.style.gridTemplateColumns = `repeat(${cols}, 48px)`;
+
+      step.board.forEach((row, r) => {
+        row.forEach((val, c) => {
+          const cell = document.createElement("div");
+          cell.className = "vis-matrix-cell";
+
+          const isActive = step.activeCell && step.activeCell[0] === r && step.activeCell[1] === c;
+          const isVisited = val === "#";
+          const isFullMatch = step.matchedCount === (trace.targetWord ? trace.targetWord.length : 6) && isVisited;
+
+          if (isActive) cell.classList.add("active-search");
+          if (isVisited) cell.classList.add("visited-marked");
+          if (isFullMatch) cell.classList.add("path-matched");
+
+          const valEl = document.createElement("div");
+          valEl.className = "vis-cell-val";
+          valEl.textContent = val;
+          cell.appendChild(valEl);
+
+          const coordEl = document.createElement("div");
+          coordEl.className = "vis-cell-coord";
+          coordEl.textContent = `${r},${c}`;
+          cell.appendChild(coordEl);
+
+          boardEl.appendChild(cell);
+        });
+      });
+      gridWrap.appendChild(boardEl);
+      stage.appendChild(gridWrap);
+    } else {
+      // 2. Parse 1D array items from inputDescription
+      const arrayMatch = trace.inputDescription ? trace.inputDescription.match(/\[(.*?)\]/) : null;
+      if (arrayMatch) {
+        const rawItems = arrayMatch[1].split(',').map(s => s.trim().replace(/^['"]|['"]$/g, ''));
+        if (rawItems.length > 0 && rawItems[0] !== "") {
+          const arrayContainer = document.createElement("div");
+          arrayContainer.className = "inspector-array-strip";
 
         const activeIndices = [];
         if (step.indices) {
@@ -321,6 +385,7 @@ const VisualizerEngine = {
         stage.appendChild(arrayContainer);
       }
     }
+  }
 
     // Render Data Badges & Snapshots Row
     const dataRow = document.createElement("div");
@@ -375,6 +440,27 @@ const VisualizerEngine = {
       const b = document.createElement("div");
       b.className = "inspector-pill-badge";
       b.innerHTML = `stack: <b>${step.stackVals}</b>`;
+      dataRow.appendChild(b);
+    }
+
+    if (step.pos) {
+      const b = document.createElement("div");
+      b.className = "inspector-pill-badge";
+      b.innerHTML = `pos: <b>${step.pos}</b>`;
+      dataRow.appendChild(b);
+    }
+
+    if (step.char) {
+      const b = document.createElement("div");
+      b.className = "inspector-pill-badge";
+      b.innerHTML = `target: <b>'${step.char}'</b>`;
+      dataRow.appendChild(b);
+    }
+
+    if (step.matchedCount !== undefined && trace.targetWord) {
+      const b = document.createElement("div");
+      b.className = "inspector-pill-badge";
+      b.innerHTML = `matched: <b>${step.matchedCount}/${trace.targetWord.length}</b>`;
       dataRow.appendChild(b);
     }
 
