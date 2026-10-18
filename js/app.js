@@ -962,8 +962,8 @@ function switchDay(dayNumber) {
   const breadcrumbEl = document.getElementById("globalBreadcrumb");
   if (breadcrumbEl) {
     breadcrumbEl.innerHTML = `
-      <span>${dayData.phase.split(":")[0]}</span>
-      <span>/</span>
+      <span class="nav-breadcrumb-phase">${dayData.phase.split(":")[0]}</span>
+      <span class="nav-breadcrumb-sep">/</span>
       <span class="nav-breadcrumb-active">Day ${String(dayData.day).padStart(2, "0")}: ${dayData.category}</span>
     `;
   }
@@ -975,7 +975,8 @@ function switchDay(dayNumber) {
 
   const subEl = document.getElementById("dayCategorySub");
   if (subEl) {
-    subEl.textContent = `${dayData.phase} — ${dayData.objective}`;
+    const subtitleDetail = dayData.subtitle || dayData.objective || dayData.invariant || "";
+    subEl.textContent = subtitleDetail ? `${dayData.phase} — ${subtitleDetail}` : dayData.phase;
   }
 
   const briefingText = (typeof COACH_DATA !== "undefined" && COACH_DATA.briefings && COACH_DATA.briefings[dayNumber]) ||
@@ -2033,7 +2034,7 @@ function setupShortcuts() {
 function initMobileGatewayPipe() {
   if (typeof window === "undefined" || !window.matchMedia) return;
 
-  const mediaPipeQuery = window.matchMedia("(max-width: 1024px), (hover: none) and (max-width: 1180px)");
+  const mediaPipeQuery = window.matchMedia("(max-width: 768px) and (orientation: portrait), (max-width: 640px)");
 
   function updateGateMetrics() {
     const metricsEl = document.getElementById("mobileGateViewportMetrics");
