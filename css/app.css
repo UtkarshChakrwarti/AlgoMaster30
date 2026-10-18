@@ -230,6 +230,8 @@ kbd {
   transition: var(--apple-theme-transition);
   white-space: nowrap;
   box-sizing: border-box;
+  overflow: hidden;
+  gap: 8px;
 }
 
 .nav-left {
@@ -237,7 +239,7 @@ kbd {
   align-items: center;
   gap: 10px;
   min-width: 0;
-  flex-shrink: 1;
+  flex-shrink: 0;
 }
 
 .nav-right {
@@ -410,7 +412,8 @@ kbd {
   padding: 3px;
   border-radius: var(--rounded-pill);
   border: 1px solid var(--apple-hairline);
-  flex-shrink: 0 !important;
+  flex-shrink: 1 !important;
+  min-width: 0;
   gap: 2px;
 }
 
@@ -566,14 +569,14 @@ kbd {
 
 .apple-workspace-grid {
   display: grid;
-  grid-template-columns: 250px 1fr;
+  grid-template-columns: 250px minmax(0, 1fr);
   height: calc(100vh - 48px);
   overflow: hidden;
   transition: grid-template-columns 240ms var(--apple-ease);
 }
 
 .apple-workspace-grid.sidebar-collapsed {
-  grid-template-columns: 0px 1fr;
+  grid-template-columns: 0px minmax(0, 1fr);
 }
 
 /* Left Sidebar Rail */
@@ -586,22 +589,30 @@ kbd {
   flex-direction: column;
   overflow: hidden;
   height: 100%;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   transition: var(--apple-theme-transition);
 }
 
 .sidebar-header-bar {
-  padding: 14px 18px;
+  padding: 12px 14px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   border-bottom: 1px solid var(--apple-divider);
+  box-sizing: border-box;
+  min-width: 0;
 }
 .sidebar-header-title {
   font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
   color: var(--apple-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .rail-close-btn {
   font-size: 12px;
@@ -616,8 +627,8 @@ kbd {
 
 /* 75 Mastery Gauge Tile (Liquid Glass) */
 .mastery-gauge-tile {
-  margin: 14px 16px;
-  padding: 16px;
+  margin: 12px 10px;
+  padding: 12px 10px;
   background: var(--glass-card);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
@@ -626,23 +637,33 @@ kbd {
   box-shadow: var(--apple-shadow-card);
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
+  box-sizing: border-box;
+  width: calc(100% - 20px);
+  max-width: calc(100% - 20px);
+  min-width: 0;
+  overflow: hidden;
 }
 .gauge-header-row {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
+  min-width: 0;
 }
 .gauge-title {
-  font-size: 12.5px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--apple-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .gauge-total-metric {
   font-family: var(--font-mono);
-  font-size: 13.5px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--apple-text-primary);
+  flex-shrink: 0;
 }
 
 .gauge-linear-track {
@@ -651,6 +672,7 @@ kbd {
   border-radius: var(--rounded-pill);
   display: flex;
   overflow: hidden;
+  width: 100%;
 }
 .gauge-bar-cold {
   background: var(--status-cold);
@@ -666,33 +688,44 @@ kbd {
 /* Balanced Two-Column Stat Grid (Zero Overlap / Perfect Alignment) */
 .gauge-legend-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  margin-top: 4px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 6px;
+  margin-top: 2px;
+  width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
 }
 .legend-item {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 2px;
   background: var(--apple-tile-1);
-  padding: 8px 10px;
+  padding: 6px 6px;
   border-radius: var(--rounded-xs);
   border: 1px solid var(--apple-hairline);
   box-sizing: border-box;
+  min-width: 0;
+  overflow: hidden;
 }
 .legend-label {
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 600;
   color: var(--apple-text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.02em;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
 }
 .legend-value {
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 600;
-  line-height: 1;
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Roadmap Days Scroll List */
@@ -724,6 +757,8 @@ kbd {
   color: var(--apple-text-secondary);
   cursor: pointer;
   transition: all var(--apple-transition);
+  min-width: 0;
+  box-sizing: border-box;
 }
 .day-list-item:hover {
   background: var(--apple-tile-2);
@@ -740,6 +775,13 @@ kbd {
   display: flex;
   align-items: center;
   gap: 10px;
+  min-width: 0;
+  overflow: hidden;
+}
+.day-item-left span:last-child {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .day-index-label {
   font-family: var(--font-mono);
@@ -2080,52 +2122,68 @@ kbd {
 /* Large Tablets & Compact Desktop Laptops (1024px to 1260px) */
 @media screen and (max-width: 1260px) {
   .nav-brand-badge {
-    display: none;
+    display: none !important;
   }
-  .nav-breadcrumb-phase,
-  .nav-breadcrumb-sep {
-    display: none;
-  }
-  .nav-breadcrumb-active {
-    max-width: 140px;
-  }
-  .nav-switch-btn {
-    padding: 4px 10px;
-    font-size: 11.5px;
+  .nav-breadcrumb {
+    display: none !important;
   }
   .search-label-text {
-    display: none;
+    display: none !important;
+  }
+  .nav-switch-btn {
+    padding: 4px 9px;
+    font-size: 11.5px;
   }
   .apple-focus-stage {
-    padding: 28px 24px 60px;
+    padding: 24px 20px 50px;
   }
   .apple-workspace-grid {
-    grid-template-columns: 220px 1fr;
+    grid-template-columns: 240px minmax(0, 1fr);
   }
 }
 
 /* Medium Desktop Tabs & Split Screens (880px to 1024px) */
 @media screen and (max-width: 1024px) {
   .nav-breadcrumb {
-    display: none;
+    display: none !important;
+  }
+  .nav-brand-badge {
+    display: none !important;
+  }
+  .search-label-text {
+    display: none !important;
+  }
+  .nav-cache-pill {
+    display: none !important;
+  }
+  .apple-theme-pill .theme-label-text {
+    display: none !important;
   }
   .apple-global-nav {
-    padding: 0 12px;
+    padding: 0 10px;
+    gap: 6px;
   }
   .nav-left {
-    gap: 8px;
+    gap: 6px;
+  }
+  .nav-switch-btn {
+    padding: 4px 7px;
+    font-size: 11px;
   }
   .apple-workspace-grid {
-    grid-template-columns: 210px 1fr;
+    grid-template-columns: 235px minmax(0, 1fr);
   }
   .apple-workspace-grid.sidebar-collapsed {
-    grid-template-columns: 0px 1fr;
+    grid-template-columns: 0px minmax(0, 1fr);
   }
   .apple-focus-stage {
+    padding: 20px 16px 45px;
+  }
+  .apple-aux-view {
     padding: 24px 18px 50px;
   }
   .day-headline-group h1 {
-    font-size: 26px;
+    font-size: 24px;
   }
   .analytics-sections-grid {
     grid-template-columns: 1fr;
@@ -2140,26 +2198,56 @@ kbd {
 
 /* Narrow Desktop Tabs & Floating Windows (769px to 880px) */
 @media screen and (max-width: 880px) {
+  .nav-breadcrumb {
+    display: none !important;
+  }
+  .nav-brand-badge {
+    display: none !important;
+  }
   .nav-cache-pill {
-    display: none;
+    display: none !important;
+  }
+  .search-label-text {
+    display: none !important;
   }
   .apple-theme-pill .theme-label-text {
-    display: none;
+    display: none !important;
   }
   .apple-theme-pill {
     padding: 3px;
   }
+  .apple-global-nav {
+    padding: 0 8px;
+    gap: 4px;
+  }
+  .nav-left {
+    gap: 5px;
+  }
+  .nav-brand-title {
+    font-size: 14px;
+  }
+  .apple-nav-switcher {
+    padding: 2px;
+    gap: 1px;
+  }
   .nav-switch-btn {
-    padding: 4px 8px;
-    font-size: 11px;
+    padding: 3.5px 6px;
+    font-size: 10.5px;
+  }
+  .nav-fog-btn {
+    padding: 0 7px;
+    font-size: 10.5px;
   }
   .apple-workspace-grid {
-    grid-template-columns: 0px 1fr;
+    grid-template-columns: 0px minmax(0, 1fr);
   }
   .apple-workspace-grid:not(.sidebar-collapsed) {
-    grid-template-columns: 210px 1fr;
+    grid-template-columns: 230px minmax(0, 1fr);
   }
   .apple-focus-stage {
+    padding: 16px 12px 40px;
+  }
+  .apple-aux-view {
     padding: 20px 14px 40px;
   }
   .achievements-tiles-grid {
