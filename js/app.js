@@ -49,6 +49,7 @@ function resetAppStateToDefaults() {
   AppState.mistakeJournal = [];
   AppState.drillStats = { total: 0, correct: 0 };
   AppState.streak = 1;
+  AppState.expandedRoadmapDays = new Set([1]);
 }
 
 function loadSavedState() {
@@ -1838,6 +1839,12 @@ function selectDailyProblem(index) {
     else el.classList.remove("active");
   });
 
+  // Highlight active problem in sidebar
+  document.querySelectorAll(".sidebar-problem-row").forEach(el => {
+    const isThisProblem = el.getAttribute("data-problem-id") === String(taskId) && el.getAttribute("data-day") === String(AppState.currentDay);
+    el.classList.toggle("active", isThisProblem);
+  });
+
   // Populate Step 1 Header
   const titleEl = document.getElementById("wizardProblemTitle");
   if (titleEl) titleEl.textContent = `#${problem.id}: ${problem.title}`;
@@ -1926,6 +1933,12 @@ function selectDailyProblem(index) {
 
 function selectDailyBossFight(boss) {
   AppState.activeProblemIndex = 999;
+
+  // Highlight active boss in sidebar
+  document.querySelectorAll(".sidebar-problem-row").forEach(el => {
+    const isThisBoss = el.classList.contains("boss-row") && el.getAttribute("data-day") === String(AppState.currentDay);
+    el.classList.toggle("active", isThisBoss);
+  });
   const titleEl = document.getElementById("wizardProblemTitle");
   if (titleEl) titleEl.textContent = `Benchmark: ${boss.title}`;
 
@@ -2078,10 +2091,117 @@ const DAY_THEORY_LINKS = {
   doSwitchDaySubTab(AppState.currentSubTab || "learn");
 }
 
+// ============================================================================
+// SIDEBAR PROBLEM ACCORDION & DIRECT NAVIGATION TREE
+// ============================================================================
+
+let sidebarProblemSearchQuery = "";
+
+function toggleDayRoadmapExpansion(dayNumber, event) {
+  if (event) {
+    event.stopPropagation();
+    event.preventDefault();
+  }
+  if (!AppState.expandedRoadmapDays) {
+    AppState.expandedRoadmapDays = new Set([AppState.currentDay || 1]);
+  }
+  if (AppState.expandedRoadmapDays.has(dayNumber)) {
+    AppState.expandedRoadmapDays.delete(dayNumber);
+  } else {
+    AppState.expandedRoadmapDays.add(dayNumber);
+  }
+  renderRoadmap();
+}
+
+function toggleExpandAllSidebarProblems() {
+  if (!AppState.expandedRoadmapDays) {
+    AppState.expandedRoadmapDays = new Set([AppState.currentDay || 1]);
+  }
+  const allDays = CURRICULUM_DATABASE.map(d => d.day);
+  const btn = document.getElementById("btnToggleAllSidebarProblems");
+  if (AppState.expandedRoadmapDays.size >= allDays.length) {
+    // Collapse all except currentDay
+    AppState.expandedRoadmapDays.clear();
+    AppState.expandedRoadmapDays.add(AppState.currentDay);
+    if (btn) btn.textContent = "Expand All";
+  } else {
+    // Expand all 30 days so every single problem across the curriculum is visible
+    allDays.forEach(day => AppState.expandedRoadmapDays.add(day));
+    if (btn) btn.textContent = "Collapse All";
+  }
+  renderRoadmap();
+}
+
+function filterSidebarRoadmap(query) {
+  sidebarProblemSearchQuery = (query || "").trim().toLowerCase();
+  if (sidebarProblemSearchQuery) {
+    if (!AppState.expandedRoadmapDays) AppState.expandedRoadmapDays = new Set();
+    CURRICULUM_DATABASE.forEach(d => {
+      const matchCat = d.category.toLowerCase().includes(sidebarProblemSearchQuery) || String(d.day).includes(sidebarProblemSearchQuery);
+      const matchTasks = (d.blind75Tasks || []).some(t => 
+        t.title.toLowerCase().includes(sidebarProblemSearchQuery) || 
+        String(t.id).includes(sidebarProblemSearchQuery) || 
+        t.difficulty.toLowerCase().includes(sidebarProblemSearchQuery)
+      );
+      const matchBoss = d.extremeProblem && (
+        d.extremeProblem.title.toLowerCase().includes(sidebarProblemSearchQuery) || 
+        (d.extremeProblem.platform && d.extremeProblem.platform.toLowerCase().includes(sidebarProblemSearchQuery))
+      );
+      if (matchCat || matchTasks || matchBoss) {
+        AppState.expandedRoadmapDays.add(d.day);
+      }
+    });
+  }
+  renderRoadmap();
+}
+
+function jumpToProblemFromSidebar(dayNumber, taskIndex, problemId) {
+  checkTimerLock(() => {
+    if (AppState.currentDay !== dayNumber) {
+      doSwitchDay(dayNumber);
+    }
+    selectDailyProblem(taskIndex);
+    if (AppState.currentView !== "today") {
+      doSwitchView("today");
+    }
+    doSwitchDaySubTab("solve");
+    renderRoadmap();
+  });
+}
+
+function jumpToBossFromSidebar(dayNumber) {
+  checkTimerLock(() => {
+    if (AppState.currentDay !== dayNumber) {
+      doSwitchDay(dayNumber);
+    }
+    const dayData = CURRICULUM_DATABASE.find(d => d.day === dayNumber);
+    if (dayData && dayData.extremeProblem) {
+      selectDailyBossFight(dayData.extremeProblem);
+    }
+    if (AppState.currentView !== "today") {
+      doSwitchView("today");
+    }
+    doSwitchDaySubTab("solve");
+    renderRoadmap();
+  });
+}
+
 function renderRoadmap() {
   const container = document.getElementById("roadmapList");
   if (!container) return;
   container.innerHTML = "";
+
+  if (!AppState.expandedRoadmapDays) {
+    AppState.expandedRoadmapDays = new Set([AppState.currentDay || 1]);
+  } else {
+    // Keep active day expanded by default
+    AppState.expandedRoadmapDays.add(AppState.currentDay);
+  }
+
+  const btn = document.getElementById("btnToggleAllSidebarProblems");
+  if (btn) {
+    btn.textContent = AppState.expandedRoadmapDays.size >= CURRICULUM_DATABASE.length ? "Collapse All" : "Expand All";
+  }
 
   const phases = {};
   CURRICULUM_DATABASE.forEach(d => {
@@ -2090,7 +2210,27 @@ function renderRoadmap() {
     phases[pName].push(d);
   });
 
+  const query = sidebarProblemSearchQuery;
+
   Object.entries(phases).forEach(([phaseName, days]) => {
+    let visibleDays = days;
+    if (query) {
+      visibleDays = days.filter(d => {
+        const matchCat = d.category.toLowerCase().includes(query) || String(d.day).includes(query);
+        const matchTasks = (d.blind75Tasks || []).some(t => 
+          t.title.toLowerCase().includes(query) || 
+          String(t.id).includes(query) || 
+          t.difficulty.toLowerCase().includes(query)
+        );
+        const matchBoss = d.extremeProblem && (
+          d.extremeProblem.title.toLowerCase().includes(query) || 
+          (d.extremeProblem.platform && d.extremeProblem.platform.toLowerCase().includes(query))
+        );
+        return matchCat || matchTasks || matchBoss;
+      });
+      if (visibleDays.length === 0) return;
+    }
+
     const group = document.createElement("div");
     group.className = "roadmap-phase-group";
 
@@ -2099,10 +2239,15 @@ function renderRoadmap() {
     label.textContent = phaseName;
     group.appendChild(label);
 
-    days.forEach(d => {
+    visibleDays.forEach(d => {
+      const isExpanded = AppState.expandedRoadmapDays.has(d.day) || !!query;
+      const isActiveDay = d.day === AppState.currentDay;
+
+      const dayGroup = document.createElement("div");
+      dayGroup.className = `roadmap-day-group ${isExpanded ? "is-expanded" : ""}`;
+
       const row = document.createElement("div");
-      row.className = `day-list-item ${d.day === AppState.currentDay ? "active" : ""}`;
-      row.onclick = () => switchDay(d.day);
+      row.className = `day-list-item ${isActiveDay ? "active" : ""}`;
 
       const tasks = d.blind75Tasks || [];
       const completedTasks = tasks.filter(t => AppState.mastery[t.id]);
@@ -2110,17 +2255,117 @@ function renderRoadmap() {
       if (completedTasks.length === tasks.length && tasks.length > 0) {
         statusBadge = '<span class="day-status-pill complete">Done</span>';
       } else if (completedTasks.length > 0) {
-        statusBadge = '<span class="day-status-pill partial">In Progress</span>';
+        statusBadge = `<span class="day-status-pill partial">${completedTasks.length}/${tasks.length}</span>`;
+      } else {
+        statusBadge = `<span class="day-status-pill" style="color:var(--apple-text-muted);">${tasks.length} Qs</span>`;
       }
 
       row.innerHTML = `
         <div class="day-item-left">
           <span class="day-index-label">${String(d.day).padStart(2, "0")}</span>
-          <span>${d.category}</span>
+          <span title="${d.category}">${d.category}</span>
         </div>
-        ${statusBadge}
+        <div class="day-item-right">
+          ${statusBadge}
+          <span class="day-expand-chevron" title="${isExpanded ? "Collapse Day" : "Expand Day"}">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </span>
+        </div>
       `;
-      group.appendChild(row);
+
+      row.onclick = (e) => {
+        if (e.target.closest(".day-expand-chevron")) {
+          toggleDayRoadmapExpansion(d.day, e);
+          return;
+        }
+        if (d.day === AppState.currentDay) {
+          toggleDayRoadmapExpansion(d.day, e);
+        } else {
+          AppState.expandedRoadmapDays.add(d.day);
+          switchDay(d.day);
+        }
+      };
+
+      dayGroup.appendChild(row);
+
+      // Problems Drawer (Nested problem sub-list)
+      const drawer = document.createElement("div");
+      drawer.className = "sidebar-problems-drawer";
+
+      tasks.forEach((task, idx) => {
+        if (query) {
+          const matchTask = task.title.toLowerCase().includes(query) || 
+                            String(task.id).includes(query) || 
+                            task.difficulty.toLowerCase().includes(query);
+          const matchCat = d.category.toLowerCase().includes(query);
+          if (!matchTask && !matchCat) return;
+        }
+
+        const masteryType = AppState.mastery[task.id];
+        let statusIconHtml = '<span class="sidebar-problem-status unsolved"></span>';
+        if (masteryType === "cold") {
+          statusIconHtml = '<span class="sidebar-problem-status cold">✓</span>';
+        } else if (masteryType === "pass1") {
+          statusIconHtml = '<span class="sidebar-problem-status pass1">P1</span>';
+        }
+
+        const isProblemActive = isActiveDay && AppState.activeProblemId === task.id;
+
+        const probRow = document.createElement("div");
+        probRow.className = `sidebar-problem-row ${isProblemActive ? "active" : ""}`;
+        probRow.setAttribute("data-day", String(d.day));
+        probRow.setAttribute("data-problem-id", String(task.id));
+        probRow.title = `#${task.id} ${task.title} (${task.difficulty}) — Click to jump`;
+        probRow.innerHTML = `
+          <div class="sidebar-problem-left">
+            ${statusIconHtml}
+            <span class="sidebar-problem-title">#${task.id} ${task.title}</span>
+          </div>
+          <span class="apple-diff-pill ${task.difficulty}">${task.difficulty}</span>
+        `;
+        probRow.onclick = (e) => {
+          e.stopPropagation();
+          jumpToProblemFromSidebar(d.day, idx, task.id);
+        };
+
+        drawer.appendChild(probRow);
+      });
+
+      // Extreme Boss Fight Problem
+      if (d.extremeProblem) {
+        let showBoss = true;
+        if (query) {
+          const matchBoss = d.extremeProblem.title.toLowerCase().includes(query) || 
+                            (d.extremeProblem.platform && d.extremeProblem.platform.toLowerCase().includes(query));
+          const matchCat = d.category.toLowerCase().includes(query);
+          showBoss = matchBoss || matchCat;
+        }
+        if (showBoss) {
+          const isBossActive = isActiveDay && AppState.activeProblemIndex === 999;
+          const bossRow = document.createElement("div");
+          bossRow.className = `sidebar-problem-row boss-row ${isBossActive ? "active" : ""}`;
+          bossRow.setAttribute("data-day", String(d.day));
+          bossRow.setAttribute("data-problem-id", "boss");
+          bossRow.title = `Benchmark: ${d.extremeProblem.title} (${d.extremeProblem.platform}) — Click to challenge`;
+          bossRow.innerHTML = `
+            <div class="sidebar-problem-left">
+              <span class="sidebar-problem-status boss-icon">★</span>
+              <span class="sidebar-problem-title">${d.extremeProblem.title}</span>
+            </div>
+            <span class="apple-diff-pill Hard" style="font-size:8.5px; padding:1px 4px;">Boss</span>
+          `;
+          bossRow.onclick = (e) => {
+            e.stopPropagation();
+            jumpToBossFromSidebar(d.day);
+          };
+          drawer.appendChild(bossRow);
+        }
+      }
+
+      dayGroup.appendChild(drawer);
+      group.appendChild(dayGroup);
     });
 
     container.appendChild(group);

@@ -124,8 +124,11 @@
     <!-- COLUMN 1: LEFT SIDEBAR ROADMAP (240px, collapsible) -->
     <aside id="navRail" class="apple-sidebar">
       <div class="sidebar-header-bar">
-        <span class="sidebar-header-title">Training Roadmap</span>
-        <button class="rail-close-btn" onclick="toggleSidebar()" title="Collapse Sidebar">Hide</button>
+        <span class="sidebar-header-title">Curriculum Roadmap</span>
+        <div style="display:flex; align-items:center; gap:6px;">
+          <button id="btnToggleAllSidebarProblems" class="rail-close-btn" onclick="toggleExpandAllSidebarProblems()" title="Expand or collapse all problems in sidebar">Expand All</button>
+          <button class="rail-close-btn" onclick="toggleSidebar()" title="Collapse Sidebar">Hide</button>
+        </div>
       </div>
 
       <!-- 75 Mastery Gauge Tile -->
@@ -148,6 +151,14 @@
             <span id="legendPass1Count" class="legend-value" style="color:var(--apple-action-dark);">0/75</span>
           </div>
         </div>
+      </div>
+
+      <!-- Sidebar Problem Quick Filter -->
+      <div class="sidebar-search-box">
+        <svg class="sidebar-search-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="text" id="sidebarProblemFilter" class="sidebar-search-input" placeholder="Search 75 problems..." oninput="filterSidebarRoadmap(this.value)">
       </div>
 
       <!-- Roadmap Days Scroll List -->
