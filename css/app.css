@@ -2527,7 +2527,7 @@ kbd {
   gap: 4px;
 }
 .storage-stat-label { font-size: 10px; color: var(--apple-text-muted); text-transform: uppercase; font-weight: 600; }
-.storage-stat-val { font-family: var(--font-mono); font-size: 14.5px; font-weight: 600; color: var(--apple-text-primary); }
+.storage-stat-val { font-family: var(--font-mono); font-size: 13px; font-weight: 600; color: var(--apple-text-primary); word-break: break-word; line-height: 1.3; }
 
 .sheet-actions-row {
   display: flex;

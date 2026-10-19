@@ -33,28 +33,50 @@ const AppState = {
 // HTML NATIVE LOCAL STORAGE & SERVICE WORKER CACHE
 // ============================================================================
 
+function resetAppStateToDefaults() {
+  AppState.userName = "";
+  AppState.currentDay = 1;
+  AppState.currentView = "today";
+  AppState.currentSubTab = "learn";
+  AppState.activeProblemIndex = 0;
+  AppState.activeProblemId = 1;
+  AppState.activeProblemStep = 1;
+  AppState.sidebarCollapsed = false;
+  AppState.mastery = {};
+  AppState.timers = {};
+  AppState.blueprints = {};
+  AppState.autopsies = {};
+  AppState.mistakeJournal = [];
+  AppState.drillStats = { total: 0, correct: 0 };
+  AppState.streak = 1;
+}
+
 function loadSavedState() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (parsed.userName) AppState.userName = parsed.userName;
-      if (parsed.currentDay) AppState.currentDay = parsed.currentDay;
+      if (typeof parsed.userName === "string") AppState.userName = parsed.userName;
+      if (parsed.currentDay && parsed.currentDay >= 1 && parsed.currentDay <= 30) AppState.currentDay = parsed.currentDay;
       if (parsed.currentView) AppState.currentView = parsed.currentView;
       if (parsed.currentSubTab) AppState.currentSubTab = parsed.currentSubTab;
       if (parsed.activeProblemId) AppState.activeProblemId = parsed.activeProblemId;
       if (parsed.activeProblemIndex !== undefined) AppState.activeProblemIndex = parsed.activeProblemIndex;
-      if (parsed.sidebarCollapsed !== undefined) AppState.sidebarCollapsed = parsed.sidebarCollapsed;
-      if (parsed.mastery) AppState.mastery = parsed.mastery;
-      if (parsed.timers) AppState.timers = parsed.timers;
-      if (parsed.blueprints) AppState.blueprints = parsed.blueprints;
-      if (parsed.autopsies) AppState.autopsies = parsed.autopsies;
-      if (parsed.mistakeJournal) AppState.mistakeJournal = parsed.mistakeJournal;
-      if (parsed.drillStats) AppState.drillStats = parsed.drillStats;
-      if (parsed.streak) AppState.streak = parsed.streak;
+      if (parsed.activeProblemStep !== undefined) AppState.activeProblemStep = parsed.activeProblemStep;
+      if (parsed.sidebarCollapsed !== undefined) AppState.sidebarCollapsed = !!parsed.sidebarCollapsed;
+      if (parsed.mastery && typeof parsed.mastery === "object") AppState.mastery = parsed.mastery;
+      if (parsed.timers && typeof parsed.timers === "object") AppState.timers = parsed.timers;
+      if (parsed.blueprints && typeof parsed.blueprints === "object") AppState.blueprints = parsed.blueprints;
+      if (parsed.autopsies && typeof parsed.autopsies === "object") AppState.autopsies = parsed.autopsies;
+      if (Array.isArray(parsed.mistakeJournal)) AppState.mistakeJournal = parsed.mistakeJournal;
+      if (parsed.drillStats && typeof parsed.drillStats === "object") AppState.drillStats = parsed.drillStats;
+      if (typeof parsed.streak === "number") AppState.streak = parsed.streak;
+    } else {
+      resetAppStateToDefaults();
     }
   } catch (err) {
     console.warn("Could not load saved state from localStorage:", err);
+    resetAppStateToDefaults();
   }
 }
 
@@ -3150,13 +3172,45 @@ function closeStorageSheet() {
 
 function updateStorageMetrics() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY) || "";
-    const bytes = new Blob([raw]).size;
-    const kb = (bytes / 1024).toFixed(1);
-    const el = document.getElementById("storageUsageVal");
-    if (el) el.textContent = `${kb} KB`;
+    let totalBytes = 0;
+    let keyCount = 0;
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k) {
+        const v = localStorage.getItem(k) || "";
+        totalBytes += (k.length + v.length) * 2;
+        keyCount++;
+      }
+    }
+    const kb = (totalBytes / 1024).toFixed(1);
+    const usageEl = document.getElementById("storageUsageVal");
+    if (usageEl) {
+      usageEl.textContent = `${kb} KB (${keyCount} keys)`;
+    }
+
+    const cacheEl = document.getElementById("cacheApiStatusVal");
+    if (cacheEl) {
+      if (typeof caches !== "undefined" && caches.keys) {
+        caches.keys().then((keys) => {
+          if (keys && keys.length > 0) {
+            Promise.all(keys.map((k) => caches.open(k).then((c) => c.keys()))).then((results) => {
+              const count = results.reduce((sum, reqs) => sum + reqs.length, 0);
+              cacheEl.textContent = `Active (${count} items)`;
+              cacheEl.style.color = "var(--status-cold)";
+            }).catch(() => {
+              cacheEl.textContent = "Active";
+            });
+          } else {
+            cacheEl.textContent = "Empty / Cleared";
+            cacheEl.style.color = "var(--apple-body-muted)";
+          }
+        }).catch(() => {
+          cacheEl.textContent = "Unavailable";
+        });
+      }
+    }
   } catch (e) {
-    // Ignore
+    console.warn("Storage metrics calculation error:", e);
   }
 }
 
@@ -3189,28 +3243,151 @@ function importDataJSON(event) {
   reader.readAsText(file);
 }
 
-function forceReCacheApp() {
-  if (typeof caches !== "undefined") {
-    caches.delete("algomaster-apple-cache-v1").then(() => {
-      AppleDialog.alert("Cache Purged", "Application cache purged. Reloading fresh assets...", () => {
-        location.reload();
-      });
-    });
-  } else {
-    location.reload();
+// Complete offline cache and service worker purger
+async function purgeAllCachesAndServiceWorker() {
+  // 1. Send clear message to active Service Worker controller
+  if (typeof navigator !== "undefined" && "serviceWorker" in navigator) {
+    if (navigator.serviceWorker.controller) {
+      try {
+        navigator.serviceWorker.controller.postMessage({ action: "CLEAR_CACHE" });
+      } catch (e) {
+        console.warn("SW controller postMessage error:", e);
+      }
+    }
+  }
+
+  // 2. Clear all Cache API buckets directly
+  if (typeof caches !== "undefined" && caches.keys) {
+    try {
+      const keys = await caches.keys();
+      await Promise.all(keys.map((k) => caches.delete(k)));
+      console.log("AlgoMaster: All Cache API keys purged:", keys);
+    } catch (e) {
+      console.warn("Cache API delete error:", e);
+    }
+  }
+
+  // 3. Unregister all service worker registrations
+  if (typeof navigator !== "undefined" && "serviceWorker" in navigator && navigator.serviceWorker.getRegistrations) {
+    try {
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(registrations.map((r) => r.unregister()));
+      console.log("AlgoMaster: All Service Workers unregistered:", registrations.length);
+    } catch (e) {
+      console.warn("Service Worker unregister error:", e);
+    }
+  }
+
+  // 4. Clear any IndexedDB databases if present
+  if (typeof window !== "undefined" && window.indexedDB && window.indexedDB.databases) {
+    try {
+      const dbs = await window.indexedDB.databases();
+      if (Array.isArray(dbs)) {
+        dbs.forEach((db) => {
+          if (db.name) window.indexedDB.deleteDatabase(db.name);
+        });
+      }
+    } catch (e) {}
   }
 }
 
+// Deep nuclear factory reset of all states, caches, intervals, and storage
+async function executeFullFactoryReset() {
+  // 1. Immediately cancel and reset any active timers
+  try {
+    if (typeof TimerEngine !== "undefined" && TimerEngine.resetTimer) {
+      TimerEngine.resetTimer();
+    }
+  } catch (e) {
+    console.warn("TimerEngine.resetTimer error:", e);
+  }
+
+  // 2. Pause visualizer engine animation
+  try {
+    if (typeof VisualizerEngine !== "undefined" && VisualizerEngine.pause) {
+      VisualizerEngine.pause();
+    }
+  } catch (e) {
+    console.warn("VisualizerEngine.pause error:", e);
+  }
+
+  // 3. Wipe all Web Storage completely (no leftover keys or states)
+  try {
+    localStorage.clear();
+  } catch (e) {
+    console.warn("localStorage.clear error:", e);
+    try { localStorage.removeItem(STORAGE_KEY); } catch (_) {}
+    try { localStorage.removeItem("algomaster_theme"); } catch (_) {}
+  }
+
+  try {
+    sessionStorage.clear();
+  } catch (e) {
+    console.warn("sessionStorage.clear error:", e);
+  }
+
+  // 4. Reset in-memory AppState immediately so zero old values linger
+  resetAppStateToDefaults();
+
+  // 5. Purge all Cache API buckets and unregister Service Worker
+  await purgeAllCachesAndServiceWorker();
+
+  // 6. Hard reload with cache-busting query parameter
+  const targetUrl = window.location.origin + window.location.pathname + "?cache_purge=" + Date.now();
+  window.location.replace(targetUrl);
+}
+
+// Purge Cache Only (Keep User Data)
+async function purgeCacheOnly() {
+  await purgeAllCachesAndServiceWorker();
+  const targetUrl = window.location.origin + window.location.pathname + "?asset_refresh=" + Date.now();
+  window.location.replace(targetUrl);
+}
+
+// Force re-cache dialog with explicit choice
+function forceReCacheApp() {
+  AppleDialog.confirmDialog(
+    "Purge Cache & Refresh Assets",
+    "Choose how you want to clear cache:\n\n• Clear Cache & All States: Completely wipes all offline caches and resets all sprint progress to Day 1.\n\n• Purge Cache Only: Re-downloads application assets without altering your saved training progress.",
+    async () => {
+      // Primary action: Clear Cache & All States
+      await executeFullFactoryReset();
+    },
+    async () => {
+      // Secondary action: Purge Cache Only (Keep Data)
+      await purgeCacheOnly();
+    },
+    {
+      confirmText: "Clear Cache & All States",
+      cancelText: "Purge Cache Only",
+      destructive: true
+    }
+  );
+}
+
+// Reset All Sprint Data (also clears caches so no stale state can resurrect)
 function clearAllProgress() {
   AppleDialog.confirmDialog(
     "Reset All Training Data?",
-    "Reset all training progress, cold mastery records, and mistake autopsy logs? This cannot be undone.",
-    () => {
-      localStorage.removeItem(STORAGE_KEY);
-      location.reload();
+    "Reset all training progress, cold mastery records, mistake autopsy logs, and cached sprint states back to Day 1? All offline caches will also be purged so no stale state can resurrect.",
+    async () => {
+      await executeFullFactoryReset();
     },
     null,
-    { destructive: true, confirmText: "Reset Everything" }
+    { destructive: true, confirmText: "Reset All Sprint Data" }
+  );
+}
+
+// Complete Factory Reset (Clear All Caches & All States)
+function clearAllCacheAndStates() {
+  AppleDialog.confirmDialog(
+    "Clear All Cache & Reset All States?",
+    "This will purge all offline caches, unregister service workers, and permanently wipe all training data, problem mastery, timers, blueprints, mistake logs, and user profile settings.\n\nThe application will return to Day 1 pristine factory state. This cannot be undone.",
+    async () => {
+      await executeFullFactoryReset();
+    },
+    null,
+    { destructive: true, confirmText: "Clear Cache & Reset All" }
   );
 }
 

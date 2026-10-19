@@ -48,6 +48,23 @@ self.addEventListener('activate', (event) => {
   );
 });
 
+// Message: Clean up all caches on demand from client request
+self.addEventListener('message', (event) => {
+  if (event.data && (event.data.action === 'CLEAR_CACHE' || event.data.action === 'PURGE_ALL')) {
+    event.waitUntil(
+      caches.keys().then((keys) => {
+        return Promise.all(keys.map((key) => caches.delete(key)));
+      }).then(() => {
+        return self.clients.claim();
+      }).then(() => {
+        if (event.ports && event.ports[0]) {
+          event.ports[0].postMessage({ success: true, timestamp: Date.now() });
+        }
+      })
+    );
+  }
+});
+
 // Fetch: Cache-First with background revalidation and offline fallback
 self.addEventListener('fetch', (event) => {
   // Only handle GET requests
@@ -57,6 +74,12 @@ self.addEventListener('fetch', (event) => {
 
   // Ignore browser extensions or foreign protocols
   if (!url.protocol.startsWith('http')) return;
+
+  // Bypass cache completely when cache-busting purge query parameters are present
+  if (url.searchParams.has('cache_purge') || url.searchParams.has('state_reset') || url.searchParams.has('asset_refresh') || url.searchParams.has('reset')) {
+    event.respondWith(fetch(event.request));
+    return;
+  }
 
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {

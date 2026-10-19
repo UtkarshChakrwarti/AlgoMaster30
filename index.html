@@ -678,24 +678,27 @@
         </p>
 
         <div class="sheet-actions-row">
-          <button class="apple-pill-btn primary" style="flex:1;" onclick="exportDataJSON()">
+          <button class="apple-pill-btn primary" style="flex:1;" onclick="exportDataJSON()" title="Download a JSON snapshot of all your progress">
             Export Backup (.json)
           </button>
-          <button class="apple-pill-btn" style="flex:1;" onclick="document.getElementById('fileImportInput').click()">
+          <button class="apple-pill-btn" style="flex:1;" onclick="document.getElementById('fileImportInput').click()" title="Restore training progress from a backup JSON file">
             Import Backup
           </button>
           <input type="file" id="fileImportInput" style="display:none;" onchange="importDataJSON(event)" accept=".json">
         </div>
 
         <div class="sheet-actions-row">
-          <button class="apple-pill-btn" style="flex:1;" onclick="forceReCacheApp()">
-            Force Re-cache Assets
+          <button class="apple-pill-btn" style="flex:1;" onclick="forceReCacheApp()" title="Purge offline cache and re-download newest code assets">
+            Purge Cache Only (Keep Data)
           </button>
         </div>
 
-        <div style="border-top:1px solid var(--apple-divider); padding-top:12px;">
-          <button class="apple-pill-btn" style="color:var(--status-danger); border-color:rgba(255, 69, 58, 0.3); width:100%;" onclick="clearAllProgress()">
-            Reset All Sprint Data
+        <div style="border-top:1px solid var(--apple-divider); padding-top:14px; margin-top:8px; display:flex; flex-direction:column; gap:8px;">
+          <button id="btnFactoryResetAll" class="apple-pill-btn" style="color:var(--status-danger); border-color:rgba(255, 69, 58, 0.45); width:100%; font-weight:600;" onclick="clearAllCacheAndStates()" title="Completely purge all offline caches and wipe all saved training states to Day 1">
+            Clear All Cache & Reset All States
+          </button>
+          <button class="apple-pill-btn" style="color:var(--apple-body-secondary); font-size:12px; width:100%; border:none; background:transparent;" onclick="clearAllProgress()" title="Reset sprint progress while purging cached states">
+            Reset Sprint Progress Only
           </button>
         </div>
       </div>
