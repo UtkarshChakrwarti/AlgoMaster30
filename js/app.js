@@ -1324,6 +1324,7 @@ function setProblemStep(stepNum) {
     if (stepNum === 1) {
       card1.className = "wizard-step-tile active";
       body1.style.display = "flex";
+      body1.classList.add("inswap-animate");
       if (stat1) stat1.textContent = "Active Step";
     } else {
       card1.className = "wizard-step-tile completed";
@@ -1336,6 +1337,7 @@ function setProblemStep(stepNum) {
     if (stepNum === 2) {
       card2.className = "wizard-step-tile active";
       body2.style.display = "flex";
+      body2.classList.add("inswap-animate");
       if (stat2) stat2.textContent = "Active Step";
     } else if (stepNum > 2) {
       card2.className = "wizard-step-tile completed";
@@ -1352,7 +1354,21 @@ function setProblemStep(stepNum) {
     if (stepNum === 3) {
       card3.className = "wizard-step-tile active";
       body3.style.display = "flex";
+      body3.classList.add("inswap-animate");
       if (stat3) stat3.textContent = "Active Step";
+
+      const isSolved = AppState.mastery[AppState.activeProblemId] === "cold" || AppState.mastery[AppState.activeProblemId] === "pass1";
+      const successCard = document.getElementById("step3QuickSuccessCard");
+      const unsolvedActions = document.getElementById("step3UnsolvedActions");
+      if (isSolved) {
+        if (successCard) successCard.style.display = "flex";
+        if (unsolvedActions) unsolvedActions.style.display = "none";
+      } else {
+        if (successCard) successCard.style.display = "none";
+        if (unsolvedActions) unsolvedActions.style.display = "flex";
+      }
+
+      updateStep3NextProblemButtons();
     } else {
       card3.className = "wizard-step-tile locked";
       body3.style.display = "none";
@@ -1378,6 +1394,121 @@ function advanceToStep3() {
   if (autopsy) {
     loadSavedDebrief(autopsy);
   }
+  updateStep3NextProblemButtons();
+}
+
+function getNextProblemInfo() {
+  const dayData = CURRICULUM_DATABASE.find(d => d.day === AppState.currentDay) || CURRICULUM_DATABASE[0];
+  const tasks = dayData.blind75Tasks || [];
+  if (AppState.activeProblemIndex < tasks.length - 1) {
+    const nextIdx = AppState.activeProblemIndex + 1;
+    const nextTask = tasks[nextIdx];
+    const nextProblem = BLIND_75_DATABASE.find(p => p.id === nextTask.id) || nextTask;
+    return {
+      hasNextProblem: true,
+      isNextDay: false,
+      nextIdx,
+      problem: nextProblem,
+      label: `Proceed to Next Problem: #${nextProblem.id} ${nextProblem.title} →`,
+      subText: `Problem ${nextIdx + 1} of ${tasks.length}`
+    };
+  } else {
+    const hasNextDay = AppState.currentDay < 30;
+    return {
+      hasNextProblem: false,
+      isNextDay: hasNextDay,
+      nextDay: AppState.currentDay + 1,
+      label: hasNextDay
+        ? `Day ${AppState.currentDay} Conquered! Proceed to Day ${AppState.currentDay + 1} →`
+        : `All 30 Days Mastered! Review Rematches →`,
+      subText: `All ${tasks.length} problems finished for today!`
+    };
+  }
+}
+
+function updateStep3NextProblemButtons() {
+  const nextInfo = getNextProblemInfo();
+  const nextBtn = document.getElementById("btnStep3NextProblem");
+  const pitchNextBtn = document.getElementById("btnPitchNextProb");
+  const quickNextBtn = document.getElementById("btnStep3QuickNext");
+  const subTextEl = document.getElementById("step3SuccessSub");
+
+  if (nextBtn) {
+    nextBtn.textContent = nextInfo.label;
+  }
+  if (pitchNextBtn) {
+    pitchNextBtn.textContent = nextInfo.label;
+  }
+  if (quickNextBtn) {
+    quickNextBtn.textContent = nextInfo.hasNextProblem ? "Mark Solved & Next Problem →" : "Mark Solved & Next Day →";
+  }
+  if (subTextEl) {
+    subTextEl.textContent = `Marked as Cold Mastery. ${nextInfo.subText}`;
+  }
+}
+
+function quickMarkProblemSolved(advanceToStep3 = true) {
+  const problemId = AppState.activeProblemId;
+  const problem = BLIND_75_DATABASE.find(p => p.id === problemId);
+  if (!problem) return;
+
+  TimerEngine.stopPhase2();
+
+  // Mark as cold mastery
+  AppState.mastery[problemId] = "cold";
+
+  const nextReviewDate = calculateNextReviewDate("cold");
+  const noteEl = document.getElementById("wizardNoteInput");
+  const note = noteEl ? noteEl.value.trim() : "";
+
+  const prev = AppState.autopsies[problemId] || {};
+  AppState.autopsies[problemId] = {
+    outcome: "cold",
+    note: note || prev.note || "",
+    nextReviewDate,
+    reviewCount: (prev.reviewCount || 0) + 1
+  };
+
+  const logNote = note || "Optimal cold mastery achieved with zero hints.";
+  const existingIdx = AppState.mistakeJournal.findIndex(j => j.problemId === problemId);
+  if (existingIdx === -1) {
+    AppState.mistakeJournal.unshift({
+      problemId,
+      title: problem.title,
+      note: logNote,
+      outcome: "Cold Mastery",
+      date: new Date().toLocaleDateString()
+    });
+  }
+
+  persistState();
+  updateTopStats();
+  renderRoadmap();
+  renderDailyProblemPills(AppState.currentDay);
+
+  if (advanceToStep3) {
+    setProblemStep(3);
+  }
+
+  const successCard = document.getElementById("step3QuickSuccessCard");
+  if (successCard) successCard.style.display = "flex";
+
+  const unsolvedActions = document.getElementById("step3UnsolvedActions");
+  if (unsolvedActions) unsolvedActions.style.display = "none";
+
+  // If note was not entered, close accordion by default so it's clean and optional
+  const debriefAcc = document.getElementById("debriefOptionalAccordion");
+  if (debriefAcc && !note) {
+    debriefAcc.open = false;
+  }
+
+  unlockInterviewPitchCard(problem);
+  updateStep3NextProblemButtons();
+}
+
+function quickMarkAndNextProblem() {
+  quickMarkProblemSolved(false);
+  advanceToNextDailyProblem();
 }
 
 function toggleSanityReveal() {
@@ -1419,7 +1550,7 @@ function calculateNextReviewDate(outcome) {
   return reviewDate.toISOString().split("T")[0];
 }
 
-function saveWizardDebrief() {
+function saveWizardDebrief(unlockPitch = true) {
   const problemId = AppState.activeProblemId;
   const problem = BLIND_75_DATABASE.find(p => p.id === problemId);
   if (!problem) return;
@@ -1447,13 +1578,19 @@ function saveWizardDebrief() {
   };
 
   if (note.length > 0) {
-    AppState.mistakeJournal.unshift({
-      problemId,
-      title: problem.title,
-      note,
-      outcome,
-      date: new Date().toLocaleDateString()
-    });
+    const isDup = AppState.mistakeJournal.length > 0 && 
+                  AppState.mistakeJournal[0].problemId === problemId && 
+                  AppState.mistakeJournal[0].note === note;
+    if (!isDup) {
+      const outcomeLabel = outcome === "cold" ? "Cold Mastery" : outcome === "buggy" ? "Bug Encountered" : outcome === "hints" ? "Hint Utilized" : "Editorial Reviewed";
+      AppState.mistakeJournal.unshift({
+        problemId,
+        title: problem.title,
+        note,
+        outcome: outcomeLabel,
+        date: new Date().toLocaleDateString()
+      });
+    }
   }
 
   persistState();
@@ -1461,7 +1598,19 @@ function saveWizardDebrief() {
   renderRoadmap();
   renderDailyProblemPills(AppState.currentDay);
 
-  unlockInterviewPitchCard(problem);
+  const successCard = document.getElementById("step3QuickSuccessCard");
+  if (successCard) successCard.style.display = "flex";
+
+  const unsolvedActions = document.getElementById("step3UnsolvedActions");
+  if (unsolvedActions) unsolvedActions.style.display = "none";
+
+  updateStep3NextProblemButtons();
+
+  if (unlockPitch) {
+    unlockInterviewPitchCard(problem);
+  }
+
+  AppleDialog.alert("Debrief Saved", "Your reflection and problem status have been safely recorded locally.");
 }
 
 function unlockInterviewPitchCard(problem) {
@@ -1516,6 +1665,8 @@ function loadSavedDebrief(autopsy) {
 
   const problem = BLIND_75_DATABASE.find(p => p.id === AppState.activeProblemId);
   if (problem) unlockInterviewPitchCard(problem);
+
+  updateStep3NextProblemButtons();
 }
 
 function advanceToNextDailyProblem() {
@@ -1525,8 +1676,23 @@ function advanceToNextDailyProblem() {
     if (AppState.activeProblemIndex < tasks.length - 1) {
       selectDailyProblem(AppState.activeProblemIndex + 1);
     } else {
-      AppleDialog.alert("Session Complete", "Practice session complete for today! Review your Rematches or test your reflexes in Pattern Drill.");
-      switchDaySubTab("learn");
+      if (AppState.currentDay < 30) {
+        AppleDialog.confirmDialog(
+          `Day ${AppState.currentDay} Conquered! 🎉`,
+          `You have finished all assigned problems for Day ${AppState.currentDay}. Ready to jump ahead to Day ${AppState.currentDay + 1}?`,
+          () => {
+            switchDay(AppState.currentDay + 1);
+            switchDaySubTab("learn");
+          },
+          () => {
+            switchDaySubTab("learn");
+          },
+          { confirmText: `Go to Day ${AppState.currentDay + 1} →`, cancelText: "Review Today's Concepts" }
+        );
+      } else {
+        AppleDialog.alert("30-Day Capstone Complete! 🏆", "Congratulations! You have completed the entire 30-Day AlgoMaster curriculum. Review your Rematches or test your reflexes in Pattern Drill!");
+        switchDaySubTab("learn");
+      }
     }
   });
 }
@@ -1581,7 +1747,7 @@ function renderDailyProblemPills(dayNumber) {
 
     let masteryBadge = "";
     if (masteryState === "cold") {
-      masteryBadge = `<span class="apple-diff-pill Easy" style="font-size:10px;">Cold</span>`;
+      masteryBadge = `<span class="apple-diff-pill Easy" style="font-size:10px;">✓ Cold</span>`;
     } else if (masteryState === "pass1") {
       masteryBadge = `<span class="apple-diff-pill" style="font-size:10px; background:var(--apple-action-subtle); color:var(--apple-action-dark);">Pass 1</span>`;
     }
@@ -1720,6 +1886,18 @@ function selectDailyProblem(index) {
 
   const pitchCard = document.getElementById("wizardPitchRewardCard");
   if (pitchCard) pitchCard.style.display = "none";
+
+  const solvePanel = document.getElementById("tabPanelSolve");
+  if (solvePanel) {
+    solvePanel.classList.remove("inswap-animate");
+    void solvePanel.offsetWidth;
+    solvePanel.classList.add("inswap-animate");
+  }
+
+  const autopsy = AppState.autopsies[taskId];
+  if (autopsy) {
+    loadSavedDebrief(autopsy);
+  }
 
   setProblemStep(1);
 }
@@ -2453,43 +2631,7 @@ function renderProfileView() {
     </div>
   `).join("");
 
-  let journalRowsHtml = "";
-  if (AppState.mistakeJournal && AppState.mistakeJournal.length > 0) {
-    journalRowsHtml = `
-      <div style="overflow-x:auto;">
-        <table class="apple-table" style="width:100%;">
-          <thead>
-            <tr>
-              <th style="width:110px;">Date</th>
-              <th style="width:200px;">Problem</th>
-              <th style="width:120px;">Outcome</th>
-              <th>Mistake & Key Invariant Learned</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${AppState.mistakeJournal.slice(-10).reverse().map(j => `
-              <tr>
-                <td style="font-family:var(--font-mono); font-size:12px; color:var(--apple-text-muted);">${j.date || "Recent"}</td>
-                <td style="font-weight:600;">#${j.problemId} ${j.title || ""}</td>
-                <td>
-                  <span class="apple-diff-pill ${j.outcome === "Optimal Cold" ? "Easy" : (j.outcome === "Needed Hints" ? "Medium" : "Hard")}">
-                    ${j.outcome || "Debrief"}
-                  </span>
-                </td>
-                <td style="font-size:12.5px; color:var(--apple-text-secondary); line-height:1.4;">${j.note || "No note recorded."}</td>
-              </tr>
-            `).join("")}
-          </tbody>
-        </table>
-      </div>
-    `;
-  } else {
-    journalRowsHtml = `
-      <div style="padding:28px 20px; text-align:center; color:var(--apple-text-muted); font-size:13px; background:var(--apple-tile-1); border-radius:var(--rounded-md); border:1px dashed var(--apple-hairline);">
-        No post-solve autopsies logged yet. Whenever you complete Step 3 of a problem, your reflections and lessons will populate this analytical ledger.
-      </div>
-    `;
-  }
+  const journalModuleHtml = renderJournalModuleHtml();
 
   container.innerHTML = `
     <!-- Top Identity Hero Card -->
@@ -2626,17 +2768,205 @@ function renderProfileView() {
       </div>
     </div>
 
-    <!-- Mistake Journal & Problem History Table -->
-    <div class="analytics-card-tile" style="margin-top:20px;">
-      <div class="analytics-card-title">
-        <span>Post-Solve Autopsies & Mistake Journal</span>
-        <span style="font-family:var(--font-mono); font-size:12px; color:var(--apple-text-secondary);">
-          ${AppState.mistakeJournal ? AppState.mistakeJournal.length : 0} Entries
-        </span>
-      </div>
-      ${journalRowsHtml}
-    </div>
+    <!-- Collapsible & Bounded Mistake Journal / Post-Solve Autopsies -->
+    ${journalModuleHtml}
   `;
+}
+
+// ============================================================================
+// COLLAPSIBLE MISTAKE JOURNAL & POST-SOLVE AUTOPSY MODULE
+// ============================================================================
+
+let journalLogState = {
+  activeFilter: "all",
+  searchQuery: "",
+  showAll: false
+};
+
+function renderJournalModuleHtml() {
+  const entries = AppState.mistakeJournal || [];
+  const total = entries.length;
+
+  const coldCount = entries.filter(e => e.outcome === "Cold Mastery" || e.outcome === "Optimal Cold" || e.outcome === "cold").length;
+  const needReviewCount = entries.filter(e => e.outcome !== "Cold Mastery" && e.outcome !== "Optimal Cold" && e.outcome !== "cold").length;
+  const withNotesCount = entries.filter(e => e.note && e.note.trim().length > 0).length;
+
+  return `
+    <details class="profile-collapsible-tile" id="profileJournalDetails" open>
+      <summary class="profile-journal-header" style="cursor:pointer; list-style:none;">
+        <div class="journal-header-title-row">
+          <span style="font-size:14px; color:var(--apple-text-muted); transition:transform 0.2s ease;">▾</span>
+          <span class="journal-title-text">Post-Solve Autopsies & Mistake Journal</span>
+          <span class="apple-diff-pill info" style="font-size:11px;">${total} ${total === 1 ? "Entry" : "Entries"}</span>
+        </div>
+        <div style="font-size:12px; color:var(--apple-text-secondary);">
+          Click to Collapse / Expand
+        </div>
+      </summary>
+
+      <!-- Filter & Search Controls Bar -->
+      <div class="journal-controls-bar">
+        <div class="journal-filter-pills" id="journalFilterPills">
+          <button class="journal-filter-btn ${journalLogState.activeFilter === "all" ? "active" : ""}" data-filter="all" onclick="filterJournalByOutcome('all')">
+            All (${total})
+          </button>
+          <button class="journal-filter-btn ${journalLogState.activeFilter === "cold" ? "active" : ""}" data-filter="cold" onclick="filterJournalByOutcome('cold')">
+            Cold (${coldCount})
+          </button>
+          <button class="journal-filter-btn ${journalLogState.activeFilter === "review" ? "active" : ""}" data-filter="review" onclick="filterJournalByOutcome('review')">
+            Rematches (${needReviewCount})
+          </button>
+          <button class="journal-filter-btn ${journalLogState.activeFilter === "notes" ? "active" : ""}" data-filter="notes" onclick="filterJournalByOutcome('notes')">
+            With Notes (${withNotesCount})
+          </button>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:8px;">
+          <input 
+            type="text" 
+            id="journalSearchInput" 
+            class="journal-search-input" 
+            placeholder="Search problems or notes..." 
+            value="${journalLogState.searchQuery}"
+            oninput="filterJournalLog(this.value)"
+          />
+          <button id="btnJournalDepthToggle" class="apple-pill-btn sm" onclick="toggleJournalDepth()">
+            ${journalLogState.showAll ? "Collapse to Recent (5) ▴" : `Show All (${total}) ▾`}
+          </button>
+        </div>
+      </div>
+
+      <!-- Accordion Rows List Container - Max Height Bounded to 440px to prevent infinite scrolling -->
+      <div class="journal-accordion-list" id="journalAccordionList">
+        ${renderJournalItemsListHtml(entries, 5)}
+      </div>
+    </details>
+  `;
+}
+
+function renderJournalItemsListHtml(entries, limit = 5) {
+  let filtered = entries;
+
+  if (journalLogState.activeFilter === "cold") {
+    filtered = filtered.filter(e => e.outcome === "Cold Mastery" || e.outcome === "Optimal Cold" || e.outcome === "cold");
+  } else if (journalLogState.activeFilter === "review") {
+    filtered = filtered.filter(e => e.outcome !== "Cold Mastery" && e.outcome !== "Optimal Cold" && e.outcome !== "cold");
+  } else if (journalLogState.activeFilter === "notes") {
+    filtered = filtered.filter(e => e.note && e.note.trim().length > 0);
+  }
+
+  if (journalLogState.searchQuery) {
+    const q = journalLogState.searchQuery.toLowerCase();
+    filtered = filtered.filter(e => 
+      (e.title && e.title.toLowerCase().includes(q)) || 
+      (e.problemId && String(e.problemId).includes(q)) || 
+      (e.note && e.note.toLowerCase().includes(q))
+    );
+  }
+
+  if (filtered.length === 0) {
+    return `
+      <div style="padding:24px; text-align:center; color:var(--apple-text-muted); font-size:13px;">
+        No reflections match the current filter.
+      </div>
+    `;
+  }
+
+  const itemsToRender = (!journalLogState.showAll && limit) ? filtered.slice(0, limit) : filtered;
+
+  return itemsToRender.map((entry, idx) => {
+    const isCold = entry.outcome === "Cold Mastery" || entry.outcome === "Optimal Cold" || entry.outcome === "cold";
+    const badgeClass = isCold ? "Easy" : (entry.outcome === "Needed Hints" || entry.outcome === "Hint Utilized" ? "Medium" : "Hard");
+    const preview = entry.note ? (entry.note.length > 55 ? entry.note.slice(0, 55) + "..." : entry.note) : "Completed with zero hints.";
+
+    return `
+      <div class="journal-card-item" id="journalItem_${idx}">
+        <div class="journal-item-head" onclick="toggleJournalItemDetails(${idx})">
+          <div class="journal-head-left">
+            <span class="journal-toggle-arrow" id="journalArrow_${idx}">▸</span>
+            <span class="journal-date-badge">${entry.date || "Recent"}</span>
+            <span class="journal-prob-title">#${entry.problemId} ${entry.title || ""}</span>
+          </div>
+          <div class="journal-head-right">
+            <span class="journal-preview-snippet">${preview}</span>
+            <span class="apple-diff-pill ${badgeClass}">
+              ${entry.outcome || "Cold Mastery"}
+            </span>
+          </div>
+        </div>
+        <div class="journal-item-body" id="journalBody_${idx}" style="display:none;">
+          <div class="journal-note-callout">
+            <b>Key Reflection & Boundary Invariant:</b><br/>
+            ${entry.note || "Marked as solved cold without custom notes."}
+          </div>
+          <div class="journal-actions-row">
+            <button class="apple-pill-btn sm" onclick="jumpToJournalProblem(${entry.problemId})">
+              Open Problem in Workspace ↗
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+function toggleJournalItemDetails(idx) {
+  const body = document.getElementById(`journalBody_${idx}`);
+  const item = document.getElementById(`journalItem_${idx}`);
+  if (!body || !item) return;
+  const isHidden = body.style.display === "none";
+  body.style.display = isHidden ? "flex" : "none";
+  if (isHidden) {
+    item.classList.add("expanded");
+  } else {
+    item.classList.remove("expanded");
+  }
+}
+
+function toggleJournalDepth() {
+  journalLogState.showAll = !journalLogState.showAll;
+  const listEl = document.getElementById("journalAccordionList");
+  const btn = document.getElementById("btnJournalDepthToggle");
+  const total = AppState.mistakeJournal ? AppState.mistakeJournal.length : 0;
+  if (listEl) {
+    listEl.innerHTML = renderJournalItemsListHtml(AppState.mistakeJournal || [], 5);
+  }
+  if (btn) {
+    btn.textContent = journalLogState.showAll ? "Collapse to Recent (5) ▴" : `Show All (${total}) ▾`;
+  }
+}
+
+function filterJournalByOutcome(filterType) {
+  journalLogState.activeFilter = filterType;
+  document.querySelectorAll("#journalFilterPills .journal-filter-btn").forEach(btn => {
+    if (btn.dataset.filter === filterType) btn.classList.add("active");
+    else btn.classList.remove("active");
+  });
+  const listEl = document.getElementById("journalAccordionList");
+  if (listEl) {
+    listEl.innerHTML = renderJournalItemsListHtml(AppState.mistakeJournal || [], 5);
+  }
+}
+
+function filterJournalLog(query) {
+  journalLogState.searchQuery = query || "";
+  const listEl = document.getElementById("journalAccordionList");
+  if (listEl) {
+    listEl.innerHTML = renderJournalItemsListHtml(AppState.mistakeJournal || [], 5);
+  }
+}
+
+function jumpToJournalProblem(problemId) {
+  const p = BLIND_75_DATABASE.find(x => x.id === problemId);
+  const day = (p && p.dayMapped) || 1;
+  switchDay(day, true);
+  switchView("today");
+  switchDaySubTab("solve");
+  const dayData = CURRICULUM_DATABASE.find(d => d.day === day);
+  const idx = (dayData && dayData.blind75Tasks) ? dayData.blind75Tasks.findIndex(t => t.id === problemId) : 0;
+  if (idx !== -1) {
+    selectDailyProblem(idx);
+  }
 }
 
 function showOnboardingModal() {

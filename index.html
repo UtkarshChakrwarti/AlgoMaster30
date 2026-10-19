@@ -400,62 +400,117 @@
                   </div>
                 </div>
 
-                <button class="apple-primary-cta" style="width:100%;" onclick="advanceToStep3()">
-                  I Finished Implementation → Log Result
-                </button>
+                <div class="step-actions-cluster">
+                  <button id="btnStep2MarkSolved" class="apple-primary-cta" style="flex:1;" onclick="quickMarkProblemSolved(true)">
+                    ✓ Mark as Solved (Success)
+                  </button>
+                  <button class="apple-pill-btn" onclick="advanceToStep3()" title="Fill detailed reflection & pitch script">
+                    Debrief & Pitch (Optional) →
+                  </button>
+                </div>
               </div>
             </div>
 
-            <!-- STEP 3: Honest Debrief & Speaking Pitch -->
+            <!-- STEP 3: Honest Debrief & Speaking Pitch (Optional) -->
             <div id="wizardStep3Card" class="wizard-step-tile locked">
               <div class="step-tile-bar" onclick="setProblemStep(3)">
                 <div class="step-bar-title-group">
                   <span class="step-index-circle">3</span>
-                  <span class="step-title-text">Honest Debrief & Interview Pitch</span>
+                  <span class="step-title-text">Honest Debrief & Interview Pitch <span class="step-optional-pill">Optional</span></span>
                 </div>
                 <span id="step3StatusCaption" class="step-status-caption">Locked</span>
               </div>
 
               <div id="wizardStep3Body" class="step-content-body" style="display:none;">
-                <div>
-                  <div style="font-size:11px; font-weight:600; text-transform:uppercase; color:var(--apple-body-muted); margin-bottom:10px;">Implementation Outcome</div>
-                  <div id="wizardOutcomeGrid" class="outcome-options-grid">
-                    <div class="outcome-option-tile selected" data-outcome="cold" onclick="selectOutcomeCard(this, 'cold')">
-                      <span class="outcome-option-name">Cold Mastery</span>
-                      <span class="outcome-option-sub">Optimal, zero hints, under 20m</span>
-                    </div>
-                    <div class="outcome-option-tile" data-outcome="buggy" onclick="selectOutcomeCard(this, 'buggy')">
-                      <span class="outcome-option-name">Bug Encountered</span>
-                      <span class="outcome-option-sub">Solved after debugging boundary issue</span>
-                    </div>
-                    <div class="outcome-option-tile" data-outcome="hints" onclick="selectOutcomeCard(this, 'hints')">
-                      <span class="outcome-option-name">Hint Utilized</span>
-                      <span class="outcome-option-sub">Needed coach principle to unblock</span>
-                    </div>
-                    <div class="outcome-option-tile" data-outcome="editorial" onclick="selectOutcomeCard(this, 'editorial')">
-                      <span class="outcome-option-name">Editorial Reviewed</span>
-                      <span class="outcome-option-sub">Studied official solution & complexity</span>
+
+                <!-- Instant Solved & Next Problem Quick Card -->
+                <div id="step3QuickSuccessCard" class="step3-success-card" style="display:none;">
+                  <div class="success-card-info">
+                    <div class="success-check-icon">✓</div>
+                    <div>
+                      <div class="success-title">Problem Completed Successfully!</div>
+                      <div class="success-sub" id="step3SuccessSub">Marked as Cold Mastery. Progress synced locally.</div>
                     </div>
                   </div>
+                  <button id="btnStep3NextProblem" class="apple-primary-cta next-prob-btn" onclick="advanceToNextDailyProblem()">
+                    Proceed to Next Problem →
+                  </button>
                 </div>
 
-                <div>
-                  <div style="font-size:11px; font-weight:600; text-transform:uppercase; color:var(--apple-body-muted); margin-bottom:6px;">Note to Future Self</div>
-                  <input type="text" id="wizardNoteInput" class="engineering-note-input" placeholder="What boundary rule or edge case must you remember?">
+                <!-- One-Click Fast Completion Actions (When Not Yet Marked) -->
+                <div id="step3UnsolvedActions" class="step-actions-cluster">
+                  <button class="apple-primary-cta" style="flex:1;" onclick="quickMarkProblemSolved(false)">
+                    ✓ Mark as Solved (Success)
+                  </button>
+                  <button id="btnStep3QuickNext" class="apple-pill-btn primary" onclick="quickMarkAndNextProblem()">
+                    Mark Solved & Next Problem →
+                  </button>
                 </div>
 
-                <div id="wizardReactionBanner" style="font-size:12.5px; color:var(--apple-action-dark);">
-                  Scheduled for active recall review.
-                </div>
+                <!-- Collapsible Optional Debrief Form -->
+                <details id="debriefOptionalAccordion" class="apple-collapsible-tile debrief-collapsible" open>
+                  <summary class="debrief-summary-bar">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                      <span class="debrief-summary-icon">📝</span>
+                      <span style="font-size:12.5px; font-weight:600; text-transform:uppercase; letter-spacing:0.02em;">Reflection & Mistake Notes</span>
+                      <span class="apple-diff-pill info" style="font-size:10px;">Optional</span>
+                    </div>
+                    <span class="debrief-toggle-chevron">▾</span>
+                  </summary>
 
-                <button class="apple-primary-cta" style="width:100%;" onclick="saveWizardDebrief()">
-                  Save Debrief & Unlock Interview Script
-                </button>
+                  <div class="debrief-accordion-body">
+                    <div>
+                      <div style="font-size:11px; font-weight:600; text-transform:uppercase; color:var(--apple-body-muted); margin-bottom:10px;">Implementation Outcome (Defaults to Cold Mastery)</div>
+                      <div id="wizardOutcomeGrid" class="outcome-options-grid">
+                        <div class="outcome-option-tile selected" data-outcome="cold" onclick="selectOutcomeCard(this, 'cold')">
+                          <span class="outcome-option-name">Cold Mastery</span>
+                          <span class="outcome-option-sub">Optimal, zero hints, under 20m</span>
+                        </div>
+                        <div class="outcome-option-tile" data-outcome="buggy" onclick="selectOutcomeCard(this, 'buggy')">
+                          <span class="outcome-option-name">Bug Encountered</span>
+                          <span class="outcome-option-sub">Solved after debugging boundary issue</span>
+                        </div>
+                        <div class="outcome-option-tile" data-outcome="hints" onclick="selectOutcomeCard(this, 'hints')">
+                          <span class="outcome-option-name">Hint Utilized</span>
+                          <span class="outcome-option-sub">Needed coach principle to unblock</span>
+                        </div>
+                        <div class="outcome-option-tile" data-outcome="editorial" onclick="selectOutcomeCard(this, 'editorial')">
+                          <span class="outcome-option-name">Editorial Reviewed</span>
+                          <span class="outcome-option-sub">Studied official solution & complexity</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style="margin-top:14px;">
+                      <div style="font-size:11px; font-weight:600; text-transform:uppercase; color:var(--apple-body-muted); margin-bottom:6px;">Note to Future Self (Optional)</div>
+                      <input type="text" id="wizardNoteInput" class="engineering-note-input" placeholder="What boundary rule or edge case must you remember? (Optional)">
+                    </div>
+
+                    <div id="wizardReactionBanner" style="font-size:12.5px; color:var(--apple-action-dark); margin-top:8px;">
+                      Scheduled for active recall review.
+                    </div>
+
+                    <div style="margin-top:14px; display:flex; gap:10px;">
+                      <button class="apple-pill-btn" onclick="saveWizardDebrief(false)">
+                        Save Notes Only
+                      </button>
+                      <button class="apple-primary-cta" style="flex:1;" onclick="saveWizardDebrief(true)">
+                        Save & Unlock Interview Pitch
+                      </button>
+                    </div>
+                  </div>
+                </details>
 
                 <!-- Unlocked 30-Second Interview Pitch Card -->
                 <div id="wizardPitchRewardCard" class="apple-pitch-doc-card" style="display:none;">
                   <div class="pitch-doc-header">
-                    30-Second Interview Pitch Script
+                    <div style="display:flex; align-items:center; gap:8px;">
+                      <span>🎙️ 30-Second Interview Pitch Script</span>
+                      <span class="apple-diff-pill Easy" style="font-size:10px;">Unlocked</span>
+                    </div>
+                    <button class="nav-link-btn" onclick="copyPitchScript()">
+                      Copy Script
+                    </button>
                   </div>
                   <div class="pitch-doc-bullets">
                     <div class="pitch-bullet-block">
@@ -472,15 +527,13 @@
                     </div>
                   </div>
 
-                  <div style="display:flex; justify-content:space-between; align-items:center; margin-top:6px;">
-                    <button class="apple-pill-btn" onclick="advanceToNextDailyProblem()">
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+                    <button id="btnPitchNextProb" class="apple-primary-cta" onclick="advanceToNextDailyProblem()">
                       Proceed to Next Problem →
-                    </button>
-                    <button class="nav-link-btn" onclick="copyPitchScript()">
-                      Copy Script
                     </button>
                   </div>
                 </div>
+
               </div>
             </div>
 

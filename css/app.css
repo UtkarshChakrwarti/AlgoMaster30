@@ -3669,3 +3669,358 @@ body.mobile-locked {
   font-weight: 500;
   border-radius: var(--rounded-pill);
 }
+
+/* ============================================================================
+   SOLVE WIZARD ACTIONS & OPTIONAL DEBRIEF POLISH
+   ============================================================================ */
+
+.step-actions-cluster {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.step-optional-pill {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 2px 7px;
+  border-radius: var(--rounded-pill);
+  background: var(--apple-tile-2);
+  color: var(--apple-text-muted);
+  border: 1px solid var(--apple-hairline);
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+/* Instant Solved Success Card */
+.step3-success-card {
+  padding: 16px 20px;
+  background: linear-gradient(135deg, rgba(52, 199, 89, 0.12) 0%, rgba(0, 113, 227, 0.08) 100%);
+  border: 1px solid rgba(52, 199, 89, 0.35);
+  border-radius: var(--rounded-md);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  box-shadow: 0 4px 18px rgba(52, 199, 89, 0.12);
+  animation: appleInSwap 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.success-card-info {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.success-check-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--status-cold);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(52, 199, 89, 0.35);
+}
+
+.success-title {
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--apple-text-primary);
+  letter-spacing: -0.01em;
+}
+
+.success-sub {
+  font-size: 12.5px;
+  color: var(--apple-text-secondary);
+  margin-top: 2px;
+}
+
+.next-prob-btn {
+  padding: 8px 18px;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+/* Debrief Collapsible Details */
+.debrief-collapsible {
+  border: 1px solid var(--apple-hairline);
+  border-radius: var(--rounded-md);
+  background: var(--apple-tile-1);
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.debrief-collapsible[open] {
+  border-color: var(--apple-hairline-strong);
+}
+
+.debrief-summary-bar {
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  background: var(--apple-tile-2);
+  user-select: none;
+  list-style: none;
+}
+
+.debrief-summary-bar::-webkit-details-marker {
+  display: none;
+}
+
+.debrief-toggle-chevron {
+  font-size: 14px;
+  color: var(--apple-text-muted);
+  transition: transform 0.22s ease;
+}
+
+.debrief-collapsible[open] .debrief-toggle-chevron {
+  transform: rotate(180deg);
+}
+
+.debrief-accordion-body {
+  padding: 18px 20px;
+  border-top: 1px solid var(--apple-divider);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Fluid In-Swap Transition */
+@keyframes appleInSwap {
+  0% {
+    opacity: 0;
+    transform: translateY(8px) scale(0.995);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.inswap-animate {
+  animation: appleInSwap 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ============================================================================
+   PROFILE COLLAPSIBLE MISTAKE JOURNAL & POST-SOLVE LOG
+   ============================================================================ */
+
+.profile-collapsible-tile {
+  background: var(--glass-card);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--rounded-lg);
+  box-shadow: var(--apple-shadow-card);
+  overflow: hidden;
+  margin-top: 20px;
+}
+
+.profile-journal-header {
+  padding: 18px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--apple-hairline);
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.journal-header-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.journal-title-text {
+  font-size: 15.5px;
+  font-weight: 600;
+  color: var(--apple-text-primary);
+}
+
+.journal-controls-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 24px;
+  background: var(--apple-tile-1);
+  border-bottom: 1px solid var(--apple-hairline);
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.journal-filter-pills {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.journal-filter-btn {
+  padding: 4px 10px;
+  border-radius: var(--rounded-pill);
+  font-size: 11.5px;
+  background: var(--apple-tile-2);
+  color: var(--apple-text-secondary);
+  border: 1px solid var(--apple-hairline);
+  cursor: pointer;
+  transition: all 0.16s ease;
+}
+
+.journal-filter-btn:hover {
+  background: var(--apple-tile-3);
+  color: var(--apple-text-primary);
+}
+
+.journal-filter-btn.active {
+  background: var(--apple-action-blue);
+  color: #ffffff;
+  border-color: transparent;
+}
+
+.journal-search-input {
+  padding: 5px 12px;
+  border-radius: var(--rounded-pill);
+  font-size: 12px;
+  background: var(--apple-tile-2);
+  border: 1px solid var(--apple-hairline);
+  color: var(--apple-text-primary);
+  width: 190px;
+  outline: none;
+  transition: border-color 0.16s ease;
+}
+
+.journal-search-input:focus {
+  border-color: var(--apple-action-blue);
+}
+
+/* Accordion Rows List Container - Max Height Bounded to Prevent Infinite Scroll */
+.journal-accordion-list {
+  max-height: 440px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.journal-accordion-list::-webkit-scrollbar {
+  width: 6px;
+}
+.journal-accordion-list::-webkit-scrollbar-thumb {
+  background: var(--apple-hairline-strong);
+  border-radius: 999px;
+}
+
+.journal-card-item {
+  border-bottom: 1px solid var(--apple-hairline);
+  transition: background 0.16s ease;
+}
+
+.journal-card-item:last-child {
+  border-bottom: none;
+}
+
+.journal-card-item:hover {
+  background: var(--apple-tile-1);
+}
+
+.journal-item-head {
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  gap: 14px;
+}
+
+.journal-head-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1;
+}
+
+.journal-toggle-arrow {
+  font-size: 12px;
+  color: var(--apple-text-muted);
+  width: 14px;
+  transition: transform 0.2s ease;
+}
+
+.journal-card-item.expanded .journal-toggle-arrow {
+  transform: rotate(90deg);
+}
+
+.journal-date-badge {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--apple-text-muted);
+  white-space: nowrap;
+}
+
+.journal-prob-title {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--apple-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.journal-head-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.journal-preview-snippet {
+  font-size: 12px;
+  color: var(--apple-text-secondary);
+  max-width: 240px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.journal-item-body {
+  padding: 12px 24px 16px 48px;
+  background: var(--apple-tile-2);
+  border-top: 1px solid var(--apple-divider);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.journal-note-callout {
+  font-size: 13px;
+  color: var(--apple-text-primary);
+  line-height: 1.5;
+  background: var(--apple-surface);
+  padding: 10px 14px;
+  border-radius: var(--rounded-sm);
+  border: 1px solid var(--apple-hairline);
+}
+
+.journal-actions-row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.apple-pill-btn.sm {
+  padding: 4px 12px;
+  font-size: 11.5px;
+}
