@@ -114,11 +114,18 @@ const CURRICULUM_DATABASE = [
     subtitle: "NeetCode Step 3 — Boundary Shrinking, Set Heads, and State Flags",
     authoritativeResources: [
       {
-        title: "TopCoder: In-Place Matrix Transformations",
-        source: "TopCoder",
-        type: "Memory Optimization Guide",
-        url: "https://www.topcoder.com/thrive/articles",
-        description: "Matrix transposition along main diagonal followed by column reversal for 90-degree rotations."
+        title: "USACO Guide Silver: More Operations on Arrays & Sweeps",
+        source: "USACO Guide",
+        type: "Comprehensive Theory Monograph",
+        url: "https://usaco.guide/silver/more-prefix-sums",
+        description: "2D prefix coordinate compressions, in-place index markers, and hash set streak invariants."
+      },
+      {
+        title: "CP-Algorithms: Disjoint Set Union & Connected Components",
+        source: "CP-Algorithms",
+        type: "Data Structure Monograph",
+        url: "https://cp-algorithms.com/data_structures/disjoint_set_union.html",
+        description: "Set representation, path compression, and amortized streak tracking."
       }
     ],
     blind75Tasks: [
@@ -377,11 +384,18 @@ const CURRICULUM_DATABASE = [
     subtitle: "NeetCode Step 9 — Inflection Points, Sorted Halves, and O(log N) Queries",
     authoritativeResources: [
       {
-        title: "TopCoder: Binary Search Comprehensive Tutorial",
-        source: "TopCoder (lovro)",
-        type: "Canonical Algorithm Monograph",
-        url: "https://www.topcoder.com/thrive/articles/Binary%20Search",
-        description: "Discrete predicate invariants, range halving proofs, and boundary termination."
+        title: "USACO Guide Silver: Binary Search & Monotonic Predicates",
+        source: "USACO Guide",
+        type: "Comprehensive Theory Monograph",
+        url: "https://usaco.guide/silver/binary-search",
+        description: "Discrete monotonic predicate invariants, range halving proofs, and mid boundary termination."
+      },
+      {
+        title: "CP-Algorithms: Binary Search for Monotonic Functions",
+        source: "CP-Algorithms",
+        type: "Mathematical Theory",
+        url: "https://cp-algorithms.com/num_methods/binary_search.html",
+        description: "Inflection points, discrete vs floating point bounds, and termination guarantees."
       }
     ],
     blind75Tasks: [
@@ -461,7 +475,7 @@ const CURRICULUM_DATABASE = [
         title: "CP-Algorithms: Floyd's Cycle-Finding Algorithm",
         source: "CP-Algorithms",
         type: "Mathematical Theory",
-        url: "https://cp-algorithms.com",
+        url: "https://brilliant.org/wiki/tortoise-and-hare/",
         description: "Proof why relative distance between slow and fast pointers decreases by 1 each step modulo C."
       }
     ],
@@ -503,7 +517,7 @@ const CURRICULUM_DATABASE = [
         title: "USACO Guide Gold: Priority Queues & Heaps",
         source: "USACO Guide",
         type: "Data Structure Guide",
-        url: "https://usaco.guide/gold",
+        url: "https://usaco.guide/silver/greedy-sorting",
         description: "Min-heap priority queue invariant maintaining the minimum element across K sorted streams."
       }
     ],
@@ -592,7 +606,7 @@ const CURRICULUM_DATABASE = [
         title: "CP-Algorithms: Binary Search Tree Invariants",
         source: "CP-Algorithms",
         type: "Data Structure Monograph",
-        url: "https://cp-algorithms.com",
+        url: "https://usaco.guide/silver/intro-trees",
         description: "Inorder traversal strictly sorted property, BST bounds, and LCA split point."
       }
     ],
@@ -635,7 +649,7 @@ const CURRICULUM_DATABASE = [
         title: "CP-Algorithms: Tree Serialization & Preorder Invariants",
         source: "CP-Algorithms",
         type: "Comprehensive Theory",
-        url: "https://cp-algorithms.com",
+        url: "https://cp-algorithms.com/graph/lca.html",
         description: "Bijective serialization with explicit null markers."
       }
     ],
@@ -766,7 +780,7 @@ const CURRICULUM_DATABASE = [
         title: "USACO Guide Gold: Priority Queues",
         source: "USACO Guide",
         type: "Technique Monograph",
-        url: "https://usaco.guide/gold",
+        url: "https://usaco.guide/silver/greedy-sorting",
         description: "Dual heap balancing invariants for running stream quantiles."
       }
     ],
@@ -810,7 +824,7 @@ const CURRICULUM_DATABASE = [
         title: "USACO Guide Silver: Complete Search with Backtracking",
         source: "USACO Guide",
         type: "Comprehensive Theory",
-        url: "https://usaco.guide/silver",
+        url: "https://usaco.guide/bronze/complete-rec",
         description: "Search trees, branch-and-bound pruning, and state restoration invariants."
       }
     ],
@@ -976,11 +990,18 @@ const CURRICULUM_DATABASE = [
     subtitle: "NeetCode Step 22 — Fibonacci Transitions, Circular Splits, and O(1) Rolling States",
     authoritativeResources: [
       {
-        title: "AtCoder Educational DP Contest",
-        source: "AtCoder",
-        type: "Canonical Problem Suite",
-        url: "https://atcoder.jp/contests/dp",
-        description: "The 26 standard DP benchmarks: Frog 1 & 2 linear state transitions."
+        title: "USACO Guide Gold: Introduction to Dynamic Programming",
+        source: "USACO Guide",
+        type: "Comprehensive Theory Monograph",
+        url: "https://usaco.guide/gold/intro-dp",
+        description: "State formulation, DAG of subproblems, memoization vs bottom-up tabulation."
+      },
+      {
+        title: "CP-Algorithms: Dynamic Programming Introduction & Optimizations",
+        source: "CP-Algorithms",
+        type: "Algorithmic Monograph",
+        url: "https://cp-algorithms.com/dynamic_programming/intro-to-dp.html",
+        description: "Linear recurrences, state reduction, and rolling variable memory optimizations."
       }
     ],
     blind75Tasks: [
@@ -1061,11 +1082,18 @@ const CURRICULUM_DATABASE = [
     subtitle: "NeetCode Step 24 — String Decodes, Combinatorial Targets, and Furthest Reachable",
     authoritativeResources: [
       {
-        title: "AtCoder DP Contest: Frog 2 & Vacations",
-        source: "AtCoder",
-        type: "Canonical Problem Suite",
-        url: "https://atcoder.jp/contests/dp/tasks/dp_b",
-        description: "K-step jumps and state-dependent daily rewards."
+        title: "USACO Guide Gold: Paths on Grids & Combinatorial DP",
+        source: "USACO Guide",
+        type: "Comprehensive Theory Monograph",
+        url: "https://usaco.guide/gold/paths-grids",
+        description: "Grid DAG transitions, reachability predicates, and combinatorial state equations."
+      },
+      {
+        title: "CP-Algorithms: Longest Increasing Subsequence & Patience Sorting",
+        source: "CP-Algorithms",
+        type: "Data Structure Monograph",
+        url: "https://cp-algorithms.com/sequences/longest_increasing_subseq.html",
+        description: "O(N log N) tail array binary search invariant and patience sorting proof."
       }
     ],
     blind75Tasks: [
@@ -1103,11 +1131,18 @@ const CURRICULUM_DATABASE = [
     subtitle: "NeetCode Step 25 — Grid Inflow Combinatorics, LCS Tables, and Interval DP",
     authoritativeResources: [
       {
-        title: "AtCoder DP Contest: LCS (Task dp_f)",
-        source: "AtCoder",
-        type: "Canonical Benchmark",
-        url: "https://atcoder.jp/contests/dp/tasks/dp_f",
-        description: "Reconstructing the optimal longest common subsequence string from DP table."
+        title: "Brilliant: Longest Common Subsequence & Dynamic Alignment Theory",
+        source: "Brilliant",
+        type: "Mathematical Theory",
+        url: "https://brilliant.org/wiki/longest-common-subsequence/",
+        description: "Optimal substructure proof, 2D state matrix alignment, and rolling row memory optimization."
+      },
+      {
+        title: "CP-Algorithms: Dynamic Programming on Sequences",
+        source: "CP-Algorithms",
+        type: "Algorithmic Monograph",
+        url: "https://cp-algorithms.com/dynamic_programming/intro-to-dp.html",
+        description: "2D table construction and reconstruction of optimal sequence alignments."
       }
     ],
     blind75Tasks: [
@@ -1147,7 +1182,7 @@ const CURRICULUM_DATABASE = [
         title: "USACO Guide Silver: Greedy with Sorting",
         source: "USACO Guide",
         type: "Comprehensive Theory",
-        url: "https://usaco.guide/silver",
+        url: "https://usaco.guide/silver/greedy-sorting",
         description: "Earliest finish time greedy theorem for maximum non-overlapping intervals."
       }
     ],

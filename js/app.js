@@ -239,12 +239,14 @@ const AppleDialog = {
   confirm() {
     const modal = document.getElementById("appleCustomDialogModal");
     if (modal) modal.classList.remove("open");
+    const inputWrap = document.getElementById("appleDialogInputWrap");
     const inputEl = document.getElementById("appleDialogInput");
-    const val = inputEl ? inputEl.value : null;
+    const isPrompt = inputWrap && inputWrap.style.display !== "none";
+    const val = isPrompt && inputEl ? inputEl.value : true;
     if (this._resolve) {
       const fn = this._resolve;
       this._resolve = null;
-      fn(val !== null ? val : true);
+      fn(val);
     }
   },
 
@@ -632,6 +634,16 @@ const VisualizerEngine = {
       });
       gridWrap.appendChild(boardEl);
       stage.appendChild(gridWrap);
+    } else if (trace.treeNodes || (trace.type && (trace.type.startsWith("tree") || trace.type.startsWith("bst")))) {
+      this.renderBinaryTree(stage, step, trace);
+    } else if (trace.listNodes || (trace.type && (trace.type === "linked-list" || trace.type === "floyd-cycle"))) {
+      this.renderLinkedList(stage, step, trace);
+    } else if (trace.graphNodes || (trace.type && (trace.type === "topo-sort" || trace.type === "graph-dag"))) {
+      this.renderDirectedGraph(stage, step, trace);
+    } else if (trace.trieNodes || trace.type === "trie") {
+      this.renderTrie(stage, step, trace);
+    } else if (trace.type === "two-heaps") {
+      this.renderTwoHeaps(stage, step, trace);
     } else {
       // 2. Parse 1D array items from inputDescription
       const arrayMatch = trace.inputDescription ? trace.inputDescription.match(/\[(.*?)\]/) : null;
@@ -760,7 +772,31 @@ const VisualizerEngine = {
     if (step.pointers) {
       const b = document.createElement("div");
       b.className = "inspector-pill-badge";
-      b.innerHTML = `ptrs: <b>${step.pointers}</b>`;
+      const ptrsStr = typeof step.pointers === "object"
+        ? Object.entries(step.pointers).map(([k, v]) => `${k}:${v}`).join(", ")
+        : step.pointers;
+      b.innerHTML = `ptrs: <b>${ptrsStr}</b>`;
+      dataRow.appendChild(b);
+    }
+
+    if (step.reversedCount !== undefined) {
+      const b = document.createElement("div");
+      b.className = "inspector-pill-badge";
+      b.innerHTML = `reversed: <b>${step.reversedCount}</b>`;
+      dataRow.appendChild(b);
+    }
+
+    if (step.islandCount !== undefined) {
+      const b = document.createElement("div");
+      b.className = "inspector-pill-badge";
+      b.innerHTML = `islands: <b>${step.islandCount}</b>`;
+      dataRow.appendChild(b);
+    }
+
+    if (step.median !== undefined) {
+      const b = document.createElement("div");
+      b.className = "inspector-pill-badge";
+      b.innerHTML = `median: <b>${step.median}</b>`;
       dataRow.appendChild(b);
     }
 
@@ -828,6 +864,390 @@ const VisualizerEngine = {
       this.currentStepIndex--;
       this.render();
     }
+  },
+
+  renderBinaryTree(stage, step, trace) {
+    const container = document.createElement("div");
+    container.className = "vis-tree-container";
+
+    const svgNS = "http://www.w3.org/2000/svg";
+    const svg = document.createElementNS(svgNS, "svg");
+    svg.setAttribute("viewBox", "0 0 500 220");
+    svg.setAttribute("class", "vis-tree-svg");
+
+    const nodes = trace.treeNodes || [];
+    const nodeMap = {};
+    nodes.forEach(n => { nodeMap[n.id] = n; });
+
+    // 1. Draw SVG Edges
+    nodes.forEach(n => {
+      [n.left, n.right].forEach(childId => {
+        if (!childId || !nodeMap[childId]) return;
+        const child = nodeMap[childId];
+        const line = document.createElementNS(svgNS, "line");
+        line.setAttribute("x1", n.x);
+        line.setAttribute("y1", n.y);
+        line.setAttribute("x2", child.x);
+        line.setAttribute("y2", child.y);
+        line.setAttribute("class", "vis-tree-edge");
+
+        const isHighlighted = (step.highlightEdges || []).some(
+          e => (e[0] === n.id && e[1] === child.id) || (e[0] === child.id && e[1] === n.id)
+        ) || (step.pathEdges || []).some(
+          e => (e[0] === n.id && e[1] === child.id) || (e[0] === child.id && e[1] === n.id)
+        );
+
+        if (isHighlighted) {
+          line.classList.add("active");
+        }
+        svg.appendChild(line);
+      });
+    });
+
+    // 2. Draw SVG Nodes
+    nodes.forEach(n => {
+      const g = document.createElementNS(svgNS, "g");
+      let nodeClasses = "vis-tree-node";
+
+      const isActive = step.activeNodeId === n.id;
+      const isSwapped = (step.swappedPair || []).includes(n.id);
+      const isViolation = step.violationNodeId === n.id;
+      const isLCA = step.lcaNodeId === n.id;
+      const isPath = (step.pathNodes || []).includes(n.id);
+
+      if (isActive) nodeClasses += " active";
+      if (isSwapped) nodeClasses += " swapped";
+      if (isViolation) nodeClasses += " violation";
+      if (isLCA) nodeClasses += " lca";
+      if (isPath) nodeClasses += " path";
+      if (n.isP) nodeClasses += " target-p";
+      if (n.isQ) nodeClasses += " target-q";
+
+      g.setAttribute("class", nodeClasses);
+      g.setAttribute("transform", `translate(${n.x}, ${n.y})`);
+
+      const circle = document.createElementNS(svgNS, "circle");
+      circle.setAttribute("r", "19");
+      circle.setAttribute("class", "vis-tree-node-circle");
+      g.appendChild(circle);
+
+      const text = document.createElementNS(svgNS, "text");
+      text.setAttribute("class", "vis-tree-node-val");
+      text.textContent = n.val;
+      g.appendChild(text);
+
+      const boundsText = (step.bounds && step.bounds[n.id]) || (n.isP ? "p (target)" : (n.isQ ? "q (target)" : ""));
+      if (boundsText) {
+        const sub = document.createElementNS(svgNS, "text");
+        sub.setAttribute("y", "29");
+        sub.setAttribute("class", "vis-tree-node-sub");
+        sub.textContent = boundsText;
+        g.appendChild(sub);
+      }
+
+      svg.appendChild(g);
+    });
+
+    container.appendChild(svg);
+    stage.appendChild(container);
+  },
+
+  renderLinkedList(stage, step, trace) {
+    const container = document.createElement("div");
+    container.className = "vis-list-stage";
+
+    const row = document.createElement("div");
+    row.className = "vis-list-row";
+
+    const nodes = trace.listNodes || [];
+    const pointers = step.pointers || {};
+    const reversedEdges = step.edgesReversed || [];
+
+    nodes.forEach((n, idx) => {
+      const cardWrapper = document.createElement("div");
+      cardWrapper.className = "vis-list-node-wrap";
+
+      const pointerPins = [];
+      Object.entries(pointers).forEach(([pName, pVal]) => {
+        if (pVal === n.id) {
+          pointerPins.push(pName);
+        }
+      });
+
+      if (pointerPins.length > 0) {
+        const pinBar = document.createElement("div");
+        pinBar.className = "vis-list-pin-bar";
+        pointerPins.forEach(p => {
+          const pin = document.createElement("span");
+          pin.className = `vis-list-pointer-pin ${p}`;
+          pin.textContent = p;
+          pinBar.appendChild(pin);
+        });
+        cardWrapper.appendChild(pinBar);
+      }
+
+      const card = document.createElement("div");
+      card.className = "vis-list-card";
+      if (pointerPins.length > 0) card.classList.add("active");
+      if (n.isCycleOrigin) card.classList.add("cycle-origin");
+
+      card.innerHTML = `<span class="vis-list-val">${n.val}</span><span class="vis-list-next-dot">•</span>`;
+      cardWrapper.appendChild(card);
+
+      row.appendChild(cardWrapper);
+
+      if (idx < nodes.length - 1) {
+        const arrowWrap = document.createElement("div");
+        arrowWrap.className = "vis-list-arrow";
+        const isReversed = reversedEdges.includes(n.id);
+        if (isReversed) arrowWrap.classList.add("reversed");
+        arrowWrap.innerHTML = isReversed ? "←" : "→";
+        row.appendChild(arrowWrap);
+      } else {
+        const arrowWrap = document.createElement("div");
+        arrowWrap.className = "vis-list-arrow";
+        if (trace.type === "floyd-cycle") {
+          arrowWrap.classList.add("cycle-loop");
+          arrowWrap.innerHTML = "↺ loop (to 2)";
+        } else {
+          const isReversed = reversedEdges.includes(n.id);
+          arrowWrap.innerHTML = isReversed ? "←" : "→";
+        }
+        row.appendChild(arrowWrap);
+
+        if (trace.type !== "floyd-cycle") {
+          const nullCard = document.createElement("div");
+          nullCard.className = "vis-list-null-chip";
+          nullCard.textContent = "NULL";
+          row.appendChild(nullCard);
+        }
+      }
+    });
+
+    container.appendChild(row);
+    stage.appendChild(container);
+  },
+
+  renderDirectedGraph(stage, step, trace) {
+    const container = document.createElement("div");
+    container.className = "vis-graph-stage";
+
+    const svgNS = "http://www.w3.org/2000/svg";
+    const svg = document.createElementNS(svgNS, "svg");
+    svg.setAttribute("viewBox", "0 0 460 210");
+    svg.setAttribute("class", "vis-graph-svg");
+
+    const defs = document.createElementNS(svgNS, "defs");
+    const marker = document.createElementNS(svgNS, "marker");
+    marker.setAttribute("id", "graph-arrowhead");
+    marker.setAttribute("viewBox", "0 0 10 10");
+    marker.setAttribute("refX", "22");
+    marker.setAttribute("refY", "5");
+    marker.setAttribute("markerWidth", "6");
+    marker.setAttribute("markerHeight", "6");
+    marker.setAttribute("orient", "auto-start-reverse");
+
+    const path = document.createElementNS(svgNS, "path");
+    path.setAttribute("d", "M 0 1.5 L 8 5 L 0 8.5 z");
+    path.setAttribute("fill", "var(--apple-blue)");
+    marker.appendChild(path);
+    defs.appendChild(marker);
+    svg.appendChild(defs);
+
+    const nodes = trace.graphNodes || [];
+    const nodeMap = {};
+    nodes.forEach(n => { nodeMap[n.id] = n; });
+
+    (trace.graphEdges || []).forEach(e => {
+      const fromNode = nodeMap[e.from];
+      const toNode = nodeMap[e.to];
+      if (!fromNode || !toNode) return;
+
+      const line = document.createElementNS(svgNS, "line");
+      line.setAttribute("x1", fromNode.x);
+      line.setAttribute("y1", fromNode.y);
+      line.setAttribute("x2", toNode.x);
+      line.setAttribute("y2", toNode.y);
+      line.setAttribute("class", "vis-graph-edge");
+      line.setAttribute("marker-end", "url(#graph-arrowhead)");
+
+      const isActive = (step.activeEdges || []).some(
+        ae => ae.from === e.from && ae.to === e.to
+      );
+      if (isActive) line.classList.add("active");
+
+      const isResolved = (step.processed || []).includes(e.from);
+      if (isResolved) line.classList.add("resolved");
+
+      svg.appendChild(line);
+    });
+
+    nodes.forEach(n => {
+      const g = document.createElementNS(svgNS, "g");
+      let cls = "vis-graph-node";
+      const isActive = step.activeNodeId === n.id;
+      const isProcessed = (step.processed || []).includes(n.id);
+      const inQueue = (step.queue || []).includes(n.id);
+
+      if (isActive) cls += " active";
+      if (isProcessed) cls += " processed";
+      if (inQueue) cls += " in-queue";
+
+      g.setAttribute("class", cls);
+      g.setAttribute("transform", `translate(${n.x}, ${n.y})`);
+
+      const circle = document.createElementNS(svgNS, "circle");
+      circle.setAttribute("r", "20");
+      circle.setAttribute("class", "vis-graph-node-circle");
+      g.appendChild(circle);
+
+      const text = document.createElementNS(svgNS, "text");
+      text.setAttribute("class", "vis-graph-node-text");
+      text.textContent = n.id;
+      g.appendChild(text);
+
+      const inDeg = (step.indegrees && step.indegrees[n.id] !== undefined) ? step.indegrees[n.id] : 0;
+      const badge = document.createElementNS(svgNS, "text");
+      badge.setAttribute("y", "-25");
+      badge.setAttribute("class", "vis-graph-indegree-chip");
+      badge.textContent = `in: ${inDeg}`;
+      g.appendChild(badge);
+
+      const lbl = document.createElementNS(svgNS, "text");
+      lbl.setAttribute("y", "32");
+      lbl.setAttribute("class", "vis-graph-course-lbl");
+      lbl.textContent = n.label;
+      g.appendChild(lbl);
+
+      svg.appendChild(g);
+    });
+
+    container.appendChild(svg);
+
+    const queueBar = document.createElement("div");
+    queueBar.className = "vis-graph-queue-bar";
+    const qItems = (step.queue || []).map(q => `<b>Course ${q}</b>`).join(", ");
+    queueBar.innerHTML = `<span class="q-label">Zero In-Degree Queue:</span> [ ${qItems || "empty"} ]`;
+    container.appendChild(queueBar);
+
+    stage.appendChild(container);
+  },
+
+  renderTrie(stage, step, trace) {
+    const container = document.createElement("div");
+    container.className = "vis-trie-stage";
+
+    const svgNS = "http://www.w3.org/2000/svg";
+    const svg = document.createElementNS(svgNS, "svg");
+    svg.setAttribute("viewBox", "0 0 500 280");
+    svg.setAttribute("class", "vis-trie-svg");
+
+    const nodes = trace.trieNodes || [];
+    const nodeMap = {};
+    nodes.forEach(n => { nodeMap[n.id] = n; });
+
+    nodes.forEach(n => {
+      if (!n.parent || !nodeMap[n.parent]) return;
+      const parent = nodeMap[n.parent];
+      const line = document.createElementNS(svgNS, "line");
+      line.setAttribute("x1", parent.x);
+      line.setAttribute("y1", parent.y);
+      line.setAttribute("x2", n.x);
+      line.setAttribute("y2", n.y);
+      line.setAttribute("class", "vis-tree-edge");
+
+      const inPath = (step.path || []).includes(n.id);
+      if (inPath) line.classList.add("active");
+
+      svg.appendChild(line);
+    });
+
+    nodes.forEach(n => {
+      const g = document.createElementNS(svgNS, "g");
+      let cls = "vis-tree-node";
+      const isActive = step.activeNodeId === n.id;
+      const inPath = (step.path || []).includes(n.id);
+
+      if (isActive) cls += " active";
+      if (inPath) cls += " path";
+      if (n.isWord) cls += " word-end";
+
+      g.setAttribute("class", cls);
+      g.setAttribute("transform", `translate(${n.x}, ${n.y})`);
+
+      const circle = document.createElementNS(svgNS, "circle");
+      circle.setAttribute("r", "18");
+      circle.setAttribute("class", "vis-tree-node-circle");
+      g.appendChild(circle);
+
+      const text = document.createElementNS(svgNS, "text");
+      text.setAttribute("class", "vis-tree-node-val");
+      text.textContent = n.val;
+      g.appendChild(text);
+
+      if (n.isWord) {
+        const star = document.createElementNS(svgNS, "text");
+        star.setAttribute("x", "14");
+        star.setAttribute("y", "-10");
+        star.setAttribute("class", "vis-trie-star");
+        star.textContent = "★";
+        g.appendChild(star);
+      }
+
+      svg.appendChild(g);
+    });
+
+    container.appendChild(svg);
+    stage.appendChild(container);
+  },
+
+  renderTwoHeaps(stage, step, trace) {
+    const container = document.createElement("div");
+    container.className = "vis-heaps-container";
+
+    const heapsRow = document.createElement("div");
+    heapsRow.className = "vis-heaps-row";
+
+    const leftBox = document.createElement("div");
+    leftBox.className = "vis-heap-box max-heap";
+    leftBox.innerHTML = `
+      <div class="vis-heap-title">Max-Heap (Lower 50%)</div>
+      <div class="vis-heap-chips">
+        ${(step.leftMaxHeap || []).map((val, idx) => `
+          <div class="vis-heap-chip ${idx === 0 ? "heap-top" : ""}">
+            ${idx === 0 ? "<span class='vis-top-badge'>TOP</span>" : ""}
+            <span class="chip-val">${val}</span>
+          </div>
+        `).join("") || "<span class='empty-heap'>[empty]</span>"}
+      </div>
+    `;
+    heapsRow.appendChild(leftBox);
+
+    const medianPill = document.createElement("div");
+    medianPill.className = "vis-median-formula-pill";
+    medianPill.innerHTML = `
+      <div class="median-val-badge">Median: <b>${step.median}</b></div>
+      <div class="median-formula-sub">${step.formula || ""}</div>
+    `;
+    heapsRow.appendChild(medianPill);
+
+    const rightBox = document.createElement("div");
+    rightBox.className = "vis-heap-box min-heap";
+    rightBox.innerHTML = `
+      <div class="vis-heap-title">Min-Heap (Upper 50%)</div>
+      <div class="vis-heap-chips">
+        ${(step.rightMinHeap || []).map((val, idx) => `
+          <div class="vis-heap-chip ${idx === 0 ? "heap-top" : ""}">
+            ${idx === 0 ? "<span class='vis-top-badge'>TOP</span>" : ""}
+            <span class="chip-val">${val}</span>
+          </div>
+        `).join("") || "<span class='empty-heap'>[empty]</span>"}
+      </div>
+    `;
+    heapsRow.appendChild(rightBox);
+
+    container.appendChild(heapsRow);
+    stage.appendChild(container);
   },
 
   reset() {
@@ -1345,8 +1765,8 @@ function selectDailyBossFight(boss) {
 // DAY SWITCHING & ROADMAP
 // ============================================================================
 
-function switchDay(dayNumber) {
-  if (dayNumber === AppState.currentDay) return;
+function switchDay(dayNumber, force = false) {
+  if (!force && dayNumber === AppState.currentDay) return;
   checkTimerLock(() => doSwitchDay(dayNumber));
 }
 
@@ -1391,54 +1811,61 @@ function doSwitchDay(dayNumber) {
     trapsEl.innerHTML = dayData.antiPatterns.map(ap => `<div class="trap-bullet-item">${ap}</div>`).join("");
   }
 
-const DAY_DEEP_LINKS = {
-  1: { neetcode: "https://neetcode.io/problems/two-integer-sum", usaco: "https://usaco.guide/bronze/intro-sets" },
-  2: { neetcode: "https://neetcode.io/problems/group-anagrams", usaco: "https://usaco.guide/silver/prefix-sums" },
-  3: { neetcode: "https://neetcode.io/problems/longest-consecutive-sequence", usaco: "https://usaco.guide/silver/more-prefix-sums" },
-  4: { neetcode: "https://neetcode.io/problems/three-integer-sum", usaco: "https://usaco.guide/silver/two-pointers" },
-  5: { neetcode: "https://neetcode.io/problems/max-water-container", usaco: "https://usaco.guide/silver/two-pointers" },
-  6: { neetcode: "https://neetcode.io/problems/longest-substring-without-duplicates", usaco: "https://usaco.guide/silver/prefix-sums" },
-  7: { neetcode: "https://neetcode.io/problems/minimum-window-with-characters", usaco: "https://usaco.guide/silver/two-pointers" },
-  8: { neetcode: "https://neetcode.io/problems/validate-parentheses", usaco: "https://usaco.guide/gold/stacks" },
-  9: { neetcode: "https://neetcode.io/problems/largest-rectangle-in-histogram", usaco: "https://usaco.guide/gold/stacks" },
-  10: { neetcode: "https://neetcode.io/problems/eating-bananas", usaco: "https://usaco.guide/silver/binary-search" },
-  11: { neetcode: "https://neetcode.io/problems/find-minimum-in-rotated-sorted-array", usaco: "https://usaco.guide/silver/binary-search" },
-  12: { neetcode: "https://neetcode.io/problems/reverse-a-linked-list", usaco: "https://usaco.guide/bronze/simulation" },
-  13: { neetcode: "https://neetcode.io/problems/merge-k-sorted-linked-lists", usaco: "https://usaco.guide/silver/greedy-sorting" },
-  14: { neetcode: "https://neetcode.io/problems/invert-a-binary-tree", usaco: "https://usaco.guide/silver/intro-trees" },
-  15: { neetcode: "https://neetcode.io/problems/lowest-common-ancestor-in-binary-search-tree", usaco: "https://usaco.guide/silver/tree-euler" },
-  16: { neetcode: "https://neetcode.io/problems/binary-tree-maximum-path-sum", usaco: "https://usaco.guide/silver/tree-euler" },
-  17: { neetcode: "https://neetcode.io/problems/implement-prefix-tree", usaco: "https://usaco.guide/gold/string-searching" },
-  18: { neetcode: "https://neetcode.io/problems/find-median-in-a-data-stream", usaco: "https://usaco.guide/gold/shortest-paths" },
-  19: { neetcode: "https://neetcode.io/problems/combination-target-sum", usaco: "https://usaco.guide/bronze/complete-rec" },
-  20: { neetcode: "https://neetcode.io/problems/count-number-of-islands", usaco: "https://usaco.guide/silver/flood-fill" },
-  21: { neetcode: "https://neetcode.io/problems/course-schedule", usaco: "https://usaco.guide/gold/toposort" },
-  22: { neetcode: "https://neetcode.io/problems/foreign-dictionary", usaco: "https://usaco.guide/gold/dsu" },
-  23: { neetcode: "https://neetcode.io/problems/house-robber", usaco: "https://usaco.guide/gold/intro-dp" },
-  24: { neetcode: "https://neetcode.io/problems/coin-change", usaco: "https://usaco.guide/gold/knapsack" },
-  25: { neetcode: "https://neetcode.io/problems/longest-increasing-subsequence", usaco: "https://usaco.guide/gold/paths-grids" },
-  26: { neetcode: "https://neetcode.io/problems/longest-common-subsequence", usaco: "https://usaco.guide/gold/paths-grids" },
-  27: { neetcode: "https://neetcode.io/problems/meeting-schedule", usaco: "https://usaco.guide/silver/greedy-sorting" },
-  28: { neetcode: "https://neetcode.io/problems/sum-of-two-integers", usaco: "https://usaco.guide/gold/bitwise-ops" },
-  29: { neetcode: "https://neetcode.io/problems/rotate-matrix", usaco: "https://usaco.guide/bronze/rect-geom" },
-  30: { neetcode: "https://neetcode.io/problems/lru-cache", usaco: "https://usaco.guide/gold/dsu" }
+const DAY_THEORY_LINKS = {
+  1: { neetcode: "https://neetcode.io/roadmap", usaco: "https://usaco.guide/bronze/intro-sets", cpAlgo: "https://cp-algorithms.com/string/string-hashing.html" },
+  2: { neetcode: "https://neetcode.io/roadmap", usaco: "https://usaco.guide/silver/prefix-sums", cpAlgo: "https://cp-algorithms.com/data_structures/fenwick.html" },
+  3: { neetcode: "https://neetcode.io/roadmap", usaco: "https://usaco.guide/silver/more-prefix-sums", cpAlgo: "https://cp-algorithms.com/data_structures/disjoint_set_union.html" },
+  4: { neetcode: "https://neetcode.io/roadmap", usaco: "https://usaco.guide/silver/two-pointers", cpAlgo: "https://cp-algorithms.com/others/two-pointers.html" },
+  5: { neetcode: "https://neetcode.io/roadmap", usaco: "https://usaco.guide/silver/two-pointers", cpAlgo: "https://cp-algorithms.com/data_structures/stack_queue_modification.html" },
+  6: { neetcode: "https://neetcode.io/roadmap", usaco: "https://usaco.guide/gold/stacks", cpAlgo: "https://cp-algorithms.com/data_structures/stack_queue_modification.html#finding-the-minimum-for-all-subarrays-of-fixed-length" },
+  7: { neetcode: "https://neetcode.io/roadmap", usaco: "https://usaco.guide/gold/stacks", cpAlgo: "https://cp-algorithms.com/data_structures/stack_queue_modification.html" },
+  8: { neetcode: "https://neetcode.io/roadmap", usaco: "https://usaco.guide/gold/stacks", cpAlgo: "https://cp-algorithms.com/data_structures/stack_queue_modification.html" },
+  9: { neetcode: "https://neetcode.io/roadmap", usaco: "https://usaco.guide/silver/binary-search", cpAlgo: "https://cp-algorithms.com/num_methods/binary_search.html" },
+  10: { neetcode: "https://neetcode.io/roadmap", usaco: "https://usaco.guide/silver/binary-search", cpAlgo: "https://codeforces.com/blog/entry/67509" },
+  11: { neetcode: "https://neetcode.io/roadmap", usaco: "https://usaco.guide/bronze/simulation", cpAlgo: "https://brilliant.org/wiki/tortoise-and-hare/" },
+  12: { neetcode: "https://neetcode.io/roadmap", usaco: "https://usaco.guide/silver/greedy-sorting", cpAlgo: "https://cp-algorithms.com/data_structures/stack_queue_modification.html" },
+  13: { neetcode: "https://neetcode.io/roadmap", usaco: "https://usaco.guide/silver/intro-trees", cpAlgo: "https://cp-algorithms.com/graph/depth-first-search.html" },
+  14: { neetcode: "https://neetcode.io/roadmap", usaco: "https://usaco.guide/silver/flood-fill", cpAlgo: "https://cp-algorithms.com/graph/breadth-first-search.html" },
+  15: { neetcode: "https://neetcode.io/roadmap", usaco: "https://usaco.guide/silver/tree-euler", cpAlgo: "https://cp-algorithms.com/graph/lca.html" },
+  16: { neetcode: "https://neetcode.io/roadmap", usaco: "https://usaco.guide/gold/all-roots", cpAlgo: "https://cp-algorithms.com/graph/tree_diameter.html" },
+  17: { neetcode: "https://neetcode.io/roadmap", usaco: "https://usaco.guide/gold/string-searching", cpAlgo: "https://cp-algorithms.com/string/prefix-tree-trie.html" },
+  18: { neetcode: "https://neetcode.io/roadmap", usaco: "https://usaco.guide/silver/greedy-sorting", cpAlgo: "https://cp-algorithms.com/data_structures/fenwick.html" },
+  19: { neetcode: "https://neetcode.io/roadmap", usaco: "https://usaco.guide/bronze/complete-rec", cpAlgo: "https://www.geeksforgeeks.org/backtracking-algorithms/" },
+  20: { neetcode: "https://neetcode.io/roadmap", usaco: "https://usaco.guide/silver/flood-fill", cpAlgo: "https://cp-algorithms.com/graph/search-for-connected-components.html" },
+  21: { neetcode: "https://neetcode.io/roadmap", usaco: "https://usaco.guide/gold/toposort", cpAlgo: "https://cp-algorithms.com/graph/topological-sort.html" },
+  22: { neetcode: "https://neetcode.io/roadmap", usaco: "https://usaco.guide/gold/dsu", cpAlgo: "https://cp-algorithms.com/graph/strongly-connected-components.html" },
+  23: { neetcode: "https://neetcode.io/roadmap", usaco: "https://usaco.guide/gold/intro-dp", cpAlgo: "https://cp-algorithms.com/dynamic_programming/intro-to-dp.html" },
+  24: { neetcode: "https://neetcode.io/roadmap", usaco: "https://usaco.guide/gold/knapsack", cpAlgo: "https://cp-algorithms.com/dynamic_programming/knapsack.html" },
+  25: { neetcode: "https://neetcode.io/roadmap", usaco: "https://usaco.guide/gold/paths-grids", cpAlgo: "https://cp-algorithms.com/sequences/longest_increasing_subseq.html" },
+  26: { neetcode: "https://neetcode.io/roadmap", usaco: "https://usaco.guide/gold/paths-grids", cpAlgo: "https://cp-algorithms.com/sequences/longest_increasing_subseq.html" },
+  27: { neetcode: "https://neetcode.io/roadmap", usaco: "https://usaco.guide/silver/greedy-sorting", cpAlgo: "https://cp-algorithms.com/geometry/intersecting_segments.html" },
+  28: { neetcode: "https://neetcode.io/roadmap", usaco: "https://usaco.guide/gold/bitwise-ops", cpAlgo: "https://cp-algorithms.com/algebra/all-submasks.html" },
+  29: { neetcode: "https://neetcode.io/roadmap", usaco: "https://usaco.guide/gold/purq", cpAlgo: "https://cp-algorithms.com/data_structures/segment_tree.html#lazy-propagation" },
+  30: { neetcode: "https://neetcode.io/roadmap", usaco: "https://usaco.guide/gold/dsu", cpAlgo: "https://cp-algorithms.com/data_structures/stack_queue_modification.html" }
 };
 
-  const deepLinks = DAY_DEEP_LINKS[dayNumber] || {
-    neetcode: "https://neetcode.io/practice?tab=neetcode150",
-    usaco: "https://usaco.guide/silver"
+  const theoryLinks = DAY_THEORY_LINKS[dayNumber] || {
+    neetcode: "https://neetcode.io/roadmap",
+    usaco: "https://usaco.guide/silver",
+    cpAlgo: "https://cp-algorithms.com"
   };
 
   const linkNeet = document.getElementById("linkNeetcode");
   if (linkNeet) {
-    linkNeet.href = (dayData.verifiedLinks && dayData.verifiedLinks.neetcode) || deepLinks.neetcode;
-    linkNeet.title = `Open NeetCode Guide for Day ${dayNumber}`;
+    linkNeet.href = theoryLinks.neetcode;
+    linkNeet.title = `Open NeetCode Theory Roadmap for Day ${dayNumber}`;
   }
   const linkUsaco = document.getElementById("linkUsaco");
   if (linkUsaco) {
     const usacoRes = (dayData.authoritativeResources || []).find(r => r.url && r.url.includes("usaco.guide") && r.url.length > 25);
-    linkUsaco.href = (usacoRes && usacoRes.url) || (dayData.verifiedLinks && dayData.verifiedLinks.usaco) || deepLinks.usaco;
-    linkUsaco.title = `Open USACO Reference for Day ${dayNumber}`;
+    linkUsaco.href = (usacoRes && usacoRes.url) || theoryLinks.usaco;
+    linkUsaco.title = `Open USACO Theory Monograph for Day ${dayNumber}`;
+  }
+  const linkCp = document.getElementById("linkCpAlgo");
+  if (linkCp) {
+    const cpRes = (dayData.authoritativeResources || []).find(r => r.url && (r.url.includes("cp-algorithms.com") || r.url.includes("codeforces.com") || r.url.includes("brilliant.org")));
+    linkCp.href = (cpRes && cpRes.url) || theoryLinks.cpAlgo;
+    linkCp.title = `Open Mathematical & Algorithmic Theory for Day ${dayNumber}`;
   }
 
   renderDailyProblemPills(dayNumber);
@@ -2799,8 +3226,20 @@ function bootApp() {
       }
     }
 
+    // Check URL parameters for deep linking (?day=10, ?view=grind, #day=14)
+    if (typeof window !== "undefined" && window.location) {
+      const urlParams = new URLSearchParams(window.location.search);
+      const dayParam = urlParams.get("day") || (window.location.hash && window.location.hash.match(/day=(\d+)/) ? window.location.hash.match(/day=(\d+)/)[1] : null);
+      if (dayParam) {
+        const d = parseInt(dayParam, 10);
+        if (d >= 1 && d <= 30) AppState.currentDay = d;
+      }
+      const viewParam = urlParams.get("view");
+      if (viewParam) AppState.currentView = viewParam;
+    }
+
     switchView(AppState.currentView || "today");
-    switchDay(AppState.currentDay || 1);
+    doSwitchDay(AppState.currentDay || 1);
     updateTopStats();
   } catch (err) {
     console.error("Critical error during bootApp:", err);

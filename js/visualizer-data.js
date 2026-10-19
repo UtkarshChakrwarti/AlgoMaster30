@@ -356,66 +356,125 @@ const VISUALIZER_TRACES = {
  }
  ]
  },
-
  // Day 10: Linked List In-Place Pointer Invariants
  10: {
  pattern: "Three-Pointer Iterative Reversal",
- inputDescription: "1 -> 2 -> 3 -> 4 -> null",
+ inputDescription: "head = [1 -> 2 -> 3 -> 4 -> 5 -> null]",
  type: "linked-list",
+ listNodes: [
+ { id: 1, val: 1 },
+ { id: 2, val: 2 },
+ { id: 3, val: 3 },
+ { id: 4, val: 4 },
+ { id: 5, val: 5 }
+ ],
  steps: [
  {
  step: 0,
- pointers: "prev = null, curr = 1, next = 2",
- invariantStatus: "Holds ",
- action: "Cache next",
- explanation: "Store curr.next (2). Ready to sever forward pointer."
+ pointers: { prev: null, curr: 1, next: 2 },
+ reversedCount: 0,
+ edgesReversed: [],
+ action: "Cache next = 2",
+ invariantStatus: "Pointers Initialized",
+ explanation: "Store curr.next (2) in temporary variable before severing forward pointer."
  },
  {
  step: 1,
- pointers: "curr.next = prev (null), prev = 1, curr = 2",
- invariantStatus: "Reversed 1 Node ",
- action: "Advance Prev & Curr",
- explanation: "1 now points back to null. prev advances to 1, curr advances to 2."
+ pointers: { prev: null, curr: 1, next: 2 },
+ reversedCount: 1,
+ edgesReversed: [1],
+ action: "curr.next = prev (null)",
+ invariantStatus: "Node 1 -> null",
+ explanation: "Sever forward edge from 1 to 2; redirect 1 backwards to prev (null)."
  },
  {
  step: 2,
- pointers: "2 -> 1 -> null, prev = 2, curr = 3",
- invariantStatus: "Reversed 2 Nodes ",
- action: "Advance",
- explanation: "2 points back to 1. Invariant: prev always heads the reversed prefix."
+ pointers: { prev: 1, curr: 2, next: 3 },
+ reversedCount: 1,
+ edgesReversed: [1],
+ action: "Advance prev=1, curr=2",
+ invariantStatus: "prev heads reversed prefix",
+ explanation: "Advance pointers one step forward: prev moves to 1, curr moves to 2, next caches 3."
+ },
+ {
+ step: 3,
+ pointers: { prev: 2, curr: 3, next: 4 },
+ reversedCount: 2,
+ edgesReversed: [1, 2],
+ action: "Reverse 2 -> 1",
+ invariantStatus: "Prefix 2 -> 1 -> null",
+ explanation: "Redirect node 2 to point backwards to node 1. Invariant: prev always heads the reversed list."
+ },
+ {
+ step: 4,
+ pointers: { prev: 5, curr: null, next: null },
+ reversedCount: 5,
+ edgesReversed: [1, 2, 3, 4, 5],
+ action: "curr reached null: return prev (5)",
+ invariantStatus: "List Fully Inverted! ",
+ explanation: "curr reaches null. The entire chain is inverted: 5 -> 4 -> 3 -> 2 -> 1 -> null. Return prev in O(N) time and O(1) space!"
  }
  ]
  },
 
  // Day 11: Fast & Slow Pointer Floyd Cycle Invariant
  11: {
- pattern: "Floyd Cycle Distance Geometry",
- inputDescription: "Cycle begins at node with distance F from head",
+ pattern: "Floyd Cycle Distance Geometry (Tortoise & Hare)",
+ inputDescription: "head = [3 -> 2 -> 0 -> -4 -> (loops to node 2)]",
  type: "floyd-cycle",
+ listNodes: [
+ { id: 3, val: 3 },
+ { id: 2, val: 2, isCycleOrigin: true },
+ { id: 0, val: 0 },
+ { id: -4, val: -4 }
+ ],
+ cycleTargetId: 2,
  steps: [
  {
  step: 0,
- pointers: "slow = 1 step/tick, fast = 2 steps/tick",
- invariantStatus: "Distance Closes",
- action: "Traverse",
- explanation: "Each tick, distance between fast and slow decreases by 1 in the loop of size C."
+ pointers: { slow: 3, fast: 3 },
+ action: "Init at Head",
+ invariantStatus: "Gap = 0",
+ explanation: "Both slow and fast pointers initialize at list head (value 3). Fast moves 2x speed of slow."
  },
  {
  step: 1,
- pointers: "slow meets fast at node M",
- invariantStatus: "Intersection Point Met",
- action: "Reset Pointer 1",
- explanation: "Meeting node M is exactly F steps away from cycle start. Reset pointer p1 to head."
+ pointers: { slow: 2, fast: 0 },
+ action: "Tick 1: slow=2, fast=0",
+ invariantStatus: "Fast Enters Cycle",
+ explanation: "Slow advances 1 hop to 2. Fast advances 2 hops past 2 into node 0."
  },
  {
  step: 2,
- pointers: "p1 from head (1 step), p2 from M (1 step)",
- invariantStatus: "Cycle Origin Discovered! ",
- action: "Simultaneous Walk",
- explanation: "p1 and p2 walk at equal speed 1 step/tick. They intersect precisely at cycle entry!"
+ pointers: { slow: 0, fast: 2 },
+ action: "Tick 2: slow=0, fast=2 (looped)",
+ invariantStatus: "Relative Distance Decreases by 1",
+ explanation: "Slow moves to 0. Fast wraps around the cycle from -4 back to 2. Relative distance modulo C shrinks by 1."
+ },
+ {
+ step: 3,
+ pointers: { slow: -4, fast: -4 },
+ action: "Intersection Point Met at Node -4!",
+ invariantStatus: "Colocated in O(C) ",
+ explanation: "Both slow and fast land on node -4 simultaneously! Cycle presence is rigorously proven in O(N)."
+ },
+ {
+ step: 4,
+ pointers: { p1: 3, p2: -4 },
+ action: "Phase 2: Reset p1 to Head",
+ invariantStatus: "Distance from Head = Distance from Intersection",
+ explanation: "Reset p1 to head (3), keep p2 at intersection (-4). Walk both at 1 step/tick to locate cycle origin."
+ },
+ {
+ step: 5,
+ pointers: { p1: 2, p2: 2 },
+ action: "Cycle Entry Point Discovered at Node 2!",
+ invariantStatus: "Cycle Head = Node 2 ",
+ explanation: "p1 and p2 intersect at node 2! By geometric proof (F = nC - a), node 2 is guaranteed cycle origin."
  }
  ]
  },
+
 
  // Day 12: Merge K Sorted Lists Divide & Conquer
  12: {
@@ -439,37 +498,54 @@ const VISUALIZER_TRACES = {
  }
  ]
  },
-
  // Day 13: Tree Traversals & Depth Invariants
  13: {
- pattern: "Subtree Depth Recurrence",
- inputDescription: "root = [3, 9, 20, null, null, 15, 7]",
+ pattern: "Binary Tree Structural Inversion",
+ inputDescription: "root = [4, 2, 7, 1, 3, 6, 9]",
  type: "tree-dfs",
+ treeNodes: [
+ { id: 1, val: 4, x: 250, y: 35, left: 2, right: 3 },
+ { id: 2, val: 2, x: 140, y: 105, left: 4, right: 5 },
+ { id: 3, val: 7, x: 360, y: 105, left: 6, right: 7 },
+ { id: 4, val: 1, x: 80, y: 175 },
+ { id: 5, val: 3, x: 195, y: 175 },
+ { id: 6, val: 6, x: 305, y: 175 },
+ { id: 7, val: 9, x: 420, y: 175 }
+ ],
  steps: [
  {
  step: 0,
- node: 3,
- leftDepth: "eval(9) = 1",
- rightDepth: "eval(20) = 2",
- invariantStatus: "Holds ",
- action: "Recurse",
- explanation: "maxDepth(node) = 1 + max(maxDepth(left), maxDepth(right)). Post-order evaluation."
+ activeNodeId: 1,
+ action: "Visit Root (4)",
+ invariantStatus: "Pre-order Inversion",
+ explanation: "Begin recursive inversion at root 4. Prepare to swap left subtree (2) and right subtree (7)."
  },
  {
  step: 1,
- node: 20,
- subtrees: "left=15 (depth 1), right=7 (depth 1)",
- invariantStatus: "Max Subtree = 2",
- action: "Aggregate",
- explanation: "Node 20 computes 1 + max(1, 1) = 2. Returns to root."
+ activeNodeId: 2,
+ swappedPair: [4, 5],
+ highlightEdges: [[2, 4], [2, 5]],
+ action: "Swap Leaves of Node 2 (1 to 3)",
+ invariantStatus: "Node 2 Inverted",
+ explanation: "Recursively invert node 2's children: child 1 and child 3 swap positions."
  },
  {
  step: 2,
- node: 3,
- result: "1 + max(1, 2) = 3",
- invariantStatus: "Global Depth = 3 ",
- action: "Return Root",
- explanation: "Root combines results: maximum tree depth is 3."
+ activeNodeId: 3,
+ swappedPair: [6, 7],
+ highlightEdges: [[3, 6], [3, 7]],
+ action: "Swap Leaves of Node 3 (6 to 9)",
+ invariantStatus: "Node 3 Inverted",
+ explanation: "Recursively invert node 3's children: child 6 and child 9 swap positions."
+ },
+ {
+ step: 3,
+ activeNodeId: 1,
+ swappedPair: [2, 3],
+ highlightEdges: [[1, 2], [1, 3]],
+ action: "Swap Subtrees of Root (2 to 7)",
+ invariantStatus: "Full Tree Inverted! ",
+ explanation: "Swap root's left subtree (now headed by 7) and right subtree (headed by 2). Inversion complete in O(N)."
  }
  ]
  },
@@ -479,48 +555,70 @@ const VISUALIZER_TRACES = {
  pattern: "Propagating Open Invariant Bounds (low, high)",
  inputDescription: "root = [5, 1, 4, null, null, 3, 6]",
  type: "bst-bounds",
+ treeNodes: [
+ { id: 1, val: 5, x: 250, y: 35, left: 2, right: 3 },
+ { id: 2, val: 1, x: 140, y: 105 },
+ { id: 3, val: 4, x: 360, y: 105, left: 4, right: 5 },
+ { id: 4, val: 3, x: 305, y: 175 },
+ { id: 5, val: 6, x: 415, y: 175 }
+ ],
  steps: [
  {
  step: 0,
- node: 5,
- bounds: "(-inf, +inf)",
- invariantStatus: "Valid ",
- action: "Split Bounds",
- explanation: "Root 5 is valid. Left child must lie in (-inf, 5). Right child must lie in (5, +inf)."
+ activeNodeId: 1,
+ bounds: { 1: "(-inf, +inf)" },
+ status: "valid",
+ action: "Validate Root 5",
+ invariantStatus: "Valid in (-inf, +inf)",
+ explanation: "Root 5 is valid. Propagate left bound: (-inf, 5). Propagate right bound: (5, +inf)."
  },
  {
  step: 1,
- node: 1,
- bounds: "(-inf, 5)",
- invariantStatus: "Valid ",
- action: "Verify Left",
- explanation: "1 < 5. Left subtree is a valid BST."
+ activeNodeId: 2,
+ bounds: { 2: "(-inf, 5)" },
+ status: "valid",
+ highlightEdges: [[1, 2]],
+ action: "Validate Left Child 1",
+ invariantStatus: "1 < 5 (Valid)",
+ explanation: "Node 1 satisfies strictly less than 5. Left subtree is a mathematically valid BST."
  },
  {
  step: 2,
- node: 4,
- bounds: "(5, +inf)",
- invariantStatus: "VIOLATION! Warning:",
- action: "Catch Invalid BST",
- explanation: "Node 4 <= low bound 5! Invariant violated. Instant early exit: return false."
+ activeNodeId: 3,
+ bounds: { 3: "(5, +inf)" },
+ status: "violation",
+ violationNodeId: 3,
+ highlightEdges: [[1, 3]],
+ action: "Inspect Right Child 4 in (5, +inf)",
+ invariantStatus: "4 <= 5 (BST VIOLATION!) ",
+ explanation: "Node value 4 <= lower bound 5! BST invariant violated in right subtree. Immediately return false in O(N)."
  }
  ]
  },
 
  // Day 15: Lowest Common Ancestor
  15: {
- pattern: "LCA Bifurcation Invariant",
+ pattern: "LCA Bifurcation Split Point",
  inputDescription: "BST root = [6, 2, 8, 0, 4, 7, 9], p = 2, q = 8",
  type: "bst-lca",
+ treeNodes: [
+ { id: 1, val: 6, x: 250, y: 35, left: 2, right: 3 },
+ { id: 2, val: 2, x: 140, y: 105, left: 4, right: 5, isP: true },
+ { id: 3, val: 8, x: 360, y: 105, left: 6, right: 7, isQ: true },
+ { id: 4, val: 0, x: 80, y: 175 },
+ { id: 5, val: 4, x: 195, y: 175 },
+ { id: 6, val: 7, x: 305, y: 175 },
+ { id: 7, val: 9, x: 420, y: 175 }
+ ],
  steps: [
  {
  step: 0,
- curr: 6,
- pVal: 2,
- qVal: 8,
- invariantStatus: "Bifurcation Point! ",
- action: "LCA Found",
- explanation: "p (2) < 6 and q (8) > 6. Paths to p and q split here. 6 is guaranteed Lowest Common Ancestor!"
+ activeNodeId: 1,
+ lcaNodeId: 1,
+ highlightEdges: [[1, 2], [1, 3]],
+ action: "Inspect Root (6) against p=2, q=8",
+ invariantStatus: "p < 6 < q (Bifurcation Point!) ",
+ explanation: "Since p=2 < 6 and q=8 > 6, one target lies in the left subtree and one lies in the right subtree. Node 6 is the unique LCA!"
  }
  ]
  },
@@ -530,25 +628,31 @@ const VISUALIZER_TRACES = {
  pattern: "Branch Gain vs Combined Diameter Path",
  inputDescription: "root = [-10, 9, 20, null, null, 15, 7]",
  type: "tree-path-sum",
+ treeNodes: [
+ { id: 1, val: -10, x: 250, y: 40, left: 2, right: 3 },
+ { id: 2, val: 9, x: 130, y: 115 },
+ { id: 3, val: 20, x: 360, y: 115, left: 4, right: 5 },
+ { id: 4, val: 15, x: 295, y: 185 },
+ { id: 5, val: 7, x: 420, y: 185 }
+ ],
  steps: [
  {
  step: 0,
- node: 20,
- leftGain: "max(0, 15) = 15",
- rightGain: "max(0, 7) = 7",
- throughSum: "20 + 15 + 7 = 42",
- invariantStatus: "Max Path Candidate = 42 ",
- action: "Update Global Max",
- explanation: "Subtree through 20 achieves 42. Return 20 + max(15, 7) = 35 to parent."
+ activeNodeId: 3,
+ pathNodes: [4, 3, 5],
+ highlightEdges: [[3, 4], [3, 5]],
+ action: "Evaluate Node 20 Subtree",
+ invariantStatus: "Local Path = 15 + 20 + 7 = 42 ",
+ explanation: "Leaves 15 and 7 contribute positive gains. Max path through node 20 is 15 + 20 + 7 = 42. Return max branch 20 + 15 = 35 up to root."
  },
  {
  step: 1,
- node: -10,
- throughSum: "-10 + 9 + 35 = 34",
- globalMax: 42,
- invariantStatus: "Holds ",
- action: "Compare Root",
- explanation: "Path through root gives 34 < 42. Global maximum remains 42."
+ activeNodeId: 1,
+ pathNodes: [4, 3, 5],
+ highlightEdges: [[3, 4], [3, 5]],
+ action: "Evaluate Root -10",
+ invariantStatus: "Global Max Holds at 42 ",
+ explanation: "Path through root -10 yields -10 + 9 + 35 = 34, which is less than 42. Global maximum remains 42!"
  }
  ]
  },
@@ -556,23 +660,32 @@ const VISUALIZER_TRACES = {
  // Day 17: Trie Prefix Insertion
  17: {
  pattern: "Prefix Tree Deterministic Transitions",
- inputDescription: "Insert 'apple', query prefix 'app'",
+ inputDescription: "Insert 'apple', Query prefix 'app'",
  type: "trie",
+ trieNodes: [
+ { id: "root", val: "•", x: 250, y: 25 },
+ { id: "a", val: "a", x: 250, y: 70, parent: "root" },
+ { id: "p1", val: "p", x: 250, y: 115, parent: "a" },
+ { id: "p2", val: "p", x: 250, y: 160, parent: "p1", isWord: true },
+ { id: "l", val: "l", x: 250, y: 205, parent: "p2" },
+ { id: "e", val: "e", x: 250, y: 250, parent: "l", isWord: true }
+ ],
  steps: [
  {
  step: 0,
- path: "root -> 'a' -> 'p' -> 'p' -> 'l' -> 'e' (isEnd=true)",
- invariantStatus: "Word Stored ",
- action: "Traverse",
- explanation: "Each character maps to a child pointer array of size 26 in O(L) time."
+ activeNodeId: "e",
+ path: ["root", "a", "p1", "p2", "l", "e"],
+ action: "Insert 'apple'",
+ invariantStatus: "Word 'apple' Stored (isEnd=true)",
+ explanation: "Traverse letters a -> p -> p -> l -> e. Mark terminal node 'e' as isEndOfWord = true."
  },
  {
  step: 1,
- query: "startsWith('app')",
- pointer: "Reaches node 'p' without null mismatch",
- invariantStatus: "Prefix Verified! ",
- action: "Return True",
- explanation: "All characters in prefix exist in order. Search terminates in O(L) steps."
+ activeNodeId: "p2",
+ path: ["root", "a", "p1", "p2"],
+ action: "startsWith('app')",
+ invariantStatus: "Prefix 'app' Verified in O(L) ",
+ explanation: "Follow edges 'a' -> 'p' -> 'p'. Reaches valid node 'p2'. Prefix exists! Return true in O(L) time."
  }
  ]
  },
@@ -585,33 +698,37 @@ const VISUALIZER_TRACES = {
  steps: [
  {
  step: 0,
- leftMaxHeap: "[5]",
- rightMinHeap: "[]",
- median: 5,
- invariantStatus: "Balanced ",
- action: "Add 5",
- explanation: "Left heap size = right heap size + 1. Median = top of left heap = 5."
+ leftMaxHeap: [5],
+ rightMinHeap: [],
+ median: 5.0,
+ formula: "Odd Count: Median = maxHeap.top() = 5.0",
+ action: "Insert 5",
+ invariantStatus: "Size: 1 vs 0 (Balanced)",
+ explanation: "First element goes to max-heap (lower 50%). Median is top of max-heap = 5."
  },
  {
  step: 1,
- leftMaxHeap: "[5]",
- rightMinHeap: "[15]",
- median: 10,
- invariantStatus: "Balanced ",
- action: "Add 15",
- explanation: "Both heaps have size 1. Median = (5 + 15) / 2 = 10.0."
+ leftMaxHeap: [5],
+ rightMinHeap: [15],
+ median: 10.0,
+ formula: "Even Count: (5 + 15) / 2 = 10.0",
+ action: "Insert 15",
+ invariantStatus: "Size: 1 vs 1 (Balanced)",
+ explanation: "15 > 5, pushed to min-heap (upper 50%). Both heaps size 1. Median = (5 + 15) / 2 = 10.0."
  },
  {
  step: 2,
- leftMaxHeap: "[3, 1]",
- rightMinHeap: "[5, 15]",
- median: 4,
- invariantStatus: "Balanced ",
- action: "Rebalance",
- explanation: "All elements in left <= all elements in right. Median = (3 + 5) / 2 = 4.0 in O(1) query time."
+ leftMaxHeap: [3, 1],
+ rightMinHeap: [5, 15],
+ median: 4.0,
+ formula: "Even Count: (3 + 5) / 2 = 4.0",
+ action: "Insert 1 and 3",
+ invariantStatus: "Balanced: 2 vs 2 ",
+ explanation: "Heap balance invariant maintained: maxHeap.size == minHeap.size. Median = (3 + 5) / 2 = 4.0 in O(1) query time."
  }
  ]
  },
+
 
  // Day 19: Backtracking State-Space
  19: {
@@ -761,27 +878,72 @@ const VISUALIZER_TRACES = {
       }
     ]
   },
-
  // Day 21: Island Flood-Fill BFS / DFS
  21: {
- pattern: "Connected Component Sinking Invariant",
- inputDescription: "Grid with multiple '1's",
- type: "graph-floodfill",
+ pattern: "Connected Component In-Place Sinking Invariant",
+ inputDescription: "grid = 4x5 binary land matrix ('1'=land, '0'=water)",
+ type: "grid-backtrack",
+ targetWord: "ISLANDS",
  steps: [
  {
  step: 0,
- cell: "(0, 0) == '1'",
- action: "Increment Island Count",
+ board: [
+ ["1", "1", "0", "0", "0"],
+ ["1", "1", "0", "0", "0"],
+ ["0", "0", "1", "0", "0"],
+ ["0", "0", "0", "1", "1"]
+ ],
+ activeCell: [0, 0],
+ matchedCount: 1,
  islandCount: 1,
- invariantStatus: "New Island",
- explanation: "Found unvisited land. Start BFS/DFS traversal."
+ action: "Encounter Land at (0, 0)",
+ invariantStatus: "New Island #1 Discovered",
+ explanation: "Outer scan finds unvisited land cell (0, 0). Increment island count to 1 and launch flood-fill."
  },
  {
  step: 1,
- cell: "Sink to '0'",
- action: "In-place Visited",
- invariantStatus: "Sunk ",
- explanation: "Turn all contiguous '1's into '0's to guarantee O(R * C) total cell inspections."
+ board: [
+ ["#", "#", "0", "0", "0"],
+ ["#", "#", "0", "0", "0"],
+ ["0", "0", "1", "0", "0"],
+ ["0", "0", "0", "1", "1"]
+ ],
+ activeCell: [1, 1],
+ matchedCount: 4,
+ islandCount: 1,
+ action: "Flood-Fill Sink Island #1 to '#'",
+ invariantStatus: "Component Sunk In-Place",
+ explanation: "Traverse and sink all 4 adjacent cells of Island #1 to '#' in O(size) without extra memory."
+ },
+ {
+ step: 2,
+ board: [
+ ["#", "#", "0", "0", "0"],
+ ["#", "#", "0", "0", "0"],
+ ["0", "0", "#", "0", "0"],
+ ["0", "0", "0", "1", "1"]
+ ],
+ activeCell: [2, 2],
+ matchedCount: 5,
+ islandCount: 2,
+ action: "Encounter Isolated Land at (2, 2)",
+ invariantStatus: "New Island #2 Discovered & Sunk",
+ explanation: "Scan resumes and discovers single-cell Island #2 at (2, 2). Sinks it to '#' in O(1)."
+ },
+ {
+ step: 3,
+ board: [
+ ["#", "#", "0", "0", "0"],
+ ["#", "#", "0", "0", "0"],
+ ["0", "0", "#", "0", "0"],
+ ["0", "0", "0", "#", "#"]
+ ],
+ activeCell: [3, 4],
+ matchedCount: 7,
+ islandCount: 3,
+ action: "Sink Final Island #3",
+ invariantStatus: "All 3 Islands Counted! ",
+ explanation: "Island #3 sunk. Entire grid scanned in exact O(R * C) time with 0 extra memory. Total Islands = 3."
  }
  ]
  },
@@ -789,36 +951,63 @@ const VISUALIZER_TRACES = {
  // Day 22: Topological Sort Kahn's Algorithm Indegrees
  22: {
  pattern: "Kahn's Zero-Indegree Queue Invariant",
- inputDescription: "numCourses = 4, edges: [1->0, 2->0, 3->1, 3->2]",
+ inputDescription: "numCourses = 4, prerequisites = [[1, 3], [2, 3], [0, 1], [0, 2]]",
  type: "topo-sort",
+ graphNodes: [
+ { id: 3, label: "3: CS100", x: 80, y: 110 },
+ { id: 1, label: "1: CS101", x: 220, y: 55 },
+ { id: 2, label: "2: CS102", x: 220, y: 165 },
+ { id: 0, label: "0: AI Algorithms", x: 380, y: 110 }
+ ],
+ graphEdges: [
+ { from: 3, to: 1 },
+ { from: 3, to: 2 },
+ { from: 1, to: 0 },
+ { from: 2, to: 0 }
+ ],
  steps: [
  {
  step: 0,
- indegrees: "{0: 2, 1: 1, 2: 1, 3: 0}",
- queue: "[3]",
- invariantStatus: "Queue Zero-Indegree",
- action: "Enqueue 3",
- explanation: "Course 3 has 0 prerequisites. Ready to process first."
+ indegrees: { 3: 0, 1: 1, 2: 1, 0: 2 },
+ queue: [3],
+ activeNodeId: 3,
+ action: "Enqueue In-degree 0: Course 3",
+ invariantStatus: "Initial Queue: [3]",
+ explanation: "Course 3 has no prerequisites (in-degree 0). Ready to process first."
  },
  {
  step: 1,
- pop: 3,
- indegrees: "{0: 2, 1: 0, 2: 0}",
- queue: "[1, 2]",
- invariantStatus: "Edges Decremented",
- action: "Enqueue 1, 2",
- explanation: "Course 3 completed. Prerequisites for 1 and 2 satisfied."
+ indegrees: { 3: 0, 1: 0, 2: 0, 0: 2 },
+ queue: [1, 2],
+ activeNodeId: 3,
+ processed: [3],
+ activeEdges: [{ from: 3, to: 1 }, { from: 3, to: 2 }],
+ action: "Process Course 3: Outgoing Edges Removed",
+ invariantStatus: "In-degrees of 1 and 2 become 0",
+ explanation: "Pop 3. Decrement in-degrees of successors: course 1 drops to 0, course 2 drops to 0. Enqueue [1, 2]."
  },
  {
  step: 2,
- order: "[3, 1, 2, 0]",
- processed: 4,
- invariantStatus: "DAG Valid! ",
- action: "Finished",
- explanation: "All 4 courses processed. No directed cycles exist."
+ indegrees: { 3: 0, 1: 0, 2: 0, 0: 0 },
+ queue: [0],
+ processed: [3, 1, 2],
+ activeEdges: [{ from: 1, to: 0 }, { from: 2, to: 0 }],
+ action: "Process Courses 1 & 2: Course 0 Prereqs Met",
+ invariantStatus: "Course 0 Enqueued",
+ explanation: "Pop 1 and 2. Their outgoing edges resolve. Course 0 in-degree drops to 0. Enqueue [0]."
+ },
+ {
+ step: 3,
+ indegrees: { 3: 0, 1: 0, 2: 0, 0: 0 },
+ queue: [],
+ processed: [3, 1, 2, 0],
+ action: "Process Course 0: DAG Fully Resolved!",
+ invariantStatus: "Valid Schedule Found! ",
+ explanation: "All 4 courses successfully scheduled in topological order [3, 1, 2, 0]. Zero directed cycles found!"
  }
  ]
  },
+
 
  // Day 23: Disjoint Set Union (DSU) Union by Rank
  23: {
