@@ -374,7 +374,7 @@
                 </div>
 
                 <!-- Advance Action -->
-                <button class="apple-primary-cta" style="width:100%;" onclick="advanceToStep2()">
+                <button id="btnAdvanceToStep2" class="apple-primary-cta" style="width:100%;" onclick="advanceToStep2()">
                   I Have a Gameplan → Solve on LeetCode ↗
                 </button>
               </div>
@@ -408,6 +408,51 @@
                     <button class="apple-pill-btn" onclick="copyCleanBoilerplateTemplate()" title="Copy language-agnostic Algorithm Blueprint to clipboard">
                       Copy Algorithm Blueprint
                     </button>
+                  </div>
+                </div>
+
+                <!-- Interactive In-Browser Code Runner & Online Compiler Section -->
+                <div id="interactiveCodeRunnerCard" class="portal-runner-card">
+                  <div class="runner-card-header">
+                    <div class="runner-header-left">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--apple-action);">
+                        <polyline points="16 18 22 12 16 6"></polyline>
+                        <polyline points="8 6 2 12 8 18"></polyline>
+                      </svg>
+                      <span class="runner-title-text">Interactive Code Runner & Online Compiler</span>
+                      <span class="apple-diff-pill Easy" style="font-size:9.5px; padding:1px 6px;">Live Playground</span>
+                    </div>
+                    <div class="runner-header-actions">
+                      <div class="runner-lang-tabs" role="tablist">
+                        <button class="runner-lang-btn active" onclick="switchEmbeddedRunnerLang('cpp', this)">C++</button>
+                        <button class="runner-lang-btn" onclick="switchEmbeddedRunnerLang('python', this)">Python</button>
+                        <button class="runner-lang-btn" onclick="switchEmbeddedRunnerLang('java', this)">Java</button>
+                        <button class="runner-lang-btn" onclick="switchEmbeddedRunnerLang('javascript', this)">JS</button>
+                      </div>
+                      <button id="btnToggleRunnerCollapse" class="rail-close-btn" onclick="toggleEmbeddedRunner()" title="Minimize / Expand Code Runner">Hide</button>
+                    </div>
+                  </div>
+
+                  <!-- External Free Compilers Quick Launch Bar -->
+                  <div class="runner-launchers-bar">
+                    <span class="launchers-label">External Tools:</span>
+                    <a href="https://compilebytes.com/tools/cpp" target="_blank" rel="noopener noreferrer" class="runner-ext-chip highlight" title="Open CompileBytes C++ Tools (Free C++ compiler & code formatter)">
+                      CompileBytes C++ ↗
+                    </a>
+                    <a href="https://godbolt.org" target="_blank" rel="noopener noreferrer" class="runner-ext-chip" title="Open Compiler Explorer (Godbolt) Assembly & Optimization Inspector">
+                      Godbolt (Explorer) ↗
+                    </a>
+                    <a href="https://www.programiz.com/cpp-programming/online-compiler/" target="_blank" rel="noopener noreferrer" class="runner-ext-chip" title="Open Programiz C++ Online Runner">
+                      Programiz ↗
+                    </a>
+                    <a href="https://www.onlinegdb.com/online_c++_compiler" target="_blank" rel="noopener noreferrer" class="runner-ext-chip" title="Open OnlineGDB with Interactive GDB Debugger">
+                      OnlineGDB ↗
+                    </a>
+                  </div>
+
+                  <!-- Embedded Iframe Container -->
+                  <div id="runnerIframeWrap" class="runner-iframe-wrapper">
+                    <iframe id="embeddedCodeRunnerFrame" src="https://onecompiler.com/embed/cpp?theme=dark&listenToEvents=true&hideLanguageSelection=true" class="runner-iframe" allow="clipboard-read; clipboard-write;" title="Embedded Interactive Code Runner"></iframe>
                   </div>
                 </div>
 

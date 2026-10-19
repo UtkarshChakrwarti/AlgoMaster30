@@ -1401,9 +1401,16 @@ function setProblemStep(stepNum) {
 }
 
 function advanceToStep2() {
-  const problem = BLIND_75_DATABASE.find(p => p.id === AppState.activeProblemId);
-  if (problem && problem.leetcodeUrl && typeof window !== "undefined") {
-    window.open(problem.leetcodeUrl, "_blank");
+  if (AppState.activeProblemIndex === 999) {
+    const dayData = CURRICULUM_DATABASE.find(d => d.day === AppState.currentDay) || CURRICULUM_DATABASE[0];
+    if (dayData && dayData.extremeProblem && dayData.extremeProblem.url && typeof window !== "undefined") {
+      window.open(dayData.extremeProblem.url, "_blank");
+    }
+  } else {
+    const problem = BLIND_75_DATABASE.find(p => p.id === AppState.activeProblemId);
+    if (problem && problem.leetcodeUrl && typeof window !== "undefined") {
+      window.open(problem.leetcodeUrl, "_blank");
+    }
   }
   setProblemStep(2);
   TimerEngine.switchToPhase2();
@@ -1472,7 +1479,21 @@ function updateStep3NextProblemButtons() {
 
 function quickMarkProblemSolved(advanceToStep3 = true) {
   const problemId = AppState.activeProblemId;
-  const problem = BLIND_75_DATABASE.find(p => p.id === problemId);
+  let problem = BLIND_75_DATABASE.find(p => p.id === problemId);
+  let problemTitle = problem ? problem.title : "";
+
+  if (!problem && AppState.activeProblemIndex === 999) {
+    const dayData = CURRICULUM_DATABASE.find(d => d.day === AppState.currentDay) || CURRICULUM_DATABASE[0];
+    if (dayData && dayData.extremeProblem) {
+      problem = {
+        id: problemId,
+        title: dayData.extremeProblem.title,
+        keyInvariant: dayData.extremeProblem.whyThisBenchmark,
+        difficulty: "Hard"
+      };
+      problemTitle = `Benchmark: ${dayData.extremeProblem.title}`;
+    }
+  }
   if (!problem) return;
 
   TimerEngine.stopPhase2();
@@ -1497,7 +1518,7 @@ function quickMarkProblemSolved(advanceToStep3 = true) {
   if (existingIdx === -1) {
     AppState.mistakeJournal.unshift({
       problemId,
-      title: problem.title,
+      title: problemTitle || problem.title,
       note: logNote,
       outcome: "Cold Mastery",
       date: new Date().toLocaleDateString()
@@ -1794,7 +1815,7 @@ function renderDailyProblemPills(dayNumber) {
   if (dayData.extremeProblem) {
     const ext = dayData.extremeProblem;
     const bossPill = document.createElement("button");
-    bossPill.className = `practice-pill-btn ${AppState.activeProblemIndex === 999 ? "active" : ""}`;
+    bossPill.className = `practice-pill-btn boss-pill-btn ${AppState.activeProblemIndex === 999 ? "active" : ""}`;
     bossPill.onclick = () => {
       if (AppState.activeProblemIndex !== 999) {
         checkTimerLock(() => selectDailyBossFight(dayData.extremeProblem));
@@ -1833,17 +1854,34 @@ function selectDailyProblem(index) {
   const problem = BLIND_75_DATABASE.find(p => p.id === taskId) || tasks[index];
   if (!problem) return;
 
-  // Highlight active pill
+  // Highlight active pill and un-highlight benchmark pill
   document.querySelectorAll("#dailyProblemPills .practice-pill-btn").forEach((el, i) => {
-    if (i === index) el.classList.add("active");
-    else el.classList.remove("active");
+    if (el.classList.contains("boss-pill-btn")) {
+      el.classList.remove("active");
+    } else {
+      el.classList.toggle("active", i === index);
+    }
   });
 
-  // Highlight active problem in sidebar
+  // Highlight active problem in sidebar, un-highlight boss row
   document.querySelectorAll(".sidebar-problem-row").forEach(el => {
-    const isThisProblem = el.getAttribute("data-problem-id") === String(taskId) && el.getAttribute("data-day") === String(AppState.currentDay);
-    el.classList.toggle("active", isThisProblem);
+    if (el.classList.contains("boss-row")) {
+      el.classList.remove("active");
+    } else {
+      const isThisProblem = el.getAttribute("data-problem-id") === String(taskId) && el.getAttribute("data-day") === String(AppState.currentDay);
+      el.classList.toggle("active", isThisProblem);
+    }
   });
+
+  // Update advance button on Step 1
+  const advBtn = document.getElementById("btnAdvanceToStep2");
+  if (advBtn) {
+    advBtn.textContent = problem.isPremium ? "I Have a Gameplan → Solve on LeetCode (Premium 🔒) ↗" : "I Have a Gameplan → Solve on LeetCode ↗";
+  }
+
+  if (AppState.currentDaySubTab !== "solve") {
+    doSwitchDaySubTab("solve");
+  }
 
   // Populate Step 1 Header
   const titleEl = document.getElementById("wizardProblemTitle");
@@ -1932,13 +1970,23 @@ function selectDailyProblem(index) {
 }
 
 function selectDailyBossFight(boss) {
+  const dayData = CURRICULUM_DATABASE.find(d => d.day === AppState.currentDay) || CURRICULUM_DATABASE[0];
   AppState.activeProblemIndex = 999;
+  AppState.activeProblemId = "boss_" + dayData.day;
+  persistState();
 
-  // Highlight active boss in sidebar
+  // Highlight active boss in center pills, un-highlight all normal practice problem pills
+  document.querySelectorAll("#dailyProblemPills .practice-pill-btn").forEach(el => {
+    const isBoss = el.classList.contains("boss-pill-btn") || el.textContent.includes("Benchmark:");
+    el.classList.toggle("active", isBoss);
+  });
+
+  // Highlight active boss in sidebar, remove active from all other problem rows
   document.querySelectorAll(".sidebar-problem-row").forEach(el => {
     const isThisBoss = el.classList.contains("boss-row") && el.getAttribute("data-day") === String(AppState.currentDay);
     el.classList.toggle("active", isThisBoss);
   });
+
   const titleEl = document.getElementById("wizardProblemTitle");
   if (titleEl) titleEl.textContent = `Benchmark: ${boss.title}`;
 
@@ -1953,11 +2001,21 @@ function selectDailyBossFight(boss) {
     premiumBadge.style.display = "none";
   }
 
+  // Update advance button on Step 1
+  const advBtn = document.getElementById("btnAdvanceToStep2");
+  if (advBtn) {
+    advBtn.textContent = `I Have a Gameplan → Solve on ${boss.platform || "Online Judge"} ↗`;
+  }
+
+  if (AppState.currentDaySubTab !== "solve") {
+    doSwitchDaySubTab("solve");
+  }
+
   const mainPortalLink = document.getElementById("btnSolvePortalMain");
   const mainPortalLabel = document.getElementById("portalMainLabel");
   if (mainPortalLink) {
     mainPortalLink.href = boss.url;
-    if (mainPortalLabel) mainPortalLabel.textContent = "Open Benchmark Judge ↗";
+    if (mainPortalLabel) mainPortalLabel.textContent = `Open on ${boss.platform || "Benchmark"} ↗`;
   }
 
   const altPortalLink = document.getElementById("btnSolvePortalAlt");
@@ -1970,6 +2028,24 @@ function selectDailyBossFight(boss) {
 
   const qEl = document.getElementById("wizardSanityQuestion");
   if (qEl) qEl.textContent = `Benchmark Challenge: ${boss.whyThisBenchmark}`;
+
+  const aEl = document.getElementById("wizardSanityAnswer");
+  if (aEl) {
+    aEl.style.display = "none";
+    aEl.innerHTML = `<b>Coach check:</b> Benchmark Platform: ${boss.platform}. Time Limit: 1.00s. Memory Limit: 256MB. Validate edge cases with extreme scale.`;
+  }
+
+  TimerEngine.resetTimer();
+
+  const pitchCard = document.getElementById("wizardPitchRewardCard");
+  if (pitchCard) pitchCard.style.display = "none";
+
+  const solvePanel = document.getElementById("tabPanelSolve");
+  if (solvePanel) {
+    solvePanel.classList.remove("inswap-animate");
+    void solvePanel.offsetWidth;
+    solvePanel.classList.add("inswap-animate");
+  }
 
   setProblemStep(1);
 }
@@ -1987,6 +2063,11 @@ function doSwitchDay(dayNumber) {
   if (dayNumber < 1 || dayNumber > 30) return;
   AppState.currentDay = dayNumber;
   AppState.activeProblemIndex = 0;
+  if (!AppState.expandedRoadmapDays) {
+    AppState.expandedRoadmapDays = new Set([dayNumber]);
+  } else {
+    AppState.expandedRoadmapDays.add(dayNumber);
+  }
   persistState();
 
   const dayData = CURRICULUM_DATABASE.find(d => d.day === dayNumber) || CURRICULUM_DATABASE[0];
@@ -2119,10 +2200,9 @@ function toggleExpandAllSidebarProblems() {
   }
   const allDays = CURRICULUM_DATABASE.map(d => d.day);
   const btn = document.getElementById("btnToggleAllSidebarProblems");
-  if (AppState.expandedRoadmapDays.size >= allDays.length) {
-    // Collapse all except currentDay
+  if (AppState.expandedRoadmapDays.size > 0) {
+    // Collapse all days
     AppState.expandedRoadmapDays.clear();
-    AppState.expandedRoadmapDays.add(AppState.currentDay);
     if (btn) btn.textContent = "Expand All";
   } else {
     // Expand all 30 days so every single problem across the curriculum is visible
@@ -2193,14 +2273,11 @@ function renderRoadmap() {
 
   if (!AppState.expandedRoadmapDays) {
     AppState.expandedRoadmapDays = new Set([AppState.currentDay || 1]);
-  } else {
-    // Keep active day expanded by default
-    AppState.expandedRoadmapDays.add(AppState.currentDay);
   }
 
   const btn = document.getElementById("btnToggleAllSidebarProblems");
   if (btn) {
-    btn.textContent = AppState.expandedRoadmapDays.size >= CURRICULUM_DATABASE.length ? "Collapse All" : "Expand All";
+    btn.textContent = AppState.expandedRoadmapDays.size > 0 ? "Collapse All" : "Expand All";
   }
 
   const phases = {};
@@ -2311,7 +2388,7 @@ function renderRoadmap() {
           statusIconHtml = '<span class="sidebar-problem-status pass1">P1</span>';
         }
 
-        const isProblemActive = isActiveDay && AppState.activeProblemId === task.id;
+        const isProblemActive = isActiveDay && AppState.activeProblemIndex !== 999 && AppState.activeProblemId === task.id;
 
         const probRow = document.createElement("div");
         probRow.className = `sidebar-problem-row ${isProblemActive ? "active" : ""}`;
@@ -3890,6 +3967,16 @@ function setTheme(theme) {
   if (lbl) {
     lbl.textContent = theme === "dark" ? "Dark" : "Light";
   }
+
+  // Synchronize embedded code runner frame theme
+  const iframe = document.getElementById("embeddedCodeRunnerFrame");
+  if (iframe && iframe.src) {
+    try {
+      const u = new URL(iframe.src);
+      u.searchParams.set("theme", theme);
+      iframe.src = u.toString();
+    } catch (_) {}
+  }
 }
 
 // Curriculum & Blind 75 Full Reconciliation
@@ -3931,6 +4018,55 @@ function reconcileCurriculumAndBlind75() {
     });
   });
 }
+
+// ============================================================================
+// INTERACTIVE CODE RUNNER & PLAYGROUND CONTROLLER
+// ============================================================================
+
+function switchEmbeddedRunnerLang(lang, btnEl) {
+  const iframe = document.getElementById("embeddedCodeRunnerFrame");
+  if (!iframe) return;
+
+  const isDark = document.documentElement.getAttribute("data-theme") !== "light";
+  const theme = isDark ? "dark" : "light";
+
+  const langUrls = {
+    cpp: `https://onecompiler.com/embed/cpp?theme=${theme}&listenToEvents=true&hideLanguageSelection=true`,
+    python: `https://onecompiler.com/embed/python?theme=${theme}&listenToEvents=true&hideLanguageSelection=true`,
+    java: `https://onecompiler.com/embed/java?theme=${theme}&listenToEvents=true&hideLanguageSelection=true`,
+    javascript: `https://onecompiler.com/embed/javascript?theme=${theme}&listenToEvents=true&hideLanguageSelection=true`
+  };
+
+  if (langUrls[lang]) {
+    iframe.src = langUrls[lang];
+  }
+
+  document.querySelectorAll(".runner-lang-btn").forEach(btn => {
+    btn.classList.toggle("active", btn === btnEl);
+  });
+}
+
+function toggleEmbeddedRunner() {
+  const wrap = document.getElementById("runnerIframeWrap");
+  const btn = document.getElementById("btnToggleRunnerCollapse");
+  if (!wrap || !btn) return;
+  const isHidden = wrap.style.display === "none";
+  wrap.style.display = isHidden ? "block" : "none";
+  btn.textContent = isHidden ? "Hide" : "Expand";
+}
+
+// Auto-Hiding Scrollbar Engine: Thumbs reveal during active user scroll, auto-fade when idle
+let globalScrollDebounceTimer = null;
+function handleGlobalScrollActivity() {
+  document.body.classList.add("is-scrolling");
+  clearTimeout(globalScrollDebounceTimer);
+  globalScrollDebounceTimer = setTimeout(() => {
+    document.body.classList.remove("is-scrolling");
+  }, 750);
+}
+
+window.addEventListener("scroll", handleGlobalScrollActivity, { passive: true });
+document.addEventListener("scroll", handleGlobalScrollActivity, { passive: true, capture: true });
 
 // ============================================================================
 // BOOT LIFECYCLE
