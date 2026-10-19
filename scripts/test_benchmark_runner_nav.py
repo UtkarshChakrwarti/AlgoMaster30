@@ -177,13 +177,13 @@ def main():
             toggleDayRoadmapExpansion(1);
             const day1ReExpanded = AppState.expandedRoadmapDays.has(1);
 
-            // 4. Test Collapse All
-            toggleExpandAllSidebarProblems(); // Since day 1 is expanded, this should collapse all
-            const sizeAfterCollapseAll = AppState.expandedRoadmapDays.size;
-
-            // 5. Test Expand All
-            toggleExpandAllSidebarProblems(); // Should expand all 30 days
+            // 4. Test Expand All (from 1 open day to all 30 open days)
+            toggleExpandAllSidebarProblems();
             const sizeAfterExpandAll = AppState.expandedRoadmapDays.size;
+
+            // 5. Test Collapse All (from all 30 open days to 0 open days)
+            toggleExpandAllSidebarProblems();
+            const sizeAfterCollapseAll = AppState.expandedRoadmapDays.size;
 
             // Reset to Day 1 expanded
             AppState.expandedRoadmapDays.clear();

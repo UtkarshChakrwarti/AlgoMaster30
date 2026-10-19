@@ -249,7 +249,7 @@ kbd {
 .nav-left {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   min-width: 0;
   max-width: calc(50% - 215px);
   overflow: hidden;
@@ -413,7 +413,7 @@ kbd {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 200px;
+  max-width: 320px;
 }
 
 /* Apple Segmented View Switcher (Capsule - Anchored to Horizontal Screen Center) */
@@ -586,7 +586,7 @@ kbd {
 
 .apple-workspace-grid {
   display: grid;
-  grid-template-columns: 250px minmax(0, 1fr);
+  grid-template-columns: 260px minmax(0, 1fr);
   height: calc(100vh - 48px);
   overflow: hidden;
   transition: grid-template-columns 240ms var(--apple-ease);
@@ -876,9 +876,9 @@ kbd {
   display: none;
   flex-direction: column;
   gap: 2px;
-  padding: 3px 0 6px 12px;
+  padding: 2px 0 4px 8px;
   border-left: 1.5px solid var(--apple-divider);
-  margin-left: 14px;
+  margin-left: 8px;
 }
 
 .roadmap-day-group.is-expanded .sidebar-problems-drawer {
@@ -1161,39 +1161,84 @@ kbd {
    TAB 1: PATTERN PRINCIPLES (Liquid Glass Tiles)
    ---------------------------------------------------------------------------- */
 
-/* Coach's Principle Briefing Tile */
+/* Coach's Principle Briefing Tile (Executive Memo) */
 .apple-quote-tile {
-  padding: 24px 28px;
+  padding: 22px 26px;
   background: var(--glass-card);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  backdrop-filter: blur(28px) saturate(190%);
+  -webkit-backdrop-filter: blur(28px) saturate(190%);
   border: 1px solid var(--glass-border);
+  border-left: 4px solid var(--apple-action);
   border-radius: var(--rounded-lg);
   box-shadow: var(--apple-shadow-card);
   display: flex;
   flex-direction: column;
+  gap: 12px;
+  position: relative;
+  overflow: hidden;
+}
+
+.quote-tile-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.quote-tile-eyebrow-group {
+  display: flex;
+  align-items: center;
   gap: 8px;
 }
+
+.quote-tile-badge-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--apple-action-subtle);
+  color: var(--apple-action);
+  flex-shrink: 0;
+}
+
 .quote-tile-eyebrow {
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   color: var(--apple-action-dark);
 }
+
+.quote-tile-category-pill {
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 2px 9px;
+  border-radius: var(--rounded-pill);
+  background: var(--apple-tile-2);
+  color: var(--apple-text-secondary);
+  border: 1px solid var(--apple-hairline);
+  letter-spacing: 0.02em;
+}
+
+.quote-tile-content-wrapper {
+  position: relative;
+}
+
 .quote-tile-body {
   font-size: 15px;
-  line-height: 1.6;
+  line-height: 1.65;
   color: var(--apple-text-primary);
-  letter-spacing: -0.015em;
-  max-width: 76ch;
+  letter-spacing: -0.012em;
+  margin: 0;
 }
 
 /* Precision Visual Dry-Run Inspector Tile (Liquid Glass) */
 .apple-inspector-tile {
   background: var(--glass-card);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  backdrop-filter: blur(28px) saturate(190%);
+  -webkit-backdrop-filter: blur(28px) saturate(190%);
   border: 1px solid var(--glass-border);
   border-radius: var(--rounded-lg);
   box-shadow: var(--apple-shadow-card);
@@ -1201,33 +1246,74 @@ kbd {
 }
 
 .inspector-header-bar {
-  padding: 16px 24px;
+  padding: 14px 22px;
   border-bottom: 1px solid var(--apple-divider);
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
+
+.inspector-title-cluster {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .inspector-pattern-title {
-  font-size: 13.5px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--apple-text-primary);
 }
+
+.vis-live-pill {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 1.5px 7px;
+  border-radius: var(--rounded-pill);
+  background: var(--apple-action-subtle);
+  color: var(--apple-action-dark);
+  border: 1px solid rgba(0, 113, 227, 0.2);
+}
+
 .inspector-input-descriptor {
   font-family: var(--font-mono);
   font-size: 12px;
   color: var(--apple-text-muted);
+  background: var(--apple-tile-1);
+  padding: 3px 9px;
+  border-radius: var(--rounded-pill);
+  border: 1px solid var(--apple-hairline);
 }
 
 /* Memory Slot Viewport */
 .inspector-viewport {
-  padding: 38px 28px;
-  min-height: 180px;
+  padding: 24px 20px;
+  min-height: 150px;
   background: var(--apple-canvas-subtle);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 22px;
+  gap: 16px;
+}
+
+.vis-status-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 3px 10px;
+  border-radius: var(--rounded-pill);
+  background: var(--status-cold-subtle);
+  color: var(--status-cold);
+  border: 1px solid rgba(48, 209, 88, 0.3);
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .inspector-array-strip {
@@ -2970,6 +3056,13 @@ kbd {
 /* ==========================================================================
    DESKTOP RESPONSIVENESS (Laptops, Desktop Tabs, Split Screens, Tablets)
    ========================================================================== */
+
+/* Compact Desktops & Laptops (1260px to 1380px) */
+@media screen and (max-width: 1380px) {
+  .nav-brand-badge {
+    display: none !important;
+  }
+}
 
 /* Large Tablets & Compact Desktop Laptops (1024px to 1260px) */
 @media screen and (max-width: 1260px) {

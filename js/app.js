@@ -867,7 +867,14 @@ const VisualizerEngine = {
 
     const statusTag = document.getElementById("visStatusTag");
     if (statusTag) {
-      statusTag.textContent = step.invariantStatus || "Invariant Maintained";
+      let rawStatus = (step.invariantStatus || "Invariant Maintained").trim();
+      if (rawStatus === "Holds") {
+        statusTag.textContent = "✓ Invariant Holds";
+      } else if (!rawStatus.startsWith("✓") && !rawStatus.startsWith("⚠") && !rawStatus.startsWith("✕")) {
+        statusTag.textContent = `✓ ${rawStatus}`;
+      } else {
+        statusTag.textContent = rawStatus;
+      }
     }
   },
 
@@ -1774,8 +1781,30 @@ function doSwitchDaySubTab(tab) {
     if (tabBtnSolve) tabBtnSolve.classList.add("active");
     if (panelLearn) panelLearn.style.display = "none";
     if (panelSolve) panelSolve.style.display = "flex";
-    selectDailyProblem(AppState.activeProblemIndex || 0);
+    if (AppState.activeProblemIndex === 999) {
+      const dayData = CURRICULUM_DATABASE.find(d => d.day === AppState.currentDay) || CURRICULUM_DATABASE[0];
+      if (dayData && dayData.extremeProblem) {
+        selectDailyBossFight(dayData.extremeProblem);
+      }
+    } else {
+      selectDailyProblem(AppState.activeProblemIndex || 0);
+    }
   }
+
+  // Update sidebar active highlights: only highlight problem rows if in solve tab!
+  document.querySelectorAll(".sidebar-problem-row").forEach(el => {
+    if (tab !== "solve") {
+      el.classList.remove("active");
+    } else {
+      if (AppState.activeProblemIndex === 999) {
+        const isThisBoss = el.classList.contains("boss-row") && el.getAttribute("data-day") === String(AppState.currentDay);
+        el.classList.toggle("active", isThisBoss);
+      } else {
+        const isThisProblem = el.getAttribute("data-problem-id") === String(AppState.activeProblemId) && el.getAttribute("data-day") === String(AppState.currentDay);
+        el.classList.toggle("active", isThisProblem);
+      }
+    }
+  });
 }
 
 function renderDailyProblemPills(dayNumber) {
@@ -1799,9 +1828,12 @@ function renderDailyProblemPills(dayNumber) {
     const pill = document.createElement("button");
     pill.className = `practice-pill-btn ${idx === AppState.activeProblemIndex ? "active" : ""} ${masteryState === "cold" ? "cold-mastered" : ""}`;
     pill.onclick = () => {
-      if (idx !== AppState.activeProblemIndex) {
-        checkTimerLock(() => selectDailyProblem(idx));
-      }
+      checkTimerLock(() => {
+        selectDailyProblem(idx);
+        if (AppState.currentSubTab !== "solve") {
+          doSwitchDaySubTab("solve");
+        }
+      });
     };
     pill.innerHTML = `
       <span>#${p.id}: ${p.title}</span>
@@ -1817,9 +1849,12 @@ function renderDailyProblemPills(dayNumber) {
     const bossPill = document.createElement("button");
     bossPill.className = `practice-pill-btn boss-pill-btn ${AppState.activeProblemIndex === 999 ? "active" : ""}`;
     bossPill.onclick = () => {
-      if (AppState.activeProblemIndex !== 999) {
-        checkTimerLock(() => selectDailyBossFight(dayData.extremeProblem));
-      }
+      checkTimerLock(() => {
+        selectDailyBossFight(dayData.extremeProblem);
+        if (AppState.currentSubTab !== "solve") {
+          doSwitchDaySubTab("solve");
+        }
+      });
     };
     bossPill.innerHTML = `
       <span>Benchmark: ${ext.title}</span>
@@ -1879,9 +1914,7 @@ function selectDailyProblem(index) {
     advBtn.textContent = problem.isPremium ? "I Have a Gameplan → Solve on LeetCode (Premium 🔒) ↗" : "I Have a Gameplan → Solve on LeetCode ↗";
   }
 
-  if (AppState.currentDaySubTab !== "solve") {
-    doSwitchDaySubTab("solve");
-  }
+
 
   // Populate Step 1 Header
   const titleEl = document.getElementById("wizardProblemTitle");
@@ -2007,9 +2040,7 @@ function selectDailyBossFight(boss) {
     advBtn.textContent = `I Have a Gameplan → Solve on ${boss.platform || "Online Judge"} ↗`;
   }
 
-  if (AppState.currentDaySubTab !== "solve") {
-    doSwitchDaySubTab("solve");
-  }
+
 
   const mainPortalLink = document.getElementById("btnSolvePortalMain");
   const mainPortalLabel = document.getElementById("portalMainLabel");
@@ -2096,6 +2127,9 @@ function doSwitchDay(dayNumber) {
     `Focus on establishing the core invariant before writing code. In ${dayData.category}, we eliminate redundant checks by maintaining state in memory.`;
   const briefEl = document.getElementById("briefingText");
   if (briefEl) briefEl.textContent = briefingText;
+
+  const briefBadgeEl = document.getElementById("briefingCategoryBadge");
+  if (briefBadgeEl) briefBadgeEl.textContent = `${dayData.category} • Blueprint`;
 
   const ruleEl = document.getElementById("cardCoreRule");
   if (ruleEl) ruleEl.textContent = dayData.invariant;
@@ -2200,8 +2234,8 @@ function toggleExpandAllSidebarProblems() {
   }
   const allDays = CURRICULUM_DATABASE.map(d => d.day);
   const btn = document.getElementById("btnToggleAllSidebarProblems");
-  if (AppState.expandedRoadmapDays.size > 0) {
-    // Collapse all days
+  if (AppState.expandedRoadmapDays.size >= allDays.length) {
+    // All days already expanded -> collapse all
     AppState.expandedRoadmapDays.clear();
     if (btn) btn.textContent = "Expand All";
   } else {
@@ -2277,7 +2311,7 @@ function renderRoadmap() {
 
   const btn = document.getElementById("btnToggleAllSidebarProblems");
   if (btn) {
-    btn.textContent = AppState.expandedRoadmapDays.size > 0 ? "Collapse All" : "Expand All";
+    btn.textContent = (AppState.expandedRoadmapDays.size >= CURRICULUM_DATABASE.length) ? "Collapse All" : "Expand All";
   }
 
   const phases = {};
@@ -2388,7 +2422,8 @@ function renderRoadmap() {
           statusIconHtml = '<span class="sidebar-problem-status pass1">P1</span>';
         }
 
-        const isProblemActive = isActiveDay && AppState.activeProblemIndex !== 999 && AppState.activeProblemId === task.id;
+        const isSolveTab = AppState.currentSubTab === "solve";
+        const isProblemActive = isActiveDay && isSolveTab && AppState.activeProblemIndex !== 999 && AppState.activeProblemId === task.id;
 
         const probRow = document.createElement("div");
         probRow.className = `sidebar-problem-row ${isProblemActive ? "active" : ""}`;
@@ -2420,7 +2455,8 @@ function renderRoadmap() {
           showBoss = matchBoss || matchCat;
         }
         if (showBoss) {
-          const isBossActive = isActiveDay && AppState.activeProblemIndex === 999;
+          const isSolveTab = AppState.currentSubTab === "solve";
+          const isBossActive = isActiveDay && isSolveTab && AppState.activeProblemIndex === 999;
           const bossRow = document.createElement("div");
           bossRow.className = `sidebar-problem-row boss-row ${isBossActive ? "active" : ""}`;
           bossRow.setAttribute("data-day", String(d.day));

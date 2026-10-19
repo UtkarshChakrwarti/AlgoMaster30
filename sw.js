@@ -3,7 +3,7 @@
 // Cache-First with Stale-While-Revalidate • 100% Client-Side Offline Persistence
 // ============================================================================
 
-const CACHE_NAME = 'algomaster-apple-cache-v1';
+const CACHE_NAME = 'algomaster-apple-cache-v2';
 
 const CORE_ASSETS = [
   './',

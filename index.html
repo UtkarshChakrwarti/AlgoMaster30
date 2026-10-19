@@ -124,7 +124,7 @@
     <!-- COLUMN 1: LEFT SIDEBAR ROADMAP (240px, collapsible) -->
     <aside id="navRail" class="apple-sidebar">
       <div class="sidebar-header-bar">
-        <span class="sidebar-header-title">Curriculum Roadmap</span>
+        <span class="sidebar-header-title">Roadmap</span>
         <div style="display:flex; align-items:center; gap:6px;">
           <button id="btnToggleAllSidebarProblems" class="rail-close-btn" onclick="toggleExpandAllSidebarProblems()" title="Expand or collapse all problems in sidebar">Expand All</button>
           <button class="rail-close-btn" onclick="toggleSidebar()" title="Collapse Sidebar">Hide</button>
@@ -206,16 +206,33 @@
 
           <!-- 1. Coach's Briefing Tile -->
           <div class="apple-quote-tile">
-            <span class="quote-tile-eyebrow">Coach's Perspective</span>
-            <p id="briefingText" class="quote-tile-body">
-              Focus on the single-pass invariant before writing code. We maintain state in memory so we never re-scan seen items.
-            </p>
+            <div class="quote-tile-top-bar">
+              <div class="quote-tile-eyebrow-group">
+                <span class="quote-tile-badge-icon">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="16" x2="12" y2="12"></line>
+                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                  </svg>
+                </span>
+                <span class="quote-tile-eyebrow">Coach's Perspective • Senior Staff Debrief</span>
+              </div>
+              <span id="briefingCategoryBadge" class="quote-tile-category-pill">Mental Model</span>
+            </div>
+            <div class="quote-tile-content-wrapper">
+              <p id="briefingText" class="quote-tile-body">
+                Today we start with the simplest trade in computer science: spending memory to kill nested loops. If you catch yourself scanning an array twice just to see if a match exists, stop and reach for a hash map. The mental habit today is single-pass thinking—don't look forward, query what you've already seen behind you.
+              </p>
+            </div>
           </div>
 
           <!-- 2. Interactive Visual Dry-Run Inspector -->
           <div class="apple-inspector-tile">
             <div class="inspector-header-bar">
-              <span id="visPatternName" class="inspector-pattern-title">Hash Complement Lookup</span>
+              <div class="inspector-title-cluster">
+                <span id="visPatternName" class="inspector-pattern-title">Hash Complement Lookup</span>
+                <span class="vis-live-pill">Interactive Trace</span>
+              </div>
               <span id="visInputPill" class="inspector-input-descriptor">nums = [2, 7, 11, 15], target = 9</span>
             </div>
 
@@ -226,8 +243,10 @@
 
             <!-- Invariant Step Caption Bar -->
             <div class="inspector-step-caption">
-              <span id="visExplanation">Step 1: Inspecting initial memory state.</span>
-              <span id="visStatusTag" class="vis-status-tag">Invariant Maintained</span>
+              <div class="vis-step-expl-wrap">
+                <span id="visExplanation">Step 1: Inspecting initial memory state.</span>
+              </div>
+              <span id="visStatusTag" class="vis-status-tag">✓ Invariant Holds</span>
             </div>
 
             <!-- Stepper Controls -->
